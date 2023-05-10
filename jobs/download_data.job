@@ -4,7 +4,7 @@
 #SBATCH --job-name=DownloadData
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
-#SBATCH --time=00:10:00
+#SBATCH --time=00:30:00
 #SBATCH --mem=32000M
 #SBATCH --output=jobs/job_logs/download-data-%A.out
 
