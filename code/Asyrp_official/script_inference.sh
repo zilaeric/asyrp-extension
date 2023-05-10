@@ -2,7 +2,7 @@
 
 sh_file_name="script_inference.sh"
 gpu="0"
-config="custom.yml"
+config="celeba.yml"
 guid="smiling"
 test_step=50    # if large, it takes long time.
 dt_lambda=1.0   # hyperparameter for dt_lambda. This is the method that will appear in the next paper.
@@ -28,9 +28,10 @@ CUDA_VISIBLE_DEVICES=$gpu python main.py --run_test                         \
                         --use_x0_tensor                                     \
                         --hs_coeff_delta_h 1.0                              \
                         --dt_lambda $dt_lambda                              \
-                        --custom_train_dataset_dir "test_images/celeba/train"                \
-                        --custom_test_dataset_dir "test_images/celeba/test"                  \
+                        --custom_train_dataset_dir "/home/lcur1654/DL2-2023-group-15/data/celeba_hq/raw_images/train/images"                \
+                        --custom_test_dataset_dir "/home/lcur1654/DL2-2023-group-15/data/celeba_hq/raw_images/test/images"                  \
                         --manual_checkpoint_name "smiling_LC_CelebA_HQ_t999_ninv40_ngen40_0.pth" \
+                        --model_path "/home/lcur1654/models/asyrp/pretrained/celebahq_p2.pt" \
                         --add_noise_from_xt                                 \
                         --lpips_addnoise_th 1.2                             \
                         --lpips_edit_th 0.33                                \

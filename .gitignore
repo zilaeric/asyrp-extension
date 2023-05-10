@@ -166,3 +166,5 @@ code/Asyrp_official/precomputed/
 code/Asyrp_official/pretrained/
 jobs/job_logs
 data/
+code/Asyrp_official/runs
+code/Asyrp_official/precomputed
