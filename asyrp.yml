@@ -1,25 +1,84 @@
 name: asyrp
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=5.1=1_gnu
+  - blas=1.1=openblas
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2023.01.10=h06a4308_0
+  - ca-certificates=2023.5.7=hbcca054_0
+  - cairo=1.16.0=hb05425b_4
+  - dbus=1.13.18=hb2f20db_0
+  - eigen=3.4.0=h4bd325d_0
+  - expat=2.2.10=h9c3ff4c_0
+  - ffmpeg=4.2.2=h20bf706_0
+  - fontconfig=2.14.1=hef1e5e3_0
+  - freetype=2.10.4=h0708190_1
+  - giflib=5.2.1=h36c2ea0_2
+  - glib=2.69.1=he621ea3_2
+  - gmp=6.2.1=h58526e2_0
+  - gnutls=3.6.13=h85f3911_1
+  - graphite2=1.3.14=h295c915_1
+  - gst-plugins-base=1.14.1=h6a678d5_1
+  - gstreamer=1.14.1=h5eee18b_1
+  - harfbuzz=4.3.0=hf52aaf7_1
+  - hdf5=1.10.6=h3ffc7dd_1
+  - icu=58.2=hf484d3e_1000
+  - jpeg=9e=h166bdaf_1
+  - keyutils=1.6.1=h166bdaf_0
+  - krb5=1.19.3=h3790be6_0
+  - lame=3.100=h7f98852_1001
   - ld_impl_linux-64=2.38=h1181459_1
+  - lerc=3.0=h295c915_0
+  - libdeflate=1.17=h5eee18b_0
+  - libedit=3.1.20191231=he28a2e2_2
+  - libevent=2.1.12=h8f2d780_0
   - libffi=3.4.4=h6a678d5_0
   - libgcc-ng=11.2.0=h1234567_1
+  - libgfortran-ng=12.2.0=h69a702a_19
+  - libgfortran5=12.2.0=h337968e_19
   - libgomp=11.2.0=h1234567_1
+  - libllvm10=10.0.1=he513fc3_3
+  - libopenblas=0.3.20=pthreads_h78a6416_0
+  - libopus=1.3.1=h7f98852_1
+  - libpng=1.6.39=h5eee18b_0
+  - libpq=12.9=h16c4e8d_3
+  - libprotobuf=3.20.3=he621ea3_0
   - libstdcxx-ng=11.2.0=h1234567_1
+  - libtiff=4.5.0=h6a678d5_2
   - libuuid=1.41.5=h5eee18b_0
+  - libvpx=1.7.0=h439df22_0
+  - libwebp=1.2.4=h11a3e52_1
+  - libwebp-base=1.2.4=h5eee18b_1
+  - libxcb=1.15=h7f8727e_0
+  - libxkbcommon=1.0.1=hfa300c1_0
+  - libxml2=2.9.14=h74e7548_0
+  - libxslt=1.1.35=h4e12654_0
+  - lz4-c=1.9.3=h9c3ff4c_1
   - ncurses=6.4=h6a678d5_0
+  - nettle=3.6=he412f7d_0
+  - nspr=4.33=h295c915_0
+  - nss=3.74=h0370c37_0
+  - numpy-base=1.24.3=py311h4367d22_0
+  - openblas=0.3.20=pthreads_h320a7e8_0
+  - opencv=4.6.0=py311hba01205_3
+  - openh264=2.1.1=h4ff587b_0
+  - openjpeg=2.4.0=h3ad879b_0
   - openssl=1.1.1t=h7f8727e_0
+  - pcre=8.45=h9c3ff4c_0
+  - pixman=0.40.0=h36c2ea0_0
   - python=3.11.3=h7a1cb2a_0
+  - qt-main=5.15.2=h327a75a_7
+  - qt-webengine=5.15.9=hd2b0992_4
+  - qtwebkit=5.212=h4eab89a_4
   - readline=8.2=h5eee18b_0
   - sqlite=3.41.2=h5eee18b_0
   - tk=8.6.12=h1ccaba5_0
+  - x264=1!157.20191217=h7b6447c_0
   - xz=5.4.2=h5eee18b_0
   - zlib=1.2.13=h5eee18b_0
+  - zstd=1.5.2=ha4553b6_0
   - pip:
     - absl-py==1.4.0
     - accelerate==0.19.0
@@ -33,7 +92,6 @@ dependencies:
     - charset-normalizer==3.1.0
     - clip==1.0
     - cmake==3.26.3
-    - datasets==2.12.0
     - dill==0.3.6
     - filelock==3.12.0
     - flatbuffers==23.5.8
@@ -65,8 +123,9 @@ dependencies:
     - mpmath==1.3.0
     - multidict==6.0.4
     - multiprocess==0.70.14
+    - natsort==8.3.1
     - networkx==3.1
-    - numpy==1.23.5
+    - numpy==1.24.3
     - nvidia-cublas-cu11==11.10.3.66
     - nvidia-cuda-cupti-cu11==11.7.101
     - nvidia-cuda-nvrtc-cu11==11.7.99
@@ -124,3 +183,4 @@ dependencies:
     - wrapt==1.14.1
     - xxhash==3.2.0
     - yarl==1.9.2
+prefix: /home/lcur1654/.conda/envs/asyrp
