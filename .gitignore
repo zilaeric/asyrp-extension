@@ -164,3 +164,5 @@ cython_debug/
 code/Asyrp_official/test
 code/Asyrp_official/precomputed/
 code/Asyrp_official/pretrained/
+jobs/job_logs
+data/
