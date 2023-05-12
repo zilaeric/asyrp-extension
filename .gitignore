@@ -169,4 +169,4 @@ data/
 code/Asyrp_official/runs
 code/Asyrp_official/precomputed
 
-!code/Asyrp_official/runs/smiling_LC_CelebA_HQ_t999_ninv50_ngen50/test_images
+!code/Asyrp_official/runs/smiling_LC_CelebA_HQ_t999_ninv50_ngen50/test_images/*
