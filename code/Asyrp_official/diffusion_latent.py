@@ -30,6 +30,11 @@ from datasets.imagenet_dic import IMAGENET_DIC
 
 class Asyrp(object):
     def __init__(self, args, config, device=None):
+        # CLIP similarity logging stuff
+        self.eval_clip_similarities = []
+        self.eval_clip_losses = []
+
+
         # ----------- predefined parameters -----------#
         self.args = args
         self.config = config
@@ -148,6 +153,8 @@ class Asyrp(object):
             p.requires_grad = False
         for p in clip_loss_func.model.parameters():
             p.requires_grad = False
+
+        self.clip_loss_func = clip_loss_func
 
         # ----------- Get seq -----------#    
         if self.args.n_train_step != 0:
@@ -534,12 +541,35 @@ class Asyrp(object):
 
                     x_list.append(x)
 
+        # i am going to assume that there are only two images in this list
+        # self.direction_loss(edit_direction, self.target_direction).mean()
+        try:
+            clip_loss = self.clip_loss_func.direction_loss(x_list[1], x_list[0])
+            clip_loss = clip_loss.mean().cpu().detach().numpy()
+            print(clip_loss.mean())
+            self.eval_clip_losses.append(clip_loss)
+            self.eval_clip_similarities.append(1 - clip_loss)
+            print("clip similarity scores: ", self.eval_clip_similarities)
+            print(f"mean clip similarity: {np.mean(self.eval_clip_similarities)}")
+            print(f"mean clip loss: {np.mean(self.eval_clip_losses)}")
+        except AttributeError:
+            pass
+
         x = torch.cat(x_list, dim=0)
         x = (x + 1) * 0.5
 
         grid = tvu.make_grid(x, nrow=self.args.bs_train, padding=1)
 
         tvu.save_image(grid, os.path.join(folder_dir, f'{file_name}_ngen{self.args.n_train_step}.png'), normalization=True)
+        os.makedirs(os.path.join(folder_dir, 'edited'), exist_ok=True)
+        os.makedirs(os.path.join(folder_dir, 'reconstructed'), exist_ok=True)
+        os.makedirs(os.path.join(folder_dir, 'original'), exist_ok=True)
+        # original
+        tvu.save_image(x[0], os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png'), normalization=True)
+        # reconstructed 
+        tvu.save_image(x[1], os.path.join(folder_dir, 'reconstructed', f'{file_name}_ngen{self.args.n_train_step}_reconstructed.png'), normalization=True)
+        # edited
+        tvu.save_image(x[2], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
 
         time_e = time.time()
         print(f'{time_e - time_s} seconds, {file_name}_ngen{self.args.n_train_step}.png is saved')
@@ -550,9 +580,19 @@ class Asyrp(object):
         print("Running Test")
 
         # Set self.t_edit & self.t_addnoise & return cosine similarity of attribute
-        cosine = self.set_t_edit_t_addnoise(LPIPS_th=self.args.lpips_edit_th, 
+        cosine, clip_loss_func = self.set_t_edit_t_addnoise(LPIPS_th=self.args.lpips_edit_th, 
                                                             LPIPS_addnoise_th=self.args.lpips_addnoise_th,
-                                                            return_clip_loss=False)
+                                                            return_clip_loss=True)
+
+        clip_loss_func = clip_loss_func.to(self.device)
+        
+        # For memory
+        for p in clip_loss_func.parameters():
+            p.requires_grad = False
+        for p in clip_loss_func.model.parameters():
+            p.requires_grad = False
+
+        self.clip_loss_func = clip_loss_func
 
 
         # ----------- Get seq -----------#    
