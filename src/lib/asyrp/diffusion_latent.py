@@ -561,15 +561,24 @@ class Asyrp(object):
         grid = tvu.make_grid(x, nrow=self.args.bs_train, padding=1)
 
         tvu.save_image(grid, os.path.join(folder_dir, f'{file_name}_ngen{self.args.n_train_step}.png'), normalization=True)
-        os.makedirs(os.path.join(folder_dir, 'edited'), exist_ok=True)
-        os.makedirs(os.path.join(folder_dir, 'reconstructed'), exist_ok=True)
-        os.makedirs(os.path.join(folder_dir, 'original'), exist_ok=True)
-        # original
-        tvu.save_image(x[0], os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png'), normalization=True)
-        # reconstructed 
-        tvu.save_image(x[1], os.path.join(folder_dir, 'reconstructed', f'{file_name}_ngen{self.args.n_train_step}_reconstructed.png'), normalization=True)
-        # edited
-        tvu.save_image(x[2], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
+        if len(x) == 2:
+            os.makedirs(os.path.join(folder_dir, 'original'), exist_ok=True)
+            os.makedirs(os.path.join(folder_dir, 'edited'), exist_ok=True)
+            # original
+            tvu.save_image(x[0], os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png'), normalization=True)
+            # edited
+            tvu.save_image(x[1], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
+
+        else:
+            os.makedirs(os.path.join(folder_dir, 'original'), exist_ok=True)
+            os.makedirs(os.path.join(folder_dir, 'reconstructed'), exist_ok=True)
+            os.makedirs(os.path.join(folder_dir, 'edited'), exist_ok=True)
+            # original
+            tvu.save_image(x[0], os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png'), normalization=True)
+            # reconstructed 
+            tvu.save_image(x[1], os.path.join(folder_dir, 'reconstructed', f'{file_name}_ngen{self.args.n_train_step}_reconstructed.png'), normalization=True)
+            # edited
+            tvu.save_image(x[2], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
 
         time_e = time.time()
         print(f'{time_e - time_s} seconds, {file_name}_ngen{self.args.n_train_step}.png is saved')
