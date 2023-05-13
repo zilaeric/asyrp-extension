@@ -13,8 +13,8 @@ CUDA_VISIBLE_DEVICES=$gpu python main.py --run_test                         \
                         --edit_attr $guid                                   \
                         --do_train 1                                        \
                         --do_test 1                                         \
-                        --n_train_img 0                                     \
-                        --n_test_img 100                                    \
+                        --n_train_img 10                                     \
+                        --n_test_img 10                                    \
                         --n_iter 5                                          \
                         --bs_train 1                                        \
                         --t_0 999                                           \
@@ -28,14 +28,13 @@ CUDA_VISIBLE_DEVICES=$gpu python main.py --run_test                         \
                         --use_x0_tensor                                     \
                         --hs_coeff_delta_h 1.0                              \
                         --dt_lambda $dt_lambda                              \
-                        --custom_train_dataset_dir "/home/lcur1654/DL2-2023-group-15/data/celeba_hq/raw_images/train/images"                \
-                        --custom_test_dataset_dir "/home/lcur1654/DL2-2023-group-15/data/celeba_hq/raw_images/test/images"                  \
+                        --custom_train_dataset_dir "../../data/celeba_hq/raw_images/train/images"                \
+                        --custom_test_dataset_dir "../../data/celeba_hq/raw_images/test/images"                  \
                         --manual_checkpoint_name "smiling_LC_CelebA_HQ_t999_ninv40_ngen40_0.pth" \
-                        --model_path "/home/lcur1654/models/asyrp/pretrained/celeba_hq.ckpt" \
+                        --model_path "pretrained/celeba_hq.ckpt" \
                         --add_noise_from_xt                                 \
                         --lpips_addnoise_th 1.2                             \
                         --lpips_edit_th 0.33                                \
-                        --sh_file_name "script_inference.sh"                \
                         --save_process_origin                               \
                         --save_x_origin 
                          

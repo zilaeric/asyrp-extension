@@ -1,9 +1,6 @@
 import ml_collections
 import torch
 
-
-
-
 def get_celeba_configs():
 
   args = ml_collections.ConfigDict()

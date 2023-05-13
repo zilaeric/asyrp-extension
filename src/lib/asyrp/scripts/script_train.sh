@@ -33,9 +33,9 @@ python main.py --run_train                        \
                         --clip_loss_w 1.0                                   \
                         --l1_loss_w 3.0                                     \
                         --retrain 1                                         \
-                        --custom_train_dataset_dir "/home/lcur1654/DL2-2023-group-15/data/celeba_hq/raw_images/train/images"                \
-                        --custom_test_dataset_dir "/home/lcur1654/DL2-2023-group-15/data/celeba_hq/raw_images/test/images"                  \
-                        --model_path "/home/lcur1654/models/asyrp/pretrained/celeba_hq.pt"
+                        --custom_train_dataset_dir "../../data/celeba_hq/raw_images/train/images"                \
+                        --custom_test_dataset_dir "../../data/celeba_hq/raw_images/test/images"                  \
+                        --model_path "pretrained/celeba_hq.ckpt"
                         # --add_noise_from_xt                               \ # if you compute lpips, use it.
                         # --lpips_addnoise_th 1.2                           \ # if you compute lpips, use it.
                         # --lpips_edit_th 0.33                              \ # if you compute lpips, use it.
