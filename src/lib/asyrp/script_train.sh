@@ -1,43 +1,43 @@
 #!/bin/bash
 
-SH_FILE_NAME="script_train.sh"
-GPU="0"
+sh_file_name="script_train.sh"
+gpu="0"
 
-CONFIG="celeba.yml" # if you use other dataset, config/path_config.py should be matched
-GUID="silly" # guid should be in utils/text_dic.py
-CUDA_VISIBLE_DEVICES=$GPU
+config="celeba.yml" # if you use other dataset, config/path_config.py should be matched
+guid="silly" # guid should be in utils/text_dic.py
+cuda_visible_devices=$gpu
 
-python main.py --run_train                        \
-                        --config $CONFIG                                    \
-                        --exp ./runs/$GUID                                  \
-                        --edit_attr $GUID                                   \
-                        --do_train 1                                        \
-                        --do_test 1                                         \
-                        --n_train_img 10                                   \
-                        --n_test_img 10                                     \
-                        --n_iter 5                                          \
-                        --bs_train 1                                        \
-                        --t_0 999                                           \
-                        --n_inv_step 50                                     \
-                        --n_train_step 50                                   \
-                        --n_test_step 100                                   \
-                        --get_h_num 1                                       \
-                        --user_defined_t_edit 500                           \
-                        --user_defined_t_addnoise 200                       \
-                        --train_delta_block                                 \
-                        --sh_file_name $SH_FILE_NAME                        \
-                        --save_x0                                           \
-                        --use_x0_tensor                                     \
-                        --hs_coeff_delta_h 1.0                              \
-                        --lr_training 0.5                                   \
-                        --clip_loss_w 1.0                                   \
-                        --l1_loss_w 3.0                                     \
-                        --retrain 1                                         \
-                        --custom_train_dataset_dir "../../data/celeba_hq/raw_images/train/images"                \
-                        --custom_test_dataset_dir "../../data/celeba_hq/raw_images/test/images"                  \
-                        --model_path "pretrained/celeba_hq.ckpt"
-                        # --add_noise_from_xt                               \ # if you compute lpips, use it.
-                        # --lpips_addnoise_th 1.2                           \ # if you compute lpips, use it.
-                        # --lpips_edit_th 0.33                              \ # if you compute lpips, use it.
-                        # --target_class_num $class_num                     \ # for imagenet
+python main.py  --run_train                                                    \
+                --config $config                                               \
+                --exp ../../runs/$guid                                         \
+                --edit_attr $guid                                              \
+                --do_train 1                                                   \
+                --do_test 1                                                    \
+                --n_train_img 10                                               \
+                --n_test_img 10                                                \
+                --n_iter 5                                                     \
+                --bs_train 1                                                   \
+                --t_0 999                                                      \
+                --n_inv_step 50                                                \
+                --n_train_step 50                                              \
+                --n_test_step 100                                              \
+                --get_h_num 1                                                  \
+                --user_defined_t_edit 500                                      \
+                --user_defined_t_addnoise 200                                  \
+                --train_delta_block                                            \
+                --sh_file_name $sh_file_name                                   \
+                --save_x0                                                      \
+                --use_x0_tensor                                                \
+                --hs_coeff_delta_h 1.0                                         \
+                --lr_training 0.5                                              \
+                --clip_loss_w 1.0                                              \
+                --l1_loss_w 3.0                                                \
+                --retrain 1                                                    \
+                --custom_train_dataset_dir "../../data/celeba_hq/raw_images/train/images"   \
+                --custom_test_dataset_dir "../../data/celeba_hq/raw_images/test/images"     \
+                --model_path "pretrained/celeba_hq.ckpt"
+                # --add_noise_from_xt                                          \ # if you compute lpips, use it.
+                # --lpips_addnoise_th 1.2                                      \ # if you compute lpips, use it.
+                # --lpips_edit_th 0.33                                         \ # if you compute lpips, use it.
+                # --target_class_num $class_num                                \ # for imagenet
 
