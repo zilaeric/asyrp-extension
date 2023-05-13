@@ -19,4 +19,4 @@ bash src/lib/utils/data_download.sh celeba_hq src/
 rm a.zip
 
 mkdir src/lib/asyrp/pretrained/
-python src/lib/utils/download_sdedit_weights.py
+python src/lib/utils/download_weights.py
