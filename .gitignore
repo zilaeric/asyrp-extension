@@ -161,3 +161,4 @@ cython_debug/
 
 # USER DEFINED
 src/jobs/job_logs
+src/data

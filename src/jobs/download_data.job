@@ -4,14 +4,19 @@
 #SBATCH --job-name=DownloadData
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
-#SBATCH --time=00:30:00
+#SBATCH --time=00:15:00
 #SBATCH --mem=32000M
-#SBATCH --output=jobs/job_logs/download-data-%A.out
+#SBATCH --output=src/jobs/job_logs/download_data_%A.out
 
 module purge
 module load 2021
 module load Anaconda3/2021.05
 
+cd $HOME/DL2-2023-group-15/
 source activate asyrp
 
-bash code/utils/data_download.sh celeba_hq .
+bash src/lib/utils/data_download.sh celeba_hq src/
+rm a.zip
+
+mkdir src/lib/Asyrp_official/pretrained/
+python src/lib/utils/download_sdedit_weights.py
