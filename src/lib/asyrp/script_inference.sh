@@ -35,8 +35,10 @@ python main.py  --run_test                                                     \
                 --model_path "pretrained/celeba_hq.ckpt"                       \
                 --add_noise_from_xt                                            \
                 --lpips_addnoise_th 1.2                                        \
-                --lpips_edit_th 0.33                                                        
-                    
+                --lpips_edit_th 0.33                                           \
+                --save_process_origin                                          \
+                --save_x_origin 
+
                 # if you did not compute lpips, use it.
                 # --user_defined_t_edit 500                                    \
                 # --user_defined_t_addnoise 200                                \
