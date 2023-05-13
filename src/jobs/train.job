@@ -16,4 +16,4 @@ module load Anaconda3/2021.05
 cd $HOME/DL2-2023-group-15/src/lib/asyrp
 source activate asyrp
 
-bash script_train.sh
+bash scripts/script_train.sh

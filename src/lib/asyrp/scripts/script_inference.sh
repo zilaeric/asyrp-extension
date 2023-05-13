@@ -14,7 +14,7 @@ python main.py  --run_test                                                     \
                 --edit_attr $guid                                              \
                 --do_train 1                                                   \
                 --do_test 1                                                    \
-                --n_train_img 10                                               \
+                --n_train_img 100                                              \
                 --n_test_img 10                                                \
                 --n_iter 5                                                     \
                 --bs_train 1                                                   \

@@ -249,16 +249,15 @@ def parse_args_and_config():
     os.makedirs('checkpoint', exist_ok=True)
     os.makedirs('checkpoint_latent', exist_ok=True)
     os.makedirs('precomputed', exist_ok=True)
-    os.makedirs('runs', exist_ok=True)
     os.makedirs(args.exp, exist_ok=True)
 
     import shutil
     if args.run_test:
-        shutil.copy(args.sh_file_name, os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_test.sh"))
+        shutil.copy(os.path.join('scripts', args.sh_file_name), os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_test.sh"))
     elif args.style_transfer:
-        shutil.copy(args.sh_file_name, os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_style_transfer.sh"))
+        shutil.copy(os.path.join('scripts', args.sh_file_name), os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_style_transfer.sh"))
     elif args.run_train:
-        shutil.copy(args.sh_file_name, os.path.join(args.exp, f"{args.sh_file_name.split('.')[0]}_train.sh"))
+        shutil.copy(os.path.join('scripts', args.sh_file_name), os.path.join(args.exp, f"{args.sh_file_name.split('.')[0]}_train.sh"))
     elif args.lpips:
         pass
 
