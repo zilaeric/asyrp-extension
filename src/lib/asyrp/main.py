@@ -12,6 +12,9 @@ from diffusion_latent import Asyrp
 def parse_args_and_config():
     parser = argparse.ArgumentParser(description=globals()['__doc__'])
 
+    # CUSTOM
+    parser.add_argument('--use_transformer', action='store_true', help='use transformer in deltablock instead of 1x1 conv')
+
     # Logging
     parser.add_argument('--sh_file_name', type=str, default='script.sh', help='copy the script this file')
 
@@ -23,7 +26,6 @@ def parse_args_and_config():
 
     parser.add_argument('--add_noise_from_xt', action='store_true', help='add_noise_from_xt')
     parser.add_argument('--origin_process_addnoise', action='store_true', help='origin_process_addnoise')
-
 
     # Training Mode
     parser.add_argument('--run_train', action='store_true', help='run_train')
@@ -249,16 +251,15 @@ def parse_args_and_config():
     os.makedirs('checkpoint', exist_ok=True)
     os.makedirs('checkpoint_latent', exist_ok=True)
     os.makedirs('precomputed', exist_ok=True)
-    os.makedirs('runs', exist_ok=True)
     os.makedirs(args.exp, exist_ok=True)
 
     import shutil
     if args.run_test:
-        shutil.copy(args.sh_file_name, os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_test.sh"))
+        shutil.copy(os.path.join('scripts', args.sh_file_name), os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_test.sh"))
     elif args.style_transfer:
-        shutil.copy(args.sh_file_name, os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_style_transfer.sh"))
+        shutil.copy(os.path.join('scripts', args.sh_file_name), os.path.join(args.exp, f"{(args.sh_file_name).split('.')[0]}_style_transfer.sh"))
     elif args.run_train:
-        shutil.copy(args.sh_file_name, os.path.join(args.exp, f"{args.sh_file_name.split('.')[0]}_train.sh"))
+        shutil.copy(os.path.join('scripts', args.sh_file_name), os.path.join(args.exp, f"{args.sh_file_name.split('.')[0]}_train.sh"))
     elif args.lpips:
         pass
 

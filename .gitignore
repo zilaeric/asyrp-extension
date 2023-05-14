@@ -14,7 +14,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -161,10 +160,5 @@ cython_debug/
 
 
 # USER DEFINED
-code/Asyrp_official/test
-code/Asyrp_official/precomputed/
-code/Asyrp_official/pretrained/
-jobs/job_logs
-data/
-code/Asyrp_official/runs
-code/Asyrp_official/precomputed
+src/jobs/job_logs
+src/data

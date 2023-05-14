@@ -227,38 +227,86 @@ class AttnBlock(nn.Module):
 
 class DeltaBlock(nn.Module):
     def __init__(self, *, in_channels, out_channels=None, conv_shortcut=False,
-                 dropout, temb_channels=512):
+                 dropout, temb_channels=512, use_transformer=False):
         super().__init__()
         self.in_channels = in_channels
         out_channels = in_channels if out_channels is None else out_channels
         self.out_channels = out_channels
         self.use_conv_shortcut = conv_shortcut
-        self.conv1 = torch.nn.Conv2d(in_channels,
-                                     out_channels,
-                                     kernel_size=1,
-                                     stride=1,
-                                     padding=0)
+        self.use_transformer = use_transformer
+        if use_transformer:
+            transformer = nn.Transformer(d_model=64, 
+                            nhead=8, 
+                            num_encoder_layers=1, 
+                            num_decoder_layers=0, 
+                            dim_feedforward=2048, 
+                            batch_first=True,
+                            dropout=0.1)
+            del transformer.decoder
+            self.conv1 = transformer.encoder
+        else:
+            self.conv1 = torch.nn.Conv2d(in_channels,
+                                        out_channels,
+                                        kernel_size=1,
+                                        stride=1,
+                                        padding=0)
         self.temb_proj = torch.nn.Linear(temb_channels,
                                          out_channels)
         self.norm2 = Normalize(out_channels)
-        self.conv2 = torch.nn.Conv2d(out_channels,
-                                     out_channels,
-                                     kernel_size=1,
-                                     stride=1,
-                                     padding=0)
+
+        if use_transformer:
+            transformer2 = nn.Transformer(d_model=64, 
+                            nhead=8, 
+                            num_encoder_layers=1, 
+                            num_decoder_layers=0, 
+                            dim_feedforward=2048, 
+                            batch_first=True,
+                            dropout=0.1)
+            del transformer2.decoder
+            self.conv2 = transformer2.encoder
+        else:
+            self.conv2 = torch.nn.Conv2d(out_channels,
+                                        out_channels,
+                                        kernel_size=1,
+                                        stride=1,
+                                        padding=0)
 
 
     def forward(self, x, temb=None):
         h = x
+        # print(f"h at start: {h.shape}")
+        # change input sizes for use with transformer
+        if self.use_transformer:
+            h = torch.reshape(h, (-1, 512, 64))
+            # print(f"h at 1: {h.shape}")
 
         h = self.conv1(h)
+
+        # print(f"h at 2: {h.shape}")
+
+        if self.use_transformer:
+            h = torch.reshape(h, (-1, 512, 8, 8))
+            # print(f"h at 3: {h.shape}")
 
         if temb is not None:
             h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None]
 
         h = self.norm2(h)
         h = nonlinearity(h)
+
+        # print(f"h at 4: {h.shape}")
+
+        if self.use_transformer:
+            h = torch.reshape(h, (-1, 512, 64))
+            # print(f"h at 5: {h.shape}")
+            
+
         h = self.conv2(h)
+        # print(f"h at 6: {h.shape}")
+
+        if self.use_transformer:
+            h = torch.reshape(h, (-1, 512, 8, 8))
+            # print(f"h at 7: {h.shape}")
 
         return h
 
@@ -440,7 +488,7 @@ class DDPM(nn.Module):
             setattr(self, f"layer_{i}", DeltaBlock(in_channels=block_in,
                                        out_channels=block_in,
                                        temb_channels=self.temb_ch,
-                                       dropout=0.0)
+                                       dropout=0.0, use_transformer=self.use_transformer)
             )
 
     # def setattr_delta_h(self, shape):
