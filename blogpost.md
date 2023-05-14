@@ -32,12 +32,9 @@ To run the process in reverse starting from a sample $x_T \sim \mathcal{N}(0, \m
 
 $$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right)$$
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{aprox.png}
-\caption{The Markov process of diffusing noise and denoising \cite{ho2020denoising}.}
-\label{aprox}
-\end{figure}
+| ![Denoising process](figures/aprox.png) | 
+|:-:| 
+| **Figure 1.** The Markov process of diffusing noise and denoising \cite{ho2020denoising}. |
 
 In DDPM $\mu_\theta\left(x_t, t\right)$ is estimated using a neural network that predicts the added noise $\epsilon$ at step $t$ as shown in \autoref{mu-reverse} and $\Sigma_\theta\left(x_t, t\right)$ is kept fixed to $\beta_t \mathbf{I}$. Then an efficient way to sample from an arbitrary step can be formulated as in \autoref{reverse-step}, with $v_T \sim \mathcal{N}(0, \mathbf{I})$ and $\alpha_t=\prod_{s=1}^t\left(1-\beta_s\right)$.
 
@@ -91,28 +88,19 @@ $$\mathcal{L}_t = \lambda_{\text{CLIP}}\mathcal{L}_{direction}(\mathbf{P}^{\text
 
 \autoref{asyrp-figure} visualizes the generative process of Asyrp intuitively. As shown by the green box on the left, the process only changes $\textbf{P}_t$ while preserving $\textbf{D}_t$. On the right side, the figure illustrates how Asyrp alters the reverse process to achieve the desired outcome by adjusting the attributes in the h-space. However, in practise they also make use of some practical tricks to make the theory work. Foremost, they only edit the h-space in an empirically found window which is for most examples around the first 30\% time-steps of the reverse process. Secondly, they scale $\Delta h_{t}$ using non-accelerated sampling. Lastly, they make use of a technique called quality boosting in roughly the last 30\% time-steps. All these techniques are explained more thoroughly in the paper, but not essential for the intends and purposes of this blog post.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{asyrp.png}
-\caption{Asymmetric reverse process.}
-\label{asyrp-figure}
-\end{figure}
+| ![Asyrp](figures/asyrp.png) | 
+|:-:| 
+| **Figure 2.** Asymmetric reverse process. |
 
 Practically, $f_t$ is implemented as shown in \autoref{fig:asyrp-ft}. However, the authors note that they haven't explored with other network architectures. That let us to experiment further, which eventually led the network architecture in \autoref{fig:our-ft}. \textbf{THIS PART WILL BE ADDED IN THE FINAL SUBMISSION}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{architecture_asyrp.png}
-\caption{Architecture of $f_t$ in the Asyrp paper \cite{kwon2022diffusion}}
-\label{fig:asyrp-ft}
-\end{figure}
+| ![Asyrp architecture](figures/architecture_asyrp.png) | 
+|:-:| 
+| **Figure 3.** Architecture of $f_t$ in the Asyrp paper \cite{kwon2022diffusion}. |
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{placeholder.png}
-\caption{Architecture of our $f_t$ }
-\label{fig:our-ft}
-\end{figure}
+| ![Asyrp proposed architecture](figures/architecture_asyrp.png) | 
+|:-:| 
+| **Figure 4.** **TO-DO:** Architecture of our $f_t$. |
 
 Lastly, to apply this methodology to LDMs two things should be noted. Firstly, \autoref{asyrp-unet} can be easily altered to \autoref{ours-unet} to sample steps in the reverse process. However, the same can not be said for the directional CLIP loss in \autoref{clip-dir-loss}. Here the both the reference and the generated image are needed to calculate the loss, but the whole point of LDMs is that you do not calculate those every step. Nevertheless, to use the Asyrp algorithm they can be computed by running the decoder $\mathcal{D}$ on $z_t$ at every time-step.
 
@@ -128,12 +116,9 @@ The directional CLIP similarity score measures how well does the diffusion model
 
 Semantic consistency is a metric that has been introduced in order to evaluate the consistency of network predictions on video sequences. In the image editing setting, it compares the segmentation maps of the reference and the edited image by computing the mean intersection over union of the two. Knowing this, we can reason that high SC scores to not necessarily mean good image content modification, as it can be seen in Figure \ref{fig:sc}. This is an example that clearly shows how this metric fails on evaluating editing performance. The DiffusionCLIP model tries to preserve structure and shape in the image, while Asyrp allows more changes that lead to desired attribute alterations.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.5\textwidth]{images/sc.png}
-\caption{Segmentation masks of the Reference image, Asyrp and DiffustionCLIP generated images for computing SC for the attribute smiling. \cite{kwon2022diffusion}}
-\label{fig:sc}
-\end{figure}
+| ![Segmentation consistency](figures/sc.png) | 
+|:-:| 
+| **Figure 5.** Segmentation masks of the Reference image, Asyrp and DiffustionCLIP generated images for computing SC for the attribute smiling \cite{kwon2022diffusion}. |
 
 The ID score measures how well the identity of a face has been preserved after editing. It uses the pre-trained ArcFace face recognition model \cite{deng2019arcface} in order to generate the feature vectors of the original and the edited faces, and then computes the cosine similarity between them. 
 
@@ -143,53 +128,34 @@ The FID metric compares the distribution of the edited images with the distribut
     FID = \Vert \mu - \mu_{ref} \Vert_2^2 + tr(\Sigma + \Sigma_{ref} - 2{(\Sigma^\frac{1}{2}\Sigma_{ref}\Sigma^\frac{1}{2})}^\frac{1}{2})
 \end{equation}
 
-\section{Reproduction of the Experiments}
-% 8 attributes; choose meaningful ones
+## Reproduction of the Experiments
+
 We begin by reproducing the qualitative and quantitative results of the original paper. We conduct our reproducibility experiments on the CelebA-HQ \cite{karras2017progressive} dataset and use the ...... diffusion model \cite{}. We make use of the open source code\footnote{\url{https://github.com/kwonminki/Asyrp_official/tree/main/models}} from the original paper to do so. % add details about training and hyperparameters
 
 Figures \ref{fig:asyrp-seen} and \ref{fig:asyrp-unseen} show that the results obtained in the original Asyrp paper are reproducible and that editing in the h-space results in high performance image generation for both in and unseen (attributes that are not included in the training dataset) domains. 
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/in.png}
-\caption{Editing results of Asyrp on CelebA-HQ for in-domain attributes.}
-\label{fig:asyrp-seen}
-\end{figure}
+| ![In-domain](figures/in.png) | 
+|:-:| 
+| **Figure 6.** **TO-DO:** Editing results of Asyrp on CelebA-HQ for in-domain attributes. |
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/unseen.png}
-\caption{Editing results of Asyrp on CelebA-HQ for unseen-domain attributes.}
-\label{fig:asyrp-unseen}
-\end{figure}
+| ![Unseen-domain](figures/unseen.png) | 
+|:-:| 
+| **Figure 7.** **TO-DO:** Editing results of Asyrp on CelebA-HQ for unseen-domain attributes. |
 
 To quantitatively appreciate the performance of the Asyrp model, we reproduce the evaluation they conducted and compute the Directional CLIP score for the same three in-domain attributes (smiling, sad, tanned) and two unseen-domain attributes (Pixar, Neanderthal) on a set of 100 images per attribute from the CelebA-HQ dataset. The available repository does not provide code for implementing neither of the evaluation metrics, which leads to also not knowing which 100 images from the dataset were considered when computing the scores. We took the first 100 images and the comparative results can be seen in Table . We did not implement the segmentation consistency score, as we showed in the Evaluation Diffusion Models section that it has shortcomings, but we computed the FID score that is more meaningful in the case of image editing. % here add a table with the results; also maybe add ID score because there is already an implementation
 
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures \ref{fig:lin}, \ref{fig:comb} and \ref{fig:cons}.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/linearity.png}
-\caption{Linearity of h-space.}
-\label{fig:lin}
-\end{figure}
+| ![Linearity](figures/linearity.png) | 
+|:-:| 
+| **Figure 8.** **TO-DO:** Linearity of h-space. |
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/combination.png}
-\caption{Linear combination of attributes.}
-\label{fig:comb}
-\end{figure}
+| ![Linear combinations](figures/combination.png) | 
+|:-:| 
+| **Figure 9.** **TO-DO:** Linear combination of attributes. |
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/consistency.png}
-\caption{Consistency on h-space.}
-\label{fig:cons}
-\end{figure}
+## Further Analysis
 
-\section{Further Analysis}
+## Conclusion and Future Research Directions
 
-\section{Conclusion and Future Research Directions}
-
-\printbibliography
+## Bibliography
