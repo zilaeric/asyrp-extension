@@ -38,6 +38,8 @@ SRC_TRG_TXT_DIC = {
 	# Human out-of-distribution
     'nicolas': (['Person'],
                 ['Nicolas Cage']),
+    'goblin': (['person'],
+                ['goblin']),
     'zuckerberg': (['Person'],
                    ['Mark Zuckerberg']),
     'benedict': (['Person'],
