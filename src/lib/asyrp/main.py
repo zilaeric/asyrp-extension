@@ -12,6 +12,9 @@ from diffusion_latent import Asyrp
 def parse_args_and_config():
     parser = argparse.ArgumentParser(description=globals()['__doc__'])
 
+    # CUSTOM
+    parser.add_argument('--use_transformer', action='store_true', help='use transformer in deltablock instead of 1x1 conv')
+
     # Logging
     parser.add_argument('--sh_file_name', type=str, default='script.sh', help='copy the script this file')
 
@@ -23,7 +26,6 @@ def parse_args_and_config():
 
     parser.add_argument('--add_noise_from_xt', action='store_true', help='add_noise_from_xt')
     parser.add_argument('--origin_process_addnoise', action='store_true', help='origin_process_addnoise')
-
 
     # Training Mode
     parser.add_argument('--run_train', action='store_true', help='run_train')

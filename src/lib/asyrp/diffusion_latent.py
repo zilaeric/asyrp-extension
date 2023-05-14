@@ -102,14 +102,15 @@ class Asyrp(object):
         #     # if you want to use LSUN-horse, LSUN-cat -> https://github.com/openai/guided-diffusion
         #     # if you want to use CUB, Flowers -> https://1drv.ms/u/s!AkQjJhxDm0Fyhqp_4gkYjwVRBe8V_w?e=Et3ITH
         #     raise ValueError
-        url = ""
 
         if self.config.data.dataset in ["CelebA_HQ", "LSUN", "CelebA_HQ_Dialog"]:
             model = DDPM(self.config) 
+            model.use_transformer = self.args.use_transformer
             if self.args.model_path:
                 init_ckpt = torch.load(self.args.model_path)
             else:
-                init_ckpt = torch.hub.load_state_dict_from_url(url, map_location=self.device)
+                init_ckpt = torch.load(MODEL_PATHS[self.config.data.dataset])
+                # init_ckpt = torch.hub.load_state_dict_from_url(url, map_location=self.device)
             self.learn_sigma = False
             print("Original diffusion Model loaded.")
         elif self.config.data.dataset in ["FFHQ", "AFHQ", "IMAGENET"]:
@@ -205,8 +206,11 @@ class Asyrp(object):
             for key in delta_h_dict.keys():
                 optim_param_list = optim_param_list + [delta_h_dict[key]]
             
-        # optim_ft = torch.optim.Adam(optim_get_h_list, weight_decay=0, lr=self.args.lr_latent_clr)
-        optim_ft = torch.optim.SGD(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+        if self.args.use_transformer:
+            optim_ft = torch.optim.Adam(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+        else:
+            optim_ft = torch.optim.SGD(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+
         scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
         print(f"Setting optimizer with lr={self.args.lr_training}")
 
