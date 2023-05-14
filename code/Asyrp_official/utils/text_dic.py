@@ -24,6 +24,8 @@ SRC_TRG_TXT_DIC = {
                             ['disgusted face']),
     'smiling': (['face'],
                 ['smiling face']),
+    'silly': (['face'],
+                ['silly face']),
     'blond_hair': (['person'],
                    ['person with blond hair']),
     'red_hair': (['person'],
