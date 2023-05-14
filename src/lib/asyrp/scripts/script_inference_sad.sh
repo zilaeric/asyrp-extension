@@ -3,7 +3,7 @@
 sh_file_name="script_inference.sh"
 gpu="0"
 config="celeba.yml"
-guid="pixar"
+guid="sad"
 dt_lambda=1.0   # hyperparameter for dt_lambda. This is the method that will appear in the next paper.
 CUDA_VISIBLE_DEVICES=$gpu
 
@@ -27,9 +27,9 @@ python main.py  --run_test                                                     \
                 --use_x0_tensor                                                \
                 --hs_coeff_delta_h 0.5                                         \
                 --dt_lambda $dt_lambda                                         \
-                --manual_checkpoint_name "pixar_LC_CelebA_HQ_t999_ninv40_ngen40_0.pth"    \
+                --manual_checkpoint_name "sad_LC_CelebA_HQ_t999_ninv40_ngen40_0.pth"    \
                 --add_noise_from_xt                                            \
-                --user_defined_t_edit 446                                      \
+                --user_defined_t_edit 513                                      \
                 --user_defined_t_addnoise 167                                  \
                 --save_process_origin                                          \
                 --save_x_origin 
