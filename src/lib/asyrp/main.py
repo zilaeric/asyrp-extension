@@ -6,6 +6,8 @@ import sys
 import os
 import torch
 import numpy as np
+# import wandb
+# wandb.login()
 
 from diffusion_latent import Asyrp
 
@@ -14,6 +16,7 @@ def parse_args_and_config():
 
     # CUSTOM
     parser.add_argument('--use_transformer', action='store_true', help='use transformer in deltablock instead of 1x1 conv')
+    parser.add_argument('--accumulation_steps', type=int, default=1, help='amount of gradient accumulation steps to do')
 
     # Logging
     parser.add_argument('--sh_file_name', type=str, default='script.sh', help='copy the script this file')
