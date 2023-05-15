@@ -545,10 +545,12 @@ class Asyrp(object):
 
                     x_list.append(x)
 
-        # i am going to assume that there are only two images in this list
-        # self.direction_loss(edit_direction, self.target_direction).mean()
         try:
-            clip_loss = self.clip_loss_func.direction_loss(x_list[1], x_list[0])
+            if len(x_list) == 2:
+                clip_loss = self.clip_loss_func.direction_loss(x_list[1], x_list[0])
+            elif len(x_list) == 3:
+                clip_loss = self.clip_loss_func.direction_loss(x_list[2], x_list[0])
+            
             clip_loss = clip_loss.mean().cpu().detach().numpy()
             print(clip_loss.mean())
             self.eval_clip_losses.append(clip_loss)
