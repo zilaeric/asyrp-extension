@@ -235,15 +235,25 @@ class DeltaBlock(nn.Module):
         self.use_conv_shortcut = conv_shortcut
         self.use_transformer = use_transformer
         if use_transformer:
-            transformer = nn.Transformer(d_model=64, 
+            transformer_in_64 = nn.Transformer(d_model=64, 
                             nhead=8, 
                             num_encoder_layers=1, 
                             num_decoder_layers=0, 
                             dim_feedforward=2048, 
                             batch_first=True,
                             dropout=0.1)
-            del transformer.decoder
-            self.conv1 = transformer.encoder
+            del transformer_in_64.decoder
+            self.t_in_64 = transformer_in_64.encoder
+            transformer_in_512 = nn.Transformer(d_model=512, 
+                            nhead=8, 
+                            num_encoder_layers=1, 
+                            num_decoder_layers=0, 
+                            dim_feedforward=2048, 
+                            batch_first=True,
+                            dropout=0.1)
+            del transformer_in_512.decoder
+            self.t_in_512 = transformer_in_512.encoder
+
         else:
             self.conv1 = torch.nn.Conv2d(in_channels,
                                         out_channels,
@@ -255,21 +265,30 @@ class DeltaBlock(nn.Module):
         self.norm2 = Normalize(out_channels)
 
         if use_transformer:
-            transformer2 = nn.Transformer(d_model=64, 
+            transformer_out_64 = nn.Transformer(d_model=64, 
                             nhead=8, 
                             num_encoder_layers=1, 
                             num_decoder_layers=0, 
                             dim_feedforward=2048, 
                             batch_first=True,
                             dropout=0.1)
-            del transformer2.decoder
-            self.conv2 = transformer2.encoder
+            del transformer_out_64.decoder
+            self.t_out_64 = transformer_out_64.encoder
+            transformer_out_512 = nn.Transformer(d_model=512, 
+                            nhead=8, 
+                            num_encoder_layers=1, 
+                            num_decoder_layers=0, 
+                            dim_feedforward=2048, 
+                            batch_first=True,
+                            dropout=0.1)
+            del transformer_out_512.decoder
+            self.t_out_512 = transformer_out_512.encoder
         else:
             self.conv2 = torch.nn.Conv2d(out_channels,
-                                        out_channels,
-                                        kernel_size=1,
-                                        stride=1,
-                                        padding=0)
+                                            out_channels,
+                                            kernel_size=1,
+                                            stride=1,
+                                            padding=0)  
 
 
     def forward(self, x, temb=None):
@@ -278,9 +297,13 @@ class DeltaBlock(nn.Module):
         # change input sizes for use with transformer
         if self.use_transformer:
             h = torch.reshape(h, (-1, 512, 64))
+            h = self.t_in_64(h)
+            h = h.permute(0,2,1)
+            h = self.t_in_512(h)
+            h = h.permute(0,2,1)
             # print(f"h at 1: {h.shape}")
-
-        h = self.conv1(h)
+        else:
+            h = self.conv1(h)
 
         # print(f"h at 2: {h.shape}")
 
@@ -299,14 +322,16 @@ class DeltaBlock(nn.Module):
         if self.use_transformer:
             h = torch.reshape(h, (-1, 512, 64))
             # print(f"h at 5: {h.shape}")
-            
-
-        h = self.conv2(h)
-        # print(f"h at 6: {h.shape}")
-
-        if self.use_transformer:
-            h = torch.reshape(h, (-1, 512, 8, 8))
+            h = self.t_out_64(h)
+            h = h.permute(0,2,1)
+            h = self.t_in_512(h)
+            h = h.permute(0,2,1)
             # print(f"h at 7: {h.shape}")
+            h = torch.reshape(h, (-1, 512, 8, 8))
+            
+        else:
+            h = self.conv2(h)
+        # print(f"h at 6: {h.shape}")
 
         return h
 

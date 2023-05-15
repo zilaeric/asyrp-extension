@@ -41,6 +41,7 @@ class Asyrp(object):
         if device is None:
             device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.device = device
+        self.accumulation_steps = args.accumulation_steps
 
         self.model_var_type = config.model.var_type
         betas = get_beta_schedule(
@@ -308,11 +309,14 @@ class Asyrp(object):
                         # editing by Asyrp
                         xt_next = x_lat_tensor.to(self.device)
                         
+                        # put this here as the old trainign loop had this at the top, so 
+                        # the first loop would always get a zero_grad first.
+                        optim_ft.zero_grad() 
                         # Finally, go into training
+                        accumulated_loss = []
                         with tqdm(total=len(seq_train), desc=f"training iteration") as progress_bar:
                             for t_it, (i, j) in enumerate(zip(reversed(seq_train), reversed(seq_train_next))):
     
-                                optim_ft.zero_grad()
                                 t = (torch.ones(self.args.bs_train) * i).to(self.device)
                                 t_next = (torch.ones(self.args.bs_train) * j).to(self.device)
                                 
@@ -362,10 +366,17 @@ class Asyrp(object):
                                 loss += self.args.l1_loss_w * loss_l1 * cosine
                                 loss += self.args.clip_loss_w * loss_clip
 
-                                loss.backward()
-                                optim_ft.step()   
 
-                                progress_bar.set_description(f"{step}-{it_out}: loss_clr: {loss_clr:.3f} loss_l1: {loss_l1:.3f} loss_id: {loss_id:.3f} loss_clip:{loss_clip} loss: {loss:.3f} ")
+                                loss = loss / self.accumulation_steps
+                                accumulated_loss.append(float(loss))
+
+                                loss.backward()
+                                if ((t_it + 1) % self.accumulation_steps == 0) or (t_it + 1 == len(seq_train)):
+                                    optim_ft.step()
+                                    optim_ft.zero_grad()
+                                    # print('updating')
+
+                                progress_bar.set_description(f"{step}-{it_out}: loss_clr: {loss_clr:.3f} loss_l1: {loss_l1:.3f} loss_id: {loss_id:.3f} loss_clip:{loss_clip} loss: {loss:.3f} mean accumulated_loss: {np.mean(accumulated_loss):.3f}")
 
                         # save image
                         if self.args.save_train_image and save_image_iter % self.args.save_train_image_step == 0 and it_out % self.args.save_train_image_iter == 0:
@@ -556,6 +567,7 @@ class Asyrp(object):
             print("clip similarity scores: ", self.eval_clip_similarities)
             print(f"mean clip similarity: {np.mean(self.eval_clip_similarities)}")
             print(f"mean clip loss: {np.mean(self.eval_clip_losses)}")
+            print(f"mean clip loss (last 16): {np.mean(self.eval_clip_losses[-16:])}")
         except AttributeError:
             pass
 
