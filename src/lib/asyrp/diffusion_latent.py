@@ -18,6 +18,7 @@ import torch.nn.functional as F
 from losses.clip_loss import CLIPLoss
 import random
 import copy
+import wandb
 
 from models.ddpm.diffusion import DDPM
 from models.improved_ddpm.script_util import i_DDPM
@@ -28,11 +29,19 @@ from datasets.data_utils import get_dataset, get_dataloader
 from configs.paths_config import DATASET_PATHS, MODEL_PATHS
 from datasets.imagenet_dic import IMAGENET_DIC
 
+from transformers.optimization import Adafactor, AdafactorSchedule
+
 class Asyrp(object):
     def __init__(self, args, config, device=None):
         # CLIP similarity logging stuff
         self.eval_clip_similarities = []
         self.eval_clip_losses = []
+
+        self.run = wandb.init(
+            # Set the project where this run will be logged
+            project="asyrp",
+            # Track hyperparameters and run metadata
+            config=args)
 
 
         # ----------- predefined parameters -----------#
@@ -189,6 +198,9 @@ class Asyrp(object):
             model = torch.nn.DataParallel(model)
 
             for i in range(self.args.get_h_num):
+                wandb.watch(getattr(model.module, f"layer_{i}"))
+
+            for i in range(self.args.get_h_num):
                 get_h = getattr(model.module, f"layer_{i}")
                 optim_param_list = optim_param_list + list(get_h.parameters())
 
@@ -208,11 +220,18 @@ class Asyrp(object):
                 optim_param_list = optim_param_list + [delta_h_dict[key]]
             
         if self.args.use_transformer:
-            optim_ft = torch.optim.Adam(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+            if self.args.adafactor:
+                print("WARNING: LR PARAMETER IS IGNORED, INSTEAD AUTOMATICALLY INFERRED BY ADAFACTOR!!")
+                optim_ft = Adafactor(optim_param_list, scale_parameter=True, relative_step=True, warmup_init=True, lr=None)
+                scheduler_ft = AdafactorSchedule(optim_ft)
+            else:
+                # alternatively use adamW
+                optim_ft = torch.optim.AdamW(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+                scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
         else:
             optim_ft = torch.optim.SGD(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+            scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
 
-        scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
         print(f"Setting optimizer with lr={self.args.lr_training}")
 
         # hs_coeff[0] is for original h, hs_coeff[1] is for delta_h
@@ -314,6 +333,9 @@ class Asyrp(object):
                         optim_ft.zero_grad() 
                         # Finally, go into training
                         accumulated_loss = []
+                        total_image_loss = 0
+                        total_clip_loss = 0
+                        total_l1_loss = 0
                         with tqdm(total=len(seq_train), desc=f"training iteration") as progress_bar:
                             for t_it, (i, j) in enumerate(zip(reversed(seq_train), reversed(seq_train_next))):
     
@@ -366,17 +388,33 @@ class Asyrp(object):
                                 loss += self.args.l1_loss_w * loss_l1 * cosine
                                 loss += self.args.clip_loss_w * loss_clip
 
-
-                                loss = loss / self.accumulation_steps
                                 accumulated_loss.append(float(loss))
+                                total_image_loss += loss
+                                total_clip_loss += self.args.clip_loss_w * loss_clip
+                                total_l1_loss += self.args.l1_loss_w * loss_l1 * cosine
 
                                 loss.backward()
+                                progress_bar.set_description(f"{step}-{it_out}: loss_clr: {loss_clr:.3f} loss_l1: {loss_l1:.3f} loss_id: {loss_id:.3f} loss_clip:{loss_clip} loss: {loss:.3f} mean accumulated_loss: {np.mean(accumulated_loss):.3f}")
+                                
                                 if ((t_it + 1) % self.accumulation_steps == 0) or (t_it + 1 == len(seq_train)):
                                     optim_ft.step()
                                     optim_ft.zero_grad()
-                                    # print('updating')
+                                    wandb.log({
+                                        "accumulated_loss": np.sum(accumulated_loss)
+                                    })
+                                    # reset accumulated loss after optimizer step
+                                    accumulated_loss = []
 
-                                progress_bar.set_description(f"{step}-{it_out}: loss_clr: {loss_clr:.3f} loss_l1: {loss_l1:.3f} loss_id: {loss_id:.3f} loss_clip:{loss_clip} loss: {loss:.3f} mean accumulated_loss: {np.mean(accumulated_loss):.3f}")
+                                wandb.log({
+                                    "loss_l1": self.args.l1_loss_w * loss_l1 * cosine,
+                                    "loss_clip": self.args.clip_loss_w * loss_clip,
+                                    "loss": loss
+                                })
+                        wandb.log({
+                            "image_loss": total_image_loss,
+                            "image_clip_loss": total_clip_loss,
+                            "image_l1_loss": total_l1_loss
+                        })
 
                         # save image
                         if self.args.save_train_image and save_image_iter % self.args.save_train_image_step == 0 and it_out % self.args.save_train_image_iter == 0:
@@ -425,6 +463,9 @@ class Asyrp(object):
                     dicts["optimizer"] = optim_ft.state_dict()
                     dicts["scheduler"] = scheduler_ft.state_dict()
                     torch.save(dicts, save_name)
+                    
+                    # save to weights and biases
+                    wandb.save(save_name)
                     print(f'Model {save_name} is saved.')
                     scheduler_ft.step()
 
@@ -510,6 +551,8 @@ class Asyrp(object):
                         output = (output + 1) * 0.5
                         grid = tvu.make_grid(output, nrow=self.args.bs_train, padding=1)
                         tvu.save_image(grid, os.path.join(folder_dir, file_name, f'origin_{int(t[0].item())}.png'), normalization=True)
+                        image_path = os.path.join(folder_dir, file_name, f'origin_{int(t[0].item())}.png')
+                        wandb.log({"image_process_origin": wandb.Image(image_path)})
 
                 x_list.append(x)
 
@@ -548,6 +591,10 @@ class Asyrp(object):
                             output = (output + 1) * 0.5
                             grid = tvu.make_grid(output, nrow=self.args.bs_train, padding=1)
                             tvu.save_image(grid, os.path.join(folder_dir, file_name, f'delta_h_{int(t[0].item())}.png'), normalization=True)
+
+                            image_path = os.path.join(folder_dir, file_name, f'delta_h_{int(t[0].item())}.png')
+                            wandb.log({"image_process_delta_h": wandb.Image(image_path)})
+
                         if get_delta_hs and t[0]>= self.t_edit:
                             if delta_h_dict[t[0].item()] is None:
                                 delta_h_dict[t[0].item()] = delta_h
@@ -561,15 +608,19 @@ class Asyrp(object):
                 clip_loss = self.clip_loss_func.direction_loss(x_list[1], x_list[0])
             elif len(x_list) == 3:
                 clip_loss = self.clip_loss_func.direction_loss(x_list[2], x_list[0])
+            wandb.log({
+                "clip_loss": clip_loss,
+                "clip_similarity": 1 - clip_loss
+            })
             
             clip_loss = clip_loss.mean().cpu().detach().numpy()
-            print(clip_loss.mean())
             self.eval_clip_losses.append(clip_loss)
             self.eval_clip_similarities.append(1 - clip_loss)
-            print("clip similarity scores: ", self.eval_clip_similarities)
-            print(f"mean clip similarity: {np.mean(self.eval_clip_similarities)}")
-            print(f"mean clip loss: {np.mean(self.eval_clip_losses)}")
-            print(f"mean clip loss (last 16): {np.mean(self.eval_clip_losses[-16:])}")
+            # print(clip_loss.mean())
+            # print("clip similarity scores: ", self.eval_clip_similarities)
+            # print(f"mean clip similarity: {np.mean(self.eval_clip_similarities)}")
+            # print(f"mean clip loss: {np.mean(self.eval_clip_losses)}")
+            # print(f"mean clip loss (last 16): {np.mean(self.eval_clip_losses[-16:])}")
         except AttributeError:
             pass
 
@@ -578,14 +629,23 @@ class Asyrp(object):
 
         grid = tvu.make_grid(x, nrow=self.args.bs_train, padding=1)
 
+        image_save_path = os.path.join(folder_dir, f'{file_name}_ngen{self.args.n_train_step}.png')
         tvu.save_image(grid, os.path.join(folder_dir, f'{file_name}_ngen{self.args.n_train_step}.png'), normalization=True)
+        wandb.log({"train_image": wandb.Image(image_save_path)})
+
         if len(x) == 2:
             os.makedirs(os.path.join(folder_dir, 'original'), exist_ok=True)
             os.makedirs(os.path.join(folder_dir, 'edited'), exist_ok=True)
             # original
             tvu.save_image(x[0], os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png'), normalization=True)
+            image_save_path = os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png')
+            wandb.log({"train_image_original": wandb.Image(image_save_path)})
+            
             # edited
-            tvu.save_image(x[1], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
+            idx_edited_0 = 0 + self.args.bs_train
+            tvu.save_image(x[idx_edited_0], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
+            image_save_path = os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png')
+            wandb.log({"train_image_edited": wandb.Image(image_save_path)})
 
         else:
             os.makedirs(os.path.join(folder_dir, 'original'), exist_ok=True)
@@ -593,10 +653,20 @@ class Asyrp(object):
             os.makedirs(os.path.join(folder_dir, 'edited'), exist_ok=True)
             # original
             tvu.save_image(x[0], os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png'), normalization=True)
+            image_save_path = os.path.join(folder_dir, 'original', f'{file_name}_ngen{self.args.n_train_step}_original.png')
+            wandb.log({"train_image_original": wandb.Image(image_save_path)})
+
             # reconstructed 
-            tvu.save_image(x[1], os.path.join(folder_dir, 'reconstructed', f'{file_name}_ngen{self.args.n_train_step}_reconstructed.png'), normalization=True)
+            idx_recon_0 = 0 + self.args.bs_train
+            tvu.save_image(x[idx_recon_0], os.path.join(folder_dir, 'reconstructed', f'{file_name}_ngen{self.args.n_train_step}_reconstructed.png'), normalization=True)
+            image_save_path = os.path.join(folder_dir, 'reconstructed', f'{file_name}_ngen{self.args.n_train_step}_reconstructed.png')
+            wandb.log({"train_image_reconstructed": wandb.Image(image_save_path)})
+            
             # edited
-            tvu.save_image(x[2], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
+            idx_edited_0 = 0 + (self.args.bs_train * 2)
+            tvu.save_image(x[idx_edited_0], os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png'), normalization=True)
+            image_save_path = os.path.join(folder_dir, 'edited', f'{file_name}_ngen{self.args.n_train_step}_edited.png')
+            wandb.log({"train_image_edited": wandb.Image(image_save_path)})
 
         time_e = time.time()
         print(f'{time_e - time_s} seconds, {file_name}_ngen{self.args.n_train_step}.png is saved')
@@ -653,7 +723,6 @@ class Asyrp(object):
         if self.args.train_delta_block:
             model.setattr_layers(self.args.get_h_num)
             print("Setattr layers")
-            
 
         model = model.to(self.device)
         model = torch.nn.DataParallel(model)

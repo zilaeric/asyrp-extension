@@ -3,7 +3,7 @@
 sh_file_name="script_inference.sh"
 gpu="0"
 config="celeba.yml"
-guid="angry"
+guid="goblin"
 test_step=50    # if large, it takes long time.
 dt_lambda=1.0   # hyperparameter for dt_lambda. This is the method that will appear in the next paper.
 CUDA_VISIBLE_DEVICES=$gpu

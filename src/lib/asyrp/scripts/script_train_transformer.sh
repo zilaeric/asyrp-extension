@@ -13,11 +13,11 @@ python main.py  --run_train                     \
                 --edit_attr $guid               \
                 --do_train 1                    \
                 --do_test 0                     \
-                --bs_train 2                    \
-                --bs_test 2                     \
+                --bs_train 9                    \
+                --bs_test 9                     \
                 --lr_training 1e-04             \
                 --n_train_img 1000              \
-                --accumulation_steps 20         \
+                --accumulation_steps 4          \
                 --n_test_img 50                 \
                 --n_inv_step 40                 \
                 --n_train_step 40               \
@@ -28,6 +28,7 @@ python main.py  --run_train                     \
                 --n_iter 3                      \
                 --save_x0                       \
                 --use_x0_tensor                 \
+                --save_x_origin                 \
                 --clip_loss_w 0.8               \
                 --l1_loss_w 3.0                 \
                 --use_transformer
