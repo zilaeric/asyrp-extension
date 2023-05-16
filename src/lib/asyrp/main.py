@@ -15,9 +15,14 @@ def parse_args_and_config():
     parser = argparse.ArgumentParser(description=globals()['__doc__'])
 
     # CUSTOM
-    parser.add_argument('--use_transformer', action='store_true', help='use transformer in deltablock instead of 1x1 conv')
     parser.add_argument('--accumulation_steps', type=int, default=1, help='amount of gradient accumulation steps to do')
-    parser.add_argument('--adafactor', action='store_true', help='use adafactor instead of adam optimizer. Adafactor ignores learning_rate')
+    parser.add_argument('--optimizer', type=str, default='sgd', help='optimizer type to use, also sets differente scheduler in some cases')
+
+    # new deltablock parameters
+    parser.add_argument('--db_layer_type', type=str, default='conv', help='layer type to use for in and out layers of deltablock')
+    parser.add_argument('--db_nheads', type=int, default=1, help='number of heads in case of tranformer layer in deltablock')
+    parser.add_argument('--db_num_layers', type=int, default=1, help='number of layers to stack for in and output layers in deltablock')
+    parser.add_argument('--db_dim_feedforward', type=int, default=2048, help='size of feedforward layer in transformer block in deltablock')
 
     # Logging
     parser.add_argument('--sh_file_name', type=str, default='script.sh', help='copy the script this file')

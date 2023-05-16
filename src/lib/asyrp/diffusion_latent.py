@@ -114,8 +114,12 @@ class Asyrp(object):
         #     raise ValueError
 
         if self.config.data.dataset in ["CelebA_HQ", "LSUN", "CelebA_HQ_Dialog"]:
-            model = DDPM(self.config) 
-            model.use_transformer = self.args.use_transformer
+            model = DDPM(self.config)
+
+            model.db_layer_type = self.args.db_layer_type
+            model.db_nheads = self.args.db_nheads
+            model.db_num_layers = self.args.db_num_layers
+            model.db_dim_feedforward = self.args.db_dim_feedforward 
             if self.args.model_path:
                 init_ckpt = torch.load(self.args.model_path)
             else:
@@ -219,18 +223,19 @@ class Asyrp(object):
             for key in delta_h_dict.keys():
                 optim_param_list = optim_param_list + [delta_h_dict[key]]
             
-        if self.args.use_transformer:
-            if self.args.adafactor:
-                print("WARNING: LR PARAMETER IS IGNORED, INSTEAD AUTOMATICALLY INFERRED BY ADAFACTOR!!")
-                optim_ft = Adafactor(optim_param_list, scale_parameter=True, relative_step=True, warmup_init=True, lr=None)
-                scheduler_ft = AdafactorSchedule(optim_ft)
-            else:
-                # alternatively use adamW
-                optim_ft = torch.optim.AdamW(optim_param_list, weight_decay=0, lr=self.args.lr_training)
-                scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
-        else:
+        if self.args.optimizer == "adafactor":
+            print("WARNING: LR PARAMETER IS IGNORED, INSTEAD AUTOMATICALLY INFERRED BY ADAFACTOR!!")
+            optim_ft = Adafactor(optim_param_list, scale_parameter=True, relative_step=True, warmup_init=True, lr=None)
+            scheduler_ft = AdafactorSchedule(optim_ft)
+        elif self.args.optimizer == "adamw":
+            # alternatively use adamW
+            optim_ft = torch.optim.AdamW(optim_param_list, weight_decay=0, lr=self.args.lr_training)
+            scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
+        elif self.args.optimizer == "sgd":
             optim_ft = torch.optim.SGD(optim_param_list, weight_decay=0, lr=self.args.lr_training)
             scheduler_ft = torch.optim.lr_scheduler.StepLR(optim_ft, step_size=self.args.scheduler_step_size, gamma=self.args.sch_gamma)
+        else:
+            raise NotImplementedError(f"no optimizer implemented: {self.args.optimizer}")
 
         print(f"Setting optimizer with lr={self.args.lr_training}")
 
