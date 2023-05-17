@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=$gpu
 
 python main.py  --run_train                     \
                 --config $config                \
-                --exp ../../runs/transf_pixel_h1_l1_d2048_$guid          \
+                --exp ../../runs/transf_conv_h1_l1_d2048_$guid          \
                 --edit_attr $guid               \
                 --do_train 1                    \
                 --do_test 0                     \

@@ -9,12 +9,12 @@ CUDA_VISIBLE_DEVICES=$gpu
 
 python main.py  --run_train                     \
                 --config $config                \
-                --exp ../../runs/transf_pixel_h1_l1_d2048_$guid          \
+                --exp ../../runs/transf_channel_h1_l1_d2048_$guid          \
                 --edit_attr $guid               \
                 --do_train 1                    \
                 --do_test 0                     \
-                --bs_train 9                    \
-                --bs_test 9                     \
+                --bs_train 1                    \
+                --bs_test 1                     \
                 --n_train_img 1000              \
                 --accumulation_steps 1          \
                 --n_test_img 50                 \
@@ -24,7 +24,7 @@ python main.py  --run_train                     \
                 --get_h_num 1                   \
                 --train_delta_block             \
                 --sh_file_name $sh_file_name    \
-                --n_iter 4                      \
+                --n_iter 20                     \
                 --save_x0                       \
                 --use_x0_tensor                 \
                 --save_x_origin                 \
