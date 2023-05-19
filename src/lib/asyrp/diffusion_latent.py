@@ -40,6 +40,7 @@ class Asyrp(object):
         self.run = wandb.init(
             # Set the project where this run will be logged
             project="asyrp",
+            name= args.exp.split("/")[-1],
             # Track hyperparameters and run metadata
             config=args)
 
