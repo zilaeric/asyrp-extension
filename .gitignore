@@ -162,3 +162,4 @@ cython_debug/
 # USER DEFINED
 src/jobs/job_logs
 src/data
+src/lib/asyrp/wandb

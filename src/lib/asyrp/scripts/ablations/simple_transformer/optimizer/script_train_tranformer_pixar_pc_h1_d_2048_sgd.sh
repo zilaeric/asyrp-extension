@@ -9,12 +9,12 @@ CUDA_VISIBLE_DEVICES=$gpu
 
 python main.py  --run_train                     \
                 --config $config                \
-                --exp ../../runs/layer_abl_conv_sgd_h1_l1_d2048_$guid          \
+                --exp ../../runs/opti_abl_transf_pc_h1_l1_d2048_$guid          \
                 --edit_attr $guid               \
                 --do_train 1                    \
                 --do_test 0                     \
-                --bs_train 9                    \
-                --bs_test 9                     \
+                --bs_train 8                    \
+                --bs_test 8                     \
                 --n_train_img 1000              \
                 --accumulation_steps 1          \
                 --n_test_img 50                 \
@@ -30,11 +30,11 @@ python main.py  --run_train                     \
                 --save_x_origin                 \
                 --clip_loss_w 0.8               \
                 --l1_loss_w 3.0                 \
-                --db_layer_type "conv"          \
+                --db_layer_type "pc_transformer_simple"             \
                 --db_nheads 1                   \
                 --db_num_layers 1               \
                 --db_dim_feedforward 2048       \
-                --lr_training 0.5             \
+                --lr_training 0.5               \
                 --optimizer sgd
                 # --load_random_noise             \
                 # --user_defined_t_edit 513       \
