@@ -1032,12 +1032,12 @@ def get_dh_layer(layer_name, nheads, num_layers, dim_feedforward=2048, dropout=0
             nheads, num_layers, dim_feedforward, dropout, "cp"
         )
     elif layer_name == "c_transformer_simple":
-        layer = DualTransformerSimple(
-            nheads, num_layers, dim_feedforward, dropout, "cp"
+        layer = TransformerSimple(
+            nheads, num_layers, dim_feedforward, dropout, "channel"
         )
     elif layer_name == "p_transformer_simple":
-        layer = DualTransformerSimple(
-            nheads, num_layers, dim_feedforward, dropout, "cp"
+        layer = TransformerSimple(
+            nheads, num_layers, dim_feedforward, dropout, "pixel"
         )
     elif layer_name == "conv":
         layer = torch.nn.Conv2d(512, 512, kernel_size=1, stride=1, padding=0)
