@@ -1019,17 +1019,17 @@ def get_dh_layer(layer_name, nheads, num_layers, dim_feedforward=2048, dropout=0
 
 
 class TransformerSimple(nn.Module):
-    def __init__(self, nheads, num_layers, dim_feedforward, dropout, type="pixel"):
+    def __init__(self, nheads, num_layers, dim_feedforward, dropout, model_type="pixel"):
         super().__init__()
-        if type == "pixel":
+        if model_type == "pixel":
             n_features = 512
-        elif type == "channel":
+        elif model_type == "channel":
             n_features = 64
         else:
             raise NotImplementedError(
-                f"no implementation for type {type} of TransformerSimple"
+                f"no implementation for type {model_type} of TransformerSimple"
             )
-        self.input_type = type
+        self.model_type = model_type
 
         transformer = nn.Transformer(
             d_model=n_features,
@@ -1045,15 +1045,15 @@ class TransformerSimple(nn.Module):
 
     def forward(self, h):
         h = torch.reshape(h, (-1, 512, 64))
-        if self.input_type == "pixel":
+        if self.model_type == "pixel":
             h = h.permute(0, 2, 1)
             h = self.t_layer(h)
             h = h.permute(0, 2, 1)
-        elif type == "channel":
+        elif self.model_type == "channel":
             h = self.t_layer(h)
         else:
             raise NotImplementedError(
-                f"no implementation for type {type} of TransformerSimple"
+                f"no implementation for type {self.model_type} of TransformerSimple"
             )
 
         h = torch.reshape(h, (-1, 512, 8, 8))
