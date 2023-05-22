@@ -1136,6 +1136,7 @@ class DeltaBlock(nn.Module):
     ):
         super().__init__()
         self.use_midblock = use_midblock
+        self.emb_type = emb_type
         if use_midblock:
             self.model = UNetMidBlock2DCrossAttn(512, 512, cross_attention_dim=512)
         else:
@@ -1181,9 +1182,7 @@ class DeltaBlock(nn.Module):
                     # authors already do this in the other fancier implementations
                     # but not using the code from diffusers, functionally the same though
                     h = self.adagn(h, temb)
-
-            h = self.norm2(h)
-            h = nonlinearity(h)
+                    h = nonlinearity(h)
 
             h = self.out_layer(h)
 
