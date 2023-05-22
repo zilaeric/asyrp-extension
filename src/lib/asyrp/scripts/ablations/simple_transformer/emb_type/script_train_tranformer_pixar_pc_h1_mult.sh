@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=$gpu
 
 python main.py  --run_train                     \
                 --config $config                \
-                --exp ../../runs/camidblock_512_$guid          \
+                --exp ../../runs/able_mult_transf_pc_h1_l1_d2048_$guid          \
                 --edit_attr $guid               \
                 --do_train 1                    \
                 --do_test 0                     \
@@ -30,13 +30,13 @@ python main.py  --run_train                     \
                 --save_x_origin                 \
                 --clip_loss_w 0.8               \
                 --l1_loss_w 3.0                 \
-                --db_layer_type "midblock"      \
+                --db_layer_type "pc_transformer_simple"             \
                 --db_nheads 1                   \
                 --db_num_layers 1               \
                 --db_dim_feedforward 2048       \
                 --lr_training 1e-05             \
                 --optimizer adamw               \
-                --use_midblock # ignores db_layer_type, nheads num_layers etc.
+                --db_emb_type "mult"            \
                 # --load_random_noise             \
                 # --user_defined_t_edit 513       \
                 # --user_defined_t_addnoise 167   \
