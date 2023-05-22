@@ -993,37 +993,9 @@ def get_dh_layer(layer_name, nheads, num_layers, dim_feedforward=2048, dropout=0
     # dropout = 0.1
     # num_encoder_layers = 1 (we're not using the decoder layers)
     layer = None
-    # interprets block as 64 tokens of feature_size 512
-    # ie. all pixels of the image are treated as a token
-    if layer_name == "pixel_transformer_simple":
-        transformer_in_512 = nn.Transformer(
-            d_model=512,
-            nhead=nheads,
-            num_encoder_layers=num_layers,
-            num_decoder_layers=0,
-            dim_feedforward=dim_feedforward,
-            batch_first=True,
-            dropout=dropout,
-        )
-        del transformer_in_512.decoder
-        layer = transformer_in_512.encoder
-    # interprets block as 512 tokens of feature_size 64
-    # ie. all channels of the image are treated as tokens for each pixel
-    elif layer_name == "channel_tranformer_simple":
-        transformer_in_64 = nn.Transformer(
-            d_model=64,
-            nhead=nheads,
-            num_encoder_layers=num_layers,
-            num_decoder_layers=0,
-            dim_feedforward=dim_feedforward,
-            batch_first=True,
-            dropout=dropout,
-        )
-        del transformer_in_64.decoder
-        layer = transformer_in_64.encoder
-
-    # do both of the options above in sequence
-    elif layer_name == "pc_transformer_simple":
+ 
+    # do both of the options in sequence
+    if layer_name == "pc_transformer_simple":
         layer = DualTransformerSimple(
             nheads, num_layers, dim_feedforward, dropout, "pc"
         )
