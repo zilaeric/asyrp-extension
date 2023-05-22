@@ -1,7 +1,8 @@
 import math
 import torch
 import torch.nn as nn
-
+from diffusers.models.attention import AdaGroupNorm
+from diffusers.models.unet_2d_blocks import UNetMidBlock2DCrossAttn
 
 def slerp(t, v0, v1):
     _shape = v0.shape
@@ -409,6 +410,8 @@ class DDPM(nn.Module):
                     nheads=self.db_nheads,
                     num_layers=self.db_num_layers,
                     dim_feedforward=self.db_dim_feedforward,
+                    emb_type=self.db_emb_type,
+                    use_midblock=self.use_midblock
                 ),
             )
 
@@ -1128,34 +1131,60 @@ class DeltaBlock(nn.Module):
         nheads=1,
         num_layers=1,
         dim_feedforward=2048,
+        emb_type="add",
+        use_midblock=False
     ):
         super().__init__()
-        self.in_channels = in_channels
-        out_channels = in_channels if out_channels is None else out_channels
-        self.out_channels = out_channels
-        self.use_conv_shortcut = conv_shortcut
-        self.layer_type = layer_type
-        self.in_layer = get_dh_layer(
-            layer_type, nheads, num_layers, dim_feedforward, dropout
-        )
+        self.use_midblock = use_midblock
+        if use_midblock:
+            self.model = UNetMidBlock2DCrossAttn(512, 512, cross_attention_dim=512)
+        else:
+            self.in_channels = in_channels
+            out_channels = in_channels if out_channels is None else out_channels
+            self.out_channels = out_channels
+            self.use_conv_shortcut = conv_shortcut
+            self.layer_type = layer_type
+            self.in_layer = get_dh_layer(
+                layer_type, nheads, num_layers, dim_feedforward, dropout
+            )
 
-        self.temb_proj = torch.nn.Linear(temb_channels, out_channels)
-        self.norm2 = Normalize(out_channels)
-        self.out_layer = get_dh_layer(
-            layer_type, nheads, num_layers, dim_feedforward, dropout
-        )
+            self.temb_proj = torch.nn.Linear(temb_channels, out_channels)
+            self.norm2 = Normalize(out_channels)
+            self.out_layer = get_dh_layer(
+                layer_type, nheads, num_layers, dim_feedforward, dropout
+            )
+            if emb_type == "adagn":
+                # num groups is kept the same as in Normalize
+                self.adagn = AdaGroupNorm(embedding_dim=512,out_dim=512,num_groups=32)
 
     def forward(self, x, temb=None):
-        h = x
+        if self.use_midblock:
+            h = self.model(x, temb)
+        else:
+            h = x
 
-        h = self.in_layer(h)
+            h = self.in_layer(h)
 
-        if temb is not None:
-            h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None]
+            if temb is not None:
+                if self.emb_type == "add":
+                    h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None]
+                    h = self.norm2(h)
+                    h = nonlinearity(h)
 
-        h = self.norm2(h)
-        h = nonlinearity(h)
+                elif self.emb_type == "mult":
+                    h = h * self.temb_proj(nonlinearity(temb))[:, :, None, None]
+                    h = self.norm2(h)
+                    h = nonlinearity(h)
 
-        h = self.out_layer(h)
+                elif self.emb_type == "adagn":
+                    # apply temporal group norm
+                    # authors already do this in the other fancier implementations
+                    # but not using the code from diffusers, functionally the same though
+                    h = self.adagn(h, temb)
+
+            h = self.norm2(h)
+            h = nonlinearity(h)
+
+            h = self.out_layer(h)
 
         return h

@@ -118,9 +118,11 @@ class Asyrp(object):
             model = DDPM(self.config)
 
             model.db_layer_type = self.args.db_layer_type
+            model.db_emb_type = self.args.db_emb_type
             model.db_nheads = self.args.db_nheads
             model.db_num_layers = self.args.db_num_layers
-            model.db_dim_feedforward = self.args.db_dim_feedforward 
+            model.db_dim_feedforward = self.args.db_dim_feedforward
+            model.use_midblock = self.args.use_midblock
             if self.args.model_path:
                 init_ckpt = torch.load(self.args.model_path)
             else:
@@ -483,6 +485,7 @@ class Asyrp(object):
         if self.args.do_test:
             x_lat_tensor = None
             x0_tensor = None
+            save_image_iter = 0
 
             for step, (x0, _, x_lat) in enumerate(img_lat_pairs_dic['test']):
                     
@@ -610,16 +613,22 @@ class Asyrp(object):
                     x_list.append(x)
 
         try:
+            print(len(x_list))
             if len(x_list) == 2:
                 clip_loss = self.clip_loss_func.direction_loss(x_list[1], x_list[0])
             elif len(x_list) == 3:
                 clip_loss = self.clip_loss_func.direction_loss(x_list[2], x_list[0])
+            else:
+                # in case formatting is doing something weird
+                
+                clip_loss = -1
+            clip_loss = clip_loss.mean().cpu().detach().numpy()
+
             wandb.log({
                 "clip_loss": clip_loss,
                 "clip_similarity": 1 - clip_loss
             })
             
-            clip_loss = clip_loss.mean().cpu().detach().numpy()
             self.eval_clip_losses.append(clip_loss)
             self.eval_clip_similarities.append(1 - clip_loss)
             # print(clip_loss.mean())
@@ -743,7 +752,7 @@ class Asyrp(object):
 
         if self.args.manual_checkpoint_name:
             # manual_checkpoint_name is full name of checkpoint
-            save_name = 'checkpoint/' + self.args.manual_checkpoint_name
+            save_name = self.args.manual_checkpoint_name
         
         elif self.args.choose_checkpoint_num:
             # choose the iter of checkpoint
@@ -814,6 +823,7 @@ class Asyrp(object):
                     self.args.num_mean_of_delta_hs = 0
                 # delta_block load
                 else:
+                    print(f"loading: {save_name_list[0]}")
                     for i in range(self.args.get_h_num):
                         get_h = getattr(model.module, f"layer_{i}")
                         get_h.load_state_dict(torch.load(save_name_list[i])[f"{0}"])

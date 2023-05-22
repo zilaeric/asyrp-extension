@@ -20,6 +20,8 @@ def parse_args_and_config():
 
     # new deltablock parameters
     parser.add_argument('--db_layer_type', type=str, default='conv', help='layer type to use for in and out layers of deltablock')
+    parser.add_argument('--db_emb_type', type=str, default='add', help='way to incorporate temporal information into deltablock')
+    parser.add_argument('--use_midblock', action='store_true', default=False, help='use diffusers crossattention midblock instead of deltablock')
     parser.add_argument('--db_nheads', type=int, default=1, help='number of heads in case of tranformer layer in deltablock')
     parser.add_argument('--db_num_layers', type=int, default=1, help='number of layers to stack for in and output layers in deltablock')
     parser.add_argument('--db_dim_feedforward', type=int, default=2048, help='size of feedforward layer in transformer block in deltablock')
