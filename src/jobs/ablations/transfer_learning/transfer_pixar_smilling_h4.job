@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#SBATCH --gres=gpu:1
+#SBATCH --job-name=TransfAsyrpH4
+#SBATCH --ntasks=1
+#SBATCH --partition=gpu_titanrtx_shared_course
+#SBATCH --cpus-per-task=3
+#SBATCH --time=05:00:00
+#SBATCH --mem=32000M
+#SBATCH --output=src/jobs/job_logs/transfer_h4_smiling_%A.out
+
+module purge
+module load 2021
+module load Anaconda3/2021.05
+
+cd $HOME/DL2-2023-group-15/src/lib/asyrp
+source activate asyrp
+
+bash scripts/ablations/simple_transformer/transfer_learning/script_train_tranformer_smiling_cp_h4_transfer.sh
