@@ -62,9 +62,19 @@ def get_timestep_embedding(timesteps, embedding_dim):
     return emb
 
 
-def nonlinearity(x):
-    # swish
-    return x * torch.sigmoid(x)
+def nonlinearity(x, nonlinearity_function="silu"):
+    if nonlinearity_function == "relu":
+        relu = nn.ReLU()
+        return relu(x)
+    elif nonlinearity_function == "gelu":
+        gelu = nn.GELU()
+        return gelu(x)
+    elif nonlinearity_function == "swiglu":
+        x, gate = x.chunk(2, dim=-1)
+        return nn.SiLU(gate) * x
+    else:
+        #silu
+        return x * torch.sigmoid(x)
 
 
 def Normalize(in_channels):
@@ -411,7 +421,8 @@ class DDPM(nn.Module):
                     num_layers=self.db_num_layers,
                     dim_feedforward=self.db_dim_feedforward,
                     emb_type=self.db_emb_type,
-                    use_midblock=self.use_midblock
+                    use_midblock=self.use_midblock,
+                    nonlinearity_function=self.db_nonlinearity_function
                 ),
             )
 
@@ -1132,7 +1143,8 @@ class DeltaBlock(nn.Module):
         num_layers=1,
         dim_feedforward=2048,
         emb_type="add",
-        use_midblock=False
+        use_midblock=False,
+        nonlinearity_function="silu"
     ):
         super().__init__()
         self.use_midblock = use_midblock
@@ -1154,6 +1166,7 @@ class DeltaBlock(nn.Module):
             self.out_layer = get_dh_layer(
                 layer_type, nheads, num_layers, dim_feedforward, dropout
             )
+            self.nonlinearity_function = nonlinearity_function
             if emb_type == "adagn":
                 # num groups is kept the same as in Normalize
                 self.adagn = AdaGroupNorm(embedding_dim=512,out_dim=512,num_groups=32)
@@ -1170,19 +1183,19 @@ class DeltaBlock(nn.Module):
                 if self.emb_type == "add":
                     h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None]
                     h = self.norm2(h)
-                    h = nonlinearity(h)
+                    h = nonlinearity(h, self.nonlinearity_function)
 
                 elif self.emb_type == "mult":
                     h = h * self.temb_proj(nonlinearity(temb))[:, :, None, None]
                     h = self.norm2(h)
-                    h = nonlinearity(h)
+                    h = nonlinearity(h, self.nonlinearity_function)
 
                 elif self.emb_type == "adagn":
                     # apply temporal group norm
                     # authors already do this in the other fancier implementations
                     # but not using the code from diffusers, functionally the same though
                     h = self.adagn(h, temb)
-                    h = nonlinearity(h)
+                    h = nonlinearity(h, self.nonlinearity_function)
 
             h = self.out_layer(h)
 

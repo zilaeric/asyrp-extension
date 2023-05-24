@@ -19,6 +19,7 @@ def parse_args_and_config():
     parser.add_argument('--optimizer', type=str, default='sgd', help='optimizer type to use, also sets differente scheduler in some cases')
 
     # new deltablock parameters
+    parser.add_argument('--db_nonlinearity_function', type=str, default='silu', help='nonlinearity activation type to use for deltablock; relu/gelu/swiglu/silu')
     parser.add_argument('--db_layer_type', type=str, default='conv', help='layer type to use for in and out layers of deltablock')
     parser.add_argument('--db_emb_type', type=str, default='add', help='way to incorporate temporal information into deltablock')
     parser.add_argument('--use_midblock', action='store_true', default=False, help='use diffusers crossattention midblock instead of deltablock')
