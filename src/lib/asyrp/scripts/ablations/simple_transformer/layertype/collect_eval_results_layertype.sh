@@ -11,7 +11,7 @@ layertypes=("c_transformer_simple" "cp_transformer_simple" "pc_transformer_simpl
 
 for layer in "${layertypes[@]}"
 do
-    for epoch in {0..1}
+    for epoch in {0..3}
     do
         python main.py  --run_test                     \
         --config $config                \
