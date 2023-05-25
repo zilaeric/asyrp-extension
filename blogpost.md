@@ -60,6 +60,9 @@ In practice, this boils down to training one neural network $\epsilon\_\theta \l
 
 $$L_{D M} = \mathbb{E}\_{ x, \epsilon \sim \mathcal{N}(0, 1), t } \left\[ \left\| \epsilon - \epsilon\_\theta \left( x_t, t \right) \right\|_2^2 \right\] \qquad \qquad \text{(Equation 9)}$$
 
+> **Note**
+> For a thorough introduction to Diffusion Models we would like to highlight an outstanding [blog post by Lilian Weng](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/).
+
 ## <a name="discover">Discovering Semantic Latent Space</a>
 
 This returns us to the original goal of the Asyrp paper, i.e. to manipulate the semantic latent space of images generated from Gaussian noise with a **pretrained and frozen diffusion model** to edit them. To achieve this the authors propose an asymmetric reverse process (Asyrp) in which they alter the way an arbitrary step is sampled in the reverse process to Equation 10.
@@ -163,7 +166,7 @@ However, to calculate the directional CLIP loss both the reference and the gener
 
 | ![Linear combinations](src/lib/latent-diffusion/clip_loss_test/figures/output.gif) | 
 |:-:| 
-| **GIF 1.** Running the VQ-VAE decoder on the latent in every time step  |
+| **GIF 1.** Running the VQ-VAE decoder on the latent at every time step  |
 
 That being said this section is called future research for a reason. Sadly the original code-base was not very modular and this made applying Asyrp to another DM or LDM not feasible within the scope of this project. Asyrp was build directly into a random DM code-base and thus applying it to a LDM would mean starting from scratch in a LDM code-base. Furthermore running the decoder on the latent and accessing the bottleneck feature map at every step meant that we had to edit low level code of large code-bases. Therefor eventually we decided to keep this as future research.
 
