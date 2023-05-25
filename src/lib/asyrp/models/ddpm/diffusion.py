@@ -69,9 +69,9 @@ def nonlinearity(x, nonlinearity_function="silu"):
     elif nonlinearity_function == "gelu":
         gelu = nn.GELU()
         return gelu(x)
-    elif nonlinearity_function == "swiglu":
-        x, gate = x.chunk(2, dim=-1)
-        return nn.SiLU(gate) * x
+    elif nonlinearity_function == "glu":
+        glu = nn.GLU()
+        return glu(x)
     else:
         #silu
         return x * torch.sigmoid(x)

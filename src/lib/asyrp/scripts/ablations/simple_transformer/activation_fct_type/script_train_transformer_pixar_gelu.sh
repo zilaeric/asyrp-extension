@@ -13,8 +13,8 @@ python main.py  --run_train                     \
                 --edit_attr $guid               \
                 --do_train 1                    \
                 --do_test 0                     \
-                --bs_train 9                    \
-                --bs_test 9                     \
+                --bs_train 1                    \
+                --bs_test 1                     \
                 --n_train_img 1000              \
                 --accumulation_steps 1          \
                 --n_test_img 50                 \
