@@ -16,5 +16,5 @@ module load Anaconda3/2021.05
 cd $HOME/DL2-2023-group-15/src/lib/asyrp
 source activate asyrp
 
-bash scripts/script_inference_curly.sh
-bash scripts/script_inference_nicolas.sh
+bash scripts/reproduction/script_inference_curly.sh
+bash scripts/reproduction/script_inference_nicolas.sh
