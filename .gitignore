@@ -163,3 +163,5 @@ cython_debug/
 src/jobs/job_logs
 src/data
 src/lib/asyrp/wandb
+runs/
+src/eval_runs
