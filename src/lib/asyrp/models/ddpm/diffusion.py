@@ -1137,6 +1137,7 @@ class DeltaBlock(nn.Module):
         super().__init__()
         self.use_midblock = use_midblock
         self.emb_type = emb_type
+        self.layer_type = layer_type
         if use_midblock:
             self.model = UNetMidBlock2DCrossAttn(512, 512, cross_attention_dim=512)
         else:
@@ -1158,13 +1159,23 @@ class DeltaBlock(nn.Module):
                 # num groups is kept the same as in Normalize
                 self.adagn = AdaGroupNorm(embedding_dim=512,out_dim=512,num_groups=32)
 
+            if layer_type == 'conv':
+            # backwards compatibility
+                self.conv1 = self.in_layer
+                self.conv2 = self.out_layer
+                del self.in_layer
+                del self.out_layer
+
     def forward(self, x, temb=None):
         if self.use_midblock:
             h = self.model(x, temb)
         else:
             h = x
 
-            h = self.in_layer(h)
+            if self.layer_type == "conv":
+                h = self.conv1(h)
+            else:
+                h = self.in_layer(h)    
 
             if temb is not None:
                 if self.emb_type == "add":
@@ -1184,6 +1195,9 @@ class DeltaBlock(nn.Module):
                     h = self.adagn(h, temb)
                     h = nonlinearity(h)
 
-            h = self.out_layer(h)
+            if self.layer_type == "conv":
+                h = self.conv2(h)
+            else:
+                h = self.out_layer(h)
 
         return h
