@@ -24,7 +24,7 @@ do
         --bs_test 1                     \
         --n_train_img 1000              \
         --accumulation_steps 1          \
-        --n_test_img 5                 \
+        --n_test_img 100                \
         --n_inv_step 40                 \
         --n_train_step 40               \
         --n_test_step 40                \
