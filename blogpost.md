@@ -130,22 +130,137 @@ $$FID = \Vert \mu - \mu\_{ref} \Vert_2^2 + tr \left( \Sigma + \Sigma\_{ref} - 2 
 
 We begin by reproducing the qualitative and quantitative results of the original paper. To sustain the limits of our computational budget, we restrict our reproduction efforts to the CelebA-HQ \[6\] dataset. Our experiments are based on the [original implementation](https://github.com/kwonminki/Asyrp_official/tree/main/models), however, we found that some of the features required for successful reproduction, especially those relating to quantitative evaluation, are missing from the repository. Generally, we follow the computational set-up specified by the original authors in full. Specifically, we use hyperparameter values as specified in Table 1, which were recovered from \[8, Table 2\] and \[8, Table 3\]. For most of our experiments, we use 40 time steps during both the inversion and generation phase of training and inference. We model checkpoints trained for a single iteration over all images in the training sample.
 
-| | $y_{ref}$ | $y_{target}$ | $\lambda\_{\text{CLIP}}$ | $\lambda\_{\text{recon}}$ | $t_{\text{edit}}$ | $t_{\text{boost}}$ | domain | |
-|:-:|:-|:-|:-:|:-:|:-:|:-:|:-:|:-:|
-| | face | smiling face | 0.8 | 3*0.899 | 513 | 167 | IN | |
-| | face | sad face | 0.8 | 3*0.894 | 513 | 167 | IN | |
-| | face | angry face | 0.8 | 3*0.892 | 512 | 167 | IN | |
-| | face | tanned face | 0.8 | 3*0.886 | 512 | 167 | IN | |
-| | a person | a man | 0.8 | 3*0.910 | 513 | 167 | IN | |
-| | a person | a woman | 0.8 | 3*0.891 | 513 | 167 | IN | |
-| | person | young person | 0.8 | 3*0.905 | 515 | 167 | IN | |
-| | person | person with curly hair | 0.8 | 3*0.835 | 499 | 167 | IN | |
-| | Person | Nicolas Cage | 0.8 | 3*0.710 | 461 | 167 | UN | |
-| | Human | 3D render in the style of Pixar | 0.8 | 3*0.667 | 446 | 167 | UN | |
-| | Human | Neanderthal | 1.2 | 3*0.802 | 490 | 167 | UN | |
-| | photo | Painting in Modigliani style | 0.8 | 3*0.565 | 403 | 167 | UN | |
-| | photo | self-portrait by Frida Kahlo | 0.8 | 3*0.443 | 321 | 167 | UN | |
-| <td colspan=7> <b>Table 1.</b> Hyperparameter settings of reproducibility experiments. The "domain" column corresponds to the attribute being in-domain (IN) or unseen-domain (UN). </td>
+<table align="center">
+  <tr align="center">
+      <th align="left">$y_{ref}$</th>
+      <th align="left">$y_{target}$</th>
+      <th>$\lambda_{\text{CLIP}}$</th>
+      <th>$\lambda_{\text{recon}}$</th>
+      <th>$t_{\text{edit}}$</th>
+      <th>$t_{\text{boost}}$</th>
+      <th>domain</th>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">smiling face</td>
+    <td>0.8</td>
+    <td>3*0.899</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">sad face</td>
+    <td>0.8</td>
+    <td>3*0.894</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">angry face</td>
+    <td>0.8</td>
+    <td>3*0.892</td>
+    <td>512</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">tanned face</td>
+    <td>0.8</td>
+    <td>3*0.886</td>
+    <td>512</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">a person</td>
+    <td align="left">a man</td>
+    <td>0.8</td>
+    <td>3*0.910</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">a person</td>
+    <td align="left">a woman</td>
+    <td>0.8</td>
+    <td>3*0.891</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">person</td>
+    <td align="left">young person</td>
+    <td>0.8</td>
+    <td>3*0.905</td>
+    <td>515</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">person</td>
+    <td align="left">person with curly hair</td>
+    <td>0.8</td>
+    <td>3*0.835</td>
+    <td>499</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Person</td>
+    <td align="left">Nicolas Cage</td>
+    <td>0.8</td>
+    <td>3*0.710</td>
+    <td>461</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Human</td>
+    <td align="left">3D render in the style of Pixar</td>
+    <td>0.8</td>
+    <td>3*0.667</td>
+    <td>446</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Human</td>
+    <td align="left">Neanderthal</td>
+    <td>1.2</td>
+    <td>3*0.802</td>
+    <td>490</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">photo</td>
+    <td align="left">Painting in Modigliani style</td>
+    <td>0.8</td>
+    <td>3*0.565</td>
+    <td>403</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">photo</td>
+    <td align="left">self-portrait by Frida Kahlo</td>
+    <td>0.8</td>
+    <td>3*0.443</td>
+    <td>321</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="left">
+    <td colspan=7><b>Table 1.</b> Hyperparameter settings of reproducibility experiments. The "domain" column corresponds<br>to the attribute being in-domain (IN) or unseen-domain (UN).</td>
+  </tr>
+</table>
 
 Figure 6 shows that the results obtained in the original Asyrp paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in high performance image generation for in-domain attributes. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular shifts may also result in other unintended shifts. To give an example, edits in the "woman" and "young" directions appear heavily entangled for the first image in Figure 6.
 
