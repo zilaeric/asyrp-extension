@@ -7,7 +7,6 @@ from pathlib import Path
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
-from pytorch_fid import fid_score
 from tqdm import tqdm
 
 # make imports work from the asyrp repository
@@ -16,6 +15,8 @@ sys.path.append("../lib/asyrp/")
 from losses.clip_loss import CLIPLoss
 from utils.text_dic import SRC_TRG_TXT_DIC
 from IPython.utils import io
+
+from torchmetrics.image.fid import FrechetInceptionDistance
 
 device = "cuda:0"
 
@@ -90,6 +91,42 @@ def reproduction_sdir(dt_lambda=1.0):
         f.write(results_json)
 
 
+def calculate_fid(image_folder_path_src, image_folder_path_target):
+
+    transform = transforms.Compose([
+        transforms.PILToTensor()
+    ])
+
+    fid = FrechetInceptionDistance(feature=2048, normalize=True)
+
+    images_src_path = glob(image_folder_path_src + "/*.png")
+    images_target_path = glob(image_folder_path_target + "/*.png")
+
+    images_src_tensors = []
+    for image_path in tqdm(images_src_path, total=len(images_src_path), desc="parsing src images for fid"):
+        src_img = Image.open(image_path)
+
+        src_img_tensor = transform(src_img).to(torch.uint8)
+        images_src_tensors.append(src_img_tensor)
+
+    all_src_tensor = torch.stack(images_src_tensors, dim=0)
+    fid.update(all_src_tensor, real=True)
+
+    images_target_tensors = []
+    for image_path in tqdm(images_target_path, total=len(images_target_path), desc="parsing target images for fid"):
+        target_img = Image.open(image_path)
+
+        target_img_tensor = transform(target_img).to(torch.uint8)
+        images_target_tensors.append(target_img_tensor)
+    
+    all_target_tensor = torch.stack(images_target_tensors, dim=0)
+    fid.update(all_target_tensor, real=False)
+
+    fid_s = fid.compute()
+    
+    return fid_s.item()
+
+
 def reproduction_fid(dt_lambda=0.5):
     attrs = [
         "smiling",
@@ -106,31 +143,11 @@ def reproduction_fid(dt_lambda=0.5):
         path_edited = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/"
 
         # fid scores
-        with io.capture_output() as captured:
-            score_er = fid_score.calculate_fid_given_paths(
-                [path_edited, path_recon],
-                batch_size=32,
-                device="cuda:0",
-                dims=2048
-            )
-            score_eo = fid_score.calculate_fid_given_paths(
-                [path_edited, path_original],
-                batch_size=32,
-                device="cuda:0",
-                dims=2048
-            )
-            score_ro = fid_score.calculate_fid_given_paths(
-                [path_recon, path_original],
-                batch_size=32,
-                device="cuda:0",
-                dims=2048
-            )
-            score_oo = fid_score.calculate_fid_given_paths(
-                [path_original, path_original],
-                batch_size=32,
-                device="cuda:0",
-                dims=2048
-            )
+        score_er = calculate_fid(path_edited, path_recon)
+        score_ro = calculate_fid(path_original, path_recon)
+        score_eo = calculate_fid(path_edited, path_original)
+        score_oo = calculate_fid(path_original, path_original)
+        
 
         print(f"Attribute {attr} gives FID: {score_er} between edited and reconstructed")
         print(f"Attribute {attr} gives FID: {score_eo} between edited and original")
