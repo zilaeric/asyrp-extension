@@ -110,11 +110,11 @@ Practically, $f_t$ is implemented as shown in Figure 3. However, the authors not
 
 ## Evaluating Diffusion Models
 
-In order to evaluate the performance of diffusion models when it comes to image editing, besides qualitative results and conducting user studies \[8, 7\], the following metrics are generally used: Directional CLIP similarity ($S_{dir}$), segmentation-consistency (SC), Fr\'echet Inception Distance (FID) and face identity similarity (ID). The Asyrp paper uses $S_{dir}$ and SC to compare its performance to DiffusionCLIP, which in turn shows that it outperforms both StyleCLIP \[13\] and StyleGAN-NADA \[4\] in $S_{dir}$, SC and ID.
+In order to evaluate the performance of diffusion models when it comes to image editing, besides qualitative results and conducting user studies \[8, 7\], the following metrics are generally used: Directional CLIP similarity ($S_{dir}$), segmentation-consistency (SC), Fr\'echet Inception Distance (FID), and face identity similarity (ID). The Asyrp paper uses $S_{dir}$ and SC to compare its performance to DiffusionCLIP, which in turn shows that it outperforms both StyleCLIP \[13\] and StyleGAN-NADA \[4\] in $S_{dir}$, SC, and ID.
 
-The directional CLIP similarity score measures how well does the diffusion model preserve the direction of gradients in an image after editing. It is mathematically computed as $1 - \mathcal{L}\_{direction}$, where $\mathcal{L}\_{direction}$ is the directional CLIP loss from Equation 12. The higher the score, the better image editing performance of the model.
+The directional CLIP similarity score measures how well the diffusion model preserves the direction of gradients in an image after editing. It is mathematically computed as $1 - \mathcal{L}\_{direction}$, where $\mathcal{L}\_{direction}$ is the directional CLIP loss from Equation 12. The higher the score, the better image editing performance of the model.
 
-Semantic consistency is a metric that has been introduced in order to evaluate the consistency of network predictions on video sequences. In the image editing setting, it compares the segmentation maps of the reference and the edited image by computing the mean intersection over union of the two. Knowing this, we can reason that high SC scores do not necessarily mean good image content modification, as can be seen in Figure 5. This is an example that clearly shows how this metric fails on evaluating editing performance. The DiffusionCLIP model tries to preserve structure and shape in the image, while Asyrp allows more changes that lead to desired attribute alterations.
+Semantic consistency is a metric that has been introduced in order to evaluate the consistency of network predictions on video sequences. In the image editing setting, it compares the segmentation maps of the reference and the edited image by computing the mean intersection over the union of the two. Knowing this, we can reason that high SC scores do not necessarily mean good image content modification, as can be seen in Figure 5. This is an example that clearly shows how this metric fails on evaluating editing performance. The DiffusionCLIP model tries to preserve structure and shape in the image, while Asyrp allows more changes that lead to desired attribute alterations.
 
 | ![Segmentation consistency](figures/sc.png) | 
 |:-:| 
@@ -122,25 +122,238 @@ Semantic consistency is a metric that has been introduced in order to evaluate t
 
 The ID score measures how well the identity of a face has been preserved after editing. It uses the pre-trained ArcFace face recognition model \[2\] in order to generate the feature vectors of the original and the edited faces, and then computes the cosine similarity between them. 
 
-The FID metric compares the distribution of the edited images with the distribution of the reference ones in feature space. Lower FID scores correspond to better image editing. In order to compute the FID score, the activations of the last layer prior to the output classification one of the Inception v3 model are determined for a set of edited and source images. The mean and the covariance of the activations is computed, so they can be modelled as multivariate Gaussians: $\mathcal{N}(\mu, \Sigma)$ being the distribution of the edited images' features and $\mathcal{N}(\mu_{ref}, \Sigma_{ref})$ the distribuiton of the reference images. The FID is then calculated using Equation 14:
+The FID metric compares the distribution of the edited images with the distribution of the referential images in a feature space. Lower FID scores correspond to better image editing. In order to compute the image features, one commonly employs the Inception-v3 model \[18\]. In particular, the model's activations of the last layer prior to the output classification layer are calculated for a set of edited and source images. The mean and the covariance of the activations is computed, so they can be modelled as multivariate Gaussians: $\mathcal{N}(\mu, \Sigma)$ being the distribution of the edited images' features and $\mathcal{N}(\mu_{ref}, \Sigma_{ref})$ the distribution of the reference images' features. The FID is then calculated as follows:
 
-$$FID = \Vert \mu - \mu\_{ref} \Vert_2^2 + tr \left( \Sigma + \Sigma\_{ref} - 2 { \left( \Sigma^\frac{1}{2} \Sigma\_{ref} \Sigma^\frac{1}{2} \right) }^\frac{1}{2} \right) \qquad \qquad \text{(Equation 14)}$$
+$$FID = \Vert \mu - \mu\_{ref} \Vert_2^2 + tr \left( \Sigma + \Sigma\_{ref} - 2 { \left( \Sigma^\frac{1}{2} \Sigma\_{ref} \Sigma^\frac{1}{2} \right) }^\frac{1}{2} \right). \qquad \qquad \text{(Equation 14)}$$
 
 ## Reproduction of the Experiments
 
-We begin by reproducing the qualitative and quantitative results of the original paper. We conduct our reproducibility experiments on the CelebA-HQ \[6\] dataset and use the ...... diffusion model \[\]. We make use of the [open source code](https://github.com/kwonminki/Asyrp_official/tree/main/models) from the original paper to do so.
+We begin by reproducing the qualitative and quantitative results of the original paper. To sustain the limits of our computational budget, we restrict our reproduction efforts to the CelebA-HQ \[6\] dataset. Our experiments are based on the [original implementation](https://github.com/kwonminki/Asyrp_official/tree/main/models), however, we found that some of the features required for successful reproduction, especially those relating to quantitative evaluation, are missing from the repository. Generally, we follow the computational set-up specified by the original authors in full. Specifically, we use hyperparameter values as specified in Table 1, which were recovered from \[8, Table 2\] and \[8, Table 3\]. For most of our experiments, we use 40 time steps during both the inversion and generation phase of training and inference. We model checkpoints trained for a single iteration over all images in the training sample.
 
-Figures 6 and 7 show that the results obtained in the original Asyrp paper are reproducible and that editing in the h-space results in high performance image generation for both in and unseen (attributes that are not included in the training dataset) domains. 
+<table align="center">
+  <tr align="center">
+      <th align="left">$y_{ref}$</th>
+      <th align="left">$y_{target}$</th>
+      <th>$\lambda_{\text{CLIP}}$</th>
+      <th>$\lambda_{\text{recon}}$</th>
+      <th>$t_{\text{edit}}$</th>
+      <th>$t_{\text{boost}}$</th>
+      <th>domain</th>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">smiling face</td>
+    <td>0.8</td>
+    <td>3*0.899</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">sad face</td>
+    <td>0.8</td>
+    <td>3*0.894</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">angry face</td>
+    <td>0.8</td>
+    <td>3*0.892</td>
+    <td>512</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">face</td>
+    <td align="left">tanned face</td>
+    <td>0.8</td>
+    <td>3*0.886</td>
+    <td>512</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">a person</td>
+    <td align="left">a man</td>
+    <td>0.8</td>
+    <td>3*0.910</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">a person</td>
+    <td align="left">a woman</td>
+    <td>0.8</td>
+    <td>3*0.891</td>
+    <td>513</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">person</td>
+    <td align="left">young person</td>
+    <td>0.8</td>
+    <td>3*0.905</td>
+    <td>515</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">person</td>
+    <td align="left">person with curly hair</td>
+    <td>0.8</td>
+    <td>3*0.835</td>
+    <td>499</td>
+    <td>167</td>
+    <td>IN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Person</td>
+    <td align="left">Nicolas Cage</td>
+    <td>0.8</td>
+    <td>3*0.710</td>
+    <td>461</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Human</td>
+    <td align="left">3D render in the style of Pixar</td>
+    <td>0.8</td>
+    <td>3*0.667</td>
+    <td>446</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Human</td>
+    <td align="left">Neanderthal</td>
+    <td>1.2</td>
+    <td>3*0.802</td>
+    <td>490</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">photo</td>
+    <td align="left">Painting in Modigliani style</td>
+    <td>0.8</td>
+    <td>3*0.565</td>
+    <td>403</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="center">
+    <td align="left">photo</td>
+    <td align="left">self-portrait by Frida Kahlo</td>
+    <td>0.8</td>
+    <td>3*0.443</td>
+    <td>321</td>
+    <td>167</td>
+    <td>UN</td>
+  </tr>
+  <tr align="left">
+    <td colspan=7><b>Table 1.</b> Hyperparameter settings of reproducibility experiments. The "domain" column corresponds<br>to the attribute being in-domain (IN) or unseen-domain (UN).</td>
+  </tr>
+</table>
 
-| ![In-domain](figures/in.png) | 
+Figure 6 shows that the results obtained in the original Asyrp paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in high performance image generation for in-domain attributes. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular shifts may also result in other unintended shifts. To give an example, edits in the "woman" and "young" directions appear heavily entangled for the first image in Figure 6.
+
+| ![In-domain](figures/reproduction/in_1.0.png) | 
 |:-:| 
-| **Figure 6.** **TO-DO:** Editing results of Asyrp on CelebA-HQ for in-domain attributes. |
+| **Figure 6.** Editing results of Asyrp on CelebA-HQ for in-domain attributes. |
 
-| ![Unseen-domain](figures/unseen.png) | 
+Figures 7 and 8 depict the results of our reproducibility experiment focused on unseen-domain attributes (i.e., attributes that have not been observed in the training data) originally presented in \[8, Figure 5\]. In Figure 7, we use the full $\Delta h_t$ as done by the authors. In Figure 8, we reduce the editing strength by taking $0.5 \Delta h_t$. We observe that for unseen-domain attributes, reduction of the editing strength can nicely reduce invasiveness of the method and produce more sound results.
+
+| ![Unseen-domain](figures/reproduction/unseen_1.0.png) | 
 |:-:| 
-| **Figure 7.** **TO-DO:** Editing results of Asyrp on CelebA-HQ for unseen-domain attributes. |
+| **Figure 7.** Editing results of Asyrp on CelebA-HQ for unseen-domain attributes. |
+
+| ![Unseen-domain](figures/reproduction/unseen_0.5.png) | 
+|:-:| 
+| **Figure 8.** Editing results of Asyrp on CelebA-HQ for unseen-domain attributes with $0.5 \Delta h_t$. |
 
 To quantitatively appreciate the performance of the Asyrp model, we reproduce the evaluation they conducted and compute the Directional CLIP score for the same three in-domain attributes (smiling, sad, tanned) and two unseen-domain attributes (Pixar, Neanderthal) on a set of 100 images per attribute from the CelebA-HQ dataset. The available repository does not provide code for implementing neither of the evaluation metrics, which leads to also not knowing which 100 images from the dataset were considered when computing the scores. We took the first 100 images and the comparative results can be seen in Table 1. We did not implement the segmentation consistency score, as we showed in the Evaluation Diffusion Models section that it has shortcomings, but we computed the FID score that is more meaningful in the case of image editing.
+
+<table align="center">
+  <tr align="center">
+      <th align="left">Metric</th>
+      <th>Smiling (IN)</th>
+      <th>Sad (IN)</th>
+      <th>Tanned (IN)</th>
+      <th>Pixar (UN)</th>
+      <th>Neanderthal (UN)</th>
+  </tr>
+  <tr align="center">
+    <td align="left">Original $S_{dir}$</td>
+    <td>0.921</td>
+    <td>0.964</td>
+    <td>0.991</td>
+    <td>0.956</td>
+    <td>0.805</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Reproduced $S_{dir}$</td>
+    <td>0.989</td>
+    <td>1.003</td>
+    <td>1.003</td>
+    <td>0.987</td>
+    <td>0.977</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Alt. metric</td>
+    <td>0.966</td>
+    <td>0.966</td>
+    <td>0.962</td>
+    <td>0.958</td>
+    <td>0.953</td>
+  </tr>
+  <tr align="center">
+    <td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score for in-domain (I) and unseen-domain (U) attributes.</td>
+  </tr>
+</table>
+
+<table align="center">
+    <tr align="center">
+      <th align="left">Metric</th>
+      <th>Smiling (IN)</th>
+      <th>Sad (IN)</th>
+      <th>Tanned (IN)</th>
+      <th>Pixar (UN)</th>
+      <th>Neanderthal (UN)</th>
+  </tr>
+  <tr align="center"><td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{recon})$</td>
+      <td>96.11</td>
+      <td>96.11</td>
+      <td>96.11</td>
+      <td>96.11</td>
+      <td>96.11</td>
+  </tr>
+  <tr align="center">
+    <td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
+    <td>80.42</td>
+    <td>82.66</td>
+    <td>92.17</td>
+    <td>111.70</td>
+    <td>93.84</td>
+  </tr>
+  <tr align="center">
+    <td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
+    <td>56.02</td>
+    <td>50.42</td>
+    <td>66.21</td>
+    <td>80.61</td>
+    <td>85.41</td>
+  </tr>
+  <tr align="center">
+    <td colspan=6><b>Table 3.</b> Asyrp's $FID$ score for in-domain (I) and unseen-domain (U) attributes.</td>
+  </tr>
+</table>
 
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
 
@@ -156,7 +369,7 @@ We also conducted reproducibility experiments on the linearity and consistency a
 **section by Ana and Jonathan about the results of the ablation study, i.e. other query then that they present to show reliance on hyperparameters. Ablations on the model architecture.**
 
 ## Further Research: Latent Diffusion Models:
-Lastly in this blog post we set out to investigate whether Asyrp can also be applied on top of a latent diffusion model. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to find out if modifications in the h-space lead to meaningful attribute edits in the original images. Conveniently DDIM, the algorithm on which Asyrp was build, is also the algorithm behind LDMs. However, the diffusion process runs in the latent space instead of the pixel space. A sperate VQ-VAE  is trained \[18\], where the encoder $\mathcal{E}$ is used to compress the image $x_0$ to a smaller latent vector $z_0$ and the decoder $\mathcal{D}$ is used to reconstruct the image $\hat{x}_0$ from the computed latent vector $\hat{z}_0$. All the remaining steps are as described in the [second](#recap) and [third](#discover) section, but replacing $x$ by $z$. This leads to training a neural network $\epsilon\_\theta \left( z_t, t \right)$ and optimizing it with the loss in Equation 15. Furthermore, steps in the reverse process can be sampled with Equation 16.
+Lastly in this blog post we set out to investigate whether Asyrp can also be applied on top of a latent diffusion model. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to find out if modifications in the h-space lead to meaningful attribute edits in the original images. Conveniently DDIM, the algorithm on which Asyrp was build, is also the algorithm behind LDMs. However, the diffusion process runs in the latent space instead of the pixel space. A sperate VQ-VAE  is trained \[19\], where the encoder $\mathcal{E}$ is used to compress the image $x_0$ to a smaller latent vector $z_0$ and the decoder $\mathcal{D}$ is used to reconstruct the image $\hat{x}_0$ from the computed latent vector $\hat{z}_0$. All the remaining steps are as described in the [second](#recap) and [third](#discover) section, but replacing $x$ by $z$. This leads to training a neural network $\epsilon\_\theta \left( z_t, t \right)$ and optimizing it with the loss in Equation 15. Furthermore, steps in the reverse process can be sampled with Equation 16.
 
 $$L_{L D M} := \mathbb{E}\_{ \mathcal{E}(x), \epsilon \sim \mathcal{N}(0, 1), t } \left\[ \left\| \epsilon - \epsilon\_\theta \left( z_t, t \right) \right\|_2^2 \right\] \qquad \qquad \text{(Equation 15)}$$
 
@@ -180,7 +393,7 @@ That being said this section is called future research for a reason. Sadly the o
 
 [3] Prafulla Dhariwal and Alexander Nichol. “Diffusion models beat gans on image synthesis”. In: Advances in Neural Information Processing Systems 34 (2021), pp. 8780–8794.
 
-[4] Rinon Gal, Or Patashnik, Haggai Maron, Amit H Bermano, Gal Chechik, and Daniel Cohen-Or. “StyleGAN-NADA: CLIP-guided domain adaptation of image generators”. In: ACM Transactions on Graphics (TOG) 41.4 (2022), pp. 1–13.
+[4] Rinon Gal, Or Patashnik, Haggai Maron, Amit H Bermano, Gal Chechik, and Daniel Cohen-Or. “StyleGAN-NADA: CLIP-guided domain adaptation of image generators”. In: ACM Transactions on Graphics (TOG) 41.4 (2022), pp. 1–13.[18]
 
 [5] Jonathan Ho, Ajay Jain, and Pieter Abbeel. “Denoising diffusion probabilistic models”. In: Advances in Neural Information Processing Systems 33 (2020), pp. 6840–6851.
 
@@ -208,4 +421,6 @@ That being said this section is called future research for a reason. Sadly the o
 
 [17] Jiaming Song, Chenlin Meng, and Stefano Ermon. “Denoising diffusion implicit models”. In: arXiv preprint arXiv:2010.02502 (2020).
 
-[18] Aaron van den Oord, Oriol Vinyals, Koray Kavukcuoglu. "Neural Discrete Representation Learning". Advances in neural information processing systems 30 (2017). 
+[18] C. Szegedy, V. Vanhoucke, S. Ioffe, J. Shlens and Z. Wojna. [Rethinking the Inception Architecture for Computer Vision](https://ieeexplore.ieee.org/document/7780677). 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, 2016, pp. 2818-2826, doi: 10.1109/CVPR.2016.308.
+
+[19] Aaron van den Oord, Oriol Vinyals, Koray Kavukcuoglu. "Neural Discrete Representation Learning". Advances in neural information processing systems 30 (2017). 
