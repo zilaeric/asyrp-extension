@@ -19,8 +19,12 @@ Asyrp discovers semantic meaning in the bottleneck of the U-Net architecture. An
 
 Asyrp is trained to minimize the loss consisting of the directional CLIP loss and the reconstruction loss. To support the results of their method, Kwon et al. \[8\] performed both qualitative and quantitative experiments. The metrics that they evaluated on are directional CLIP similarity and segmentation consistency.
 
-**TO DO: this section is no longer relevant, but we still need smt like this** In order to test the generalizability of the proposed Asyrp algorithm, we apply it to latent diffusion models (LDM) and also experiment with the network's architecture. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to investigate whether modifications in this h-space lead to meaningful attribute edits in the original images. Nonetheless, according to Park et al. \[12\] the semantic latent space of LDMs lacks structure and might be too complex for the methodology to be useful. On the other hand, we believe that by using a more complex architecture for the network that predicts the $\mathbf{\Delta h_{t}}$, we can capture intricate relationships in the data and achieve a significant performance boost over the original results. Another motivation for experimenting with this is the complexity of the latent space in LDMs, which suggests that attention-based networks might be better at finding relations between the dimensions.
-
+In order to test the performance and the generalizability of the proposed Asyrp algorithm, we reproduce their main 
+qualitative and quantitative experiments on the 
+CelebA-HQ \[6\] dataset, introduce a new metric, the FID score, change the architecture of the neural network that 
+produces the semantic latent space used for editing into a transformer-based network and perform an ablation study on it.
+Also, since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to investigate 
+whether this method could be applied to them and whether it would lead to meaningful attribute edits in the original images.
 ## <a name="recap">Recap on Diffusion Models</a>
 
 Over the past few years, we have observed a surge in popularity of generative models due to their proven ability to create realistic and novel content. DMs are a powerful new family of these models which has been shown to outperform other alternatives such as variational autoencoders (VAEs) and generative adversarial networks (GANs) on image synthesis \[3\]. The basic idea behind them is to gradually add noise to the input data during the forward process and then train a neural network to recover the original data step-by-step in the reverse process. The Asyrp paper's authors chose to base their work on Denoising Diffusion Probabilistic Models (DDPM) \[11\] and its successors, a widely-used algorithm that effectively implements this concept. In DDPMs the forward process $q$ is parameterized by a Markov process as shown in Equation 1, to produce latent variables $x_1$ through $x_T$ by adding Gaussian noise at each time step t with a variance of $\beta_t \in (0,1)$ following Equation 2.
@@ -366,8 +370,38 @@ We also conducted reproducibility experiments on the linearity and consistency a
 | **Figure 9.** **TO-DO:** Linear combination of attributes. |
 
 ## Ablation study
-**section by Ana and Jonathan about the results of the ablation study, i.e. other query then that they present to show reliance on hyperparameters. Ablations on the model architecture.**
+<!-- **section by Ana and Jonathan about the results of the ablation study, i.e. other query then that they present to show reliance on hyperparameters. Ablations on the model architecture.** -->
+The original training performs well as we can see from the previous section, but is not further explored. Adjustments to this architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section we perform several ablations in order to gain a deeper understanding of the asyrp method.
 
+### Ablations of the architecture
+The original training performs well as we can see from the previous section, but is not further explored. Adjustments to this architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability.
+The original model as seen in figure 4 can be broken down in multiple submodules. A input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
+
+#### pre- and postprocessing modules
+The input and output of the module is an embedding of size w x h x c, in the celebAHQ dataset these take on the values 8 x 8 x 512. Any architecture we might want to use to processing this embedding must thus take in and return an output of that shape.
+In the original architecture 1x1 convolutions are used to exchange information between channels of the embedding. We propose to use a transformer based architecture instead to exchange information between the elements of the embedding more effectively. To use a transformer we need to interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
+
+We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). As both of these modules return an output of the same size as the input, we can also combine these two interpretations and apply them in serial.
+
+We use a single transformer layer with a linear layer of dimension 2048 and use it to replace the convolutional layers in the pre- and postprocessing modules. We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs and calculate clip loss and FID. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
+
+#### Temporal embedding module
+The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
+
+#### activation function
+A nonlinearity is applied after the group norm just before the output module
+
+
+### Transfer-Learning between attributes
+During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
+We therefore hypothesize that using pretrained weights from a different attribute than the target attribute should speed up training. We perform transfer learning from the 
+
+### results
+
+### Bias in editing directions
+The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions below.
+
+### Transferability
 ## Further Research: Latent Diffusion Models:
 Lastly in this blog post we set out to investigate whether Asyrp can also be applied on top of a latent diffusion model. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to find out if modifications in the h-space lead to meaningful attribute edits in the original images. Conveniently DDIM, the algorithm on which Asyrp was build, is also the algorithm behind LDMs. However, the diffusion process runs in the latent space instead of the pixel space. A sperate VQ-VAE  is trained \[19\], where the encoder $\mathcal{E}$ is used to compress the image $x_0$ to a smaller latent vector $z_0$ and the decoder $\mathcal{D}$ is used to reconstruct the image $\hat{x}_0$ from the computed latent vector $\hat{z}_0$. All the remaining steps are as described in the [second](#recap) and [third](#discover) section, but replacing $x$ by $z$. This leads to training a neural network $\epsilon\_\theta \left( z_t, t \right)$ and optimizing it with the loss in Equation 15. Furthermore, steps in the reverse process can be sampled with Equation 16.
 
