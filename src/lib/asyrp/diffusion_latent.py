@@ -117,6 +117,7 @@ class Asyrp(object):
         if self.config.data.dataset in ["CelebA_HQ", "LSUN", "CelebA_HQ_Dialog"]:
             model = DDPM(self.config)
 
+            model.db_norm_type = self.args.db_norm_type
             model.db_nonlinearity_function = self.args.db_nonlinearity_function
             model.db_layer_type = self.args.db_layer_type
             model.db_emb_type = self.args.db_emb_type

@@ -69,18 +69,20 @@ def nonlinearity(x, nonlinearity_function="silu"):
     elif nonlinearity_function == "gelu":
         gelu = nn.GELU()
         return gelu(x)
-    elif nonlinearity_function == "glu":
-        glu = nn.GLU()
-        return glu(x)
     else:
         #silu
         return x * torch.sigmoid(x)
 
 
-def Normalize(in_channels):
-    return torch.nn.GroupNorm(
-        num_groups=32, num_channels=in_channels, eps=1e-6, affine=True
-    )
+def Normalize(in_channels, norm_type="group"):
+    if norm_type == "instance":
+        return torch.nn.InstanceNorm2d(
+            num_features=in_channels, eps=1e-6, affine=True
+        )
+    else:
+        return torch.nn.GroupNorm(
+            num_groups=32, num_channels=in_channels, eps=1e-6, affine=True
+        )
 
 
 class Upsample(nn.Module):
@@ -422,7 +424,8 @@ class DDPM(nn.Module):
                     dim_feedforward=self.db_dim_feedforward,
                     emb_type=self.db_emb_type,
                     use_midblock=self.use_midblock,
-                    nonlinearity_function=self.db_nonlinearity_function
+                    nonlinearity_function=self.db_nonlinearity_function,
+                    norm_type = self.db_norm_type
                 ),
             )
 
@@ -1144,7 +1147,8 @@ class DeltaBlock(nn.Module):
         dim_feedforward=2048,
         emb_type="add",
         use_midblock=False,
-        nonlinearity_function="silu"
+        nonlinearity_function="silu",
+        norm_type="group"
     ):
         super().__init__()
         self.use_midblock = use_midblock
@@ -1167,9 +1171,10 @@ class DeltaBlock(nn.Module):
                 layer_type, nheads, num_layers, dim_feedforward, dropout
             )
             self.nonlinearity_function = nonlinearity_function
+            self.norm_type = norm_type
             if emb_type == "adagn":
                 # num groups is kept the same as in Normalize
-                self.adagn = AdaGroupNorm(embedding_dim=512,out_dim=512,num_groups=32)
+                self.adagn = AdaGroupNorm(embedding_dim=512, out_dim=512, num_groups=32)
 
     def forward(self, x, temb=None):
         if self.use_midblock:
@@ -1182,16 +1187,16 @@ class DeltaBlock(nn.Module):
             if temb is not None:
                 if self.emb_type == "add":
                     h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None]
-                    h = self.norm2(h)
+                    h = self.norm2(h, self.norm_type)
                     h = nonlinearity(h, self.nonlinearity_function)
 
                 elif self.emb_type == "mult":
                     h = h * self.temb_proj(nonlinearity(temb))[:, :, None, None]
-                    h = self.norm2(h)
+                    h = self.norm2(h, self.norm_type)
                     h = nonlinearity(h, self.nonlinearity_function)
 
                 elif self.emb_type == "adagn":
-                    # apply temporal group norm
+                    # apply temporal group norm_type
                     # authors already do this in the other fancier implementations
                     # but not using the code from diffusers, functionally the same though
                     h = self.adagn(h, temb)
