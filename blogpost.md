@@ -19,7 +19,22 @@ Asyrp discovers semantic meaning in the bottleneck of the U-Net architecture. An
 
 Asyrp is trained to minimize the loss consisting of the directional CLIP loss and the reconstruction loss. To support the results of their method, Kwon et al. \[8\] performed both qualitative and quantitative experiments. The metrics that they evaluated on are directional CLIP similarity and segmentation consistency.
 
-**TO DO: this section is no longer relevant, but we still need smt like this** In order to test the generalizability of the proposed Asyrp algorithm, we apply it to latent diffusion models (LDM) and also experiment with the network's architecture. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to investigate whether modifications in this h-space lead to meaningful attribute edits in the original images. Nonetheless, according to Park et al. \[12\] the semantic latent space of LDMs lacks structure and might be too complex for the methodology to be useful. On the other hand, we believe that by using a more complex architecture for the network that predicts the $\mathbf{\Delta h_{t}}$, we can capture intricate relationships in the data and achieve a significant performance boost over the original results. Another motivation for experimenting with this is the complexity of the latent space in LDMs, which suggests that attention-based networks might be better at finding relations between the dimensions.
+**TO DO: this section is no longer relevant, but we still need smt like this** In order to test the performance and the
+generalizability of the proposed Asyrp algorithm, we reproduce their main qualitative and quantitative experiments on the 
+CelebA-HQ \[6\] dataset, introduce a new metric, the FID score, change the architecture of the neural network that 
+produces the semantic latent space used for editing into a transformer-based network and perform an ablation study on it.
+Also, since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to investigate 
+whether this method could be applied to them and whether it would lead to meaningful attribute edits in the original images.
+
+[//]: # (In order to test the generalizability of the proposed Asyrp algorithm, we apply it to latent diffusion models
+ &#40;LDM&#41; and also experiment with the network's architecture. Since LDMs currently represent the state-of-the-art 
+ in image generation \[16\], it is reasonable to investigate whether modifications in this h-space lead to meaningful 
+ attribute edits in the original images. Nonetheless, according to Park et al. \[12\] the semantic latent space of LDMs 
+ lacks structure and might be too complex for the methodology to be useful. On the other hand, we believe that by using 
+ a more complex architecture for the network that predicts the $\mathbf{\Delta h_{t}}$, we can capture intricate 
+ relationships in the data and achieve a significant performance boost over the original results. Another motivation 
+ for experimenting with this is the complexity of the latent space in LDMs, which suggests that attention-based networks
+  might be better at finding relations between the dimensions.)
 
 ## <a name="recap">Recap on Diffusion Models</a>
 
