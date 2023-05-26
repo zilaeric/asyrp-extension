@@ -145,7 +145,7 @@ We begin by reproducing the qualitative and quantitative results of the original
 | | Human | Neanderthal | 1.2 | 3*0.802 | 490 | 167 | UN | |
 | | photo | Painting in Modigliani style | 0.8 | 3*0.565 | 403 | 167 | UN | |
 | | photo | self-portrait by Frida Kahlo | 0.8 | 3*0.443 | 321 | 167 | UN | |
-| <td colspan=7> <b>Table 1.</b> Hyperparameter settings of reproducibility experiments. The "domain" column corresponds to the attribute being in-domain (IN) or unseen-domain (UN). </td> |
+| <td colspan=7> <b>Table 1.</b> Hyperparameter settings of reproducibility experiments. The "domain" column corresponds to the attribute being in-domain (IN) or unseen-domain (UN). </td>
 
 Figure 6 shows that the results obtained in the original Asyrp paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in high performance image generation for in-domain attributes. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular shifts may also result in other unintended shifts. To give an example, edits in the "woman" and "young" directions appear heavily entangled for the first image in Figure 6.
 
@@ -165,19 +165,80 @@ Figures 7 and 8 depict the results of our reproducibility experiment focused on 
 
 To quantitatively appreciate the performance of the Asyrp model, we reproduce the evaluation they conducted and compute the Directional CLIP score for the same three in-domain attributes (smiling, sad, tanned) and two unseen-domain attributes (Pixar, Neanderthal) on a set of 100 images per attribute from the CelebA-HQ dataset. The available repository does not provide code for implementing neither of the evaluation metrics, which leads to also not knowing which 100 images from the dataset were considered when computing the scores. We took the first 100 images and the comparative results can be seen in Table 1. We did not implement the segmentation consistency score, as we showed in the Evaluation Diffusion Models section that it has shortcomings, but we computed the FID score that is more meaningful in the case of image editing.
 
-| | Metric | Smiling (IN) | Sad (IN) | Tanned (IN) | Pixar (UN) | Neanderthal (UN) | |
-|:-:|:-|:-:|:-:|:-:|:-:|:-:|:-:|
-| | Original $S_{dir}$ | 0.921 | 0.964 | 0.991 | 0.956 | 0.805 | |
-| | Reproduced $S_{dir}$ | 0.989 | 1.003 | 1.003 | 0.987 | 0.977 | |
-| | Alt. metric | 0.966 | 0.966 | 0.962 | 0.958 | 0.953 | |
-| <td colspan=6> <b>Table 2.</b> Asyrp's directional CLIP score for in-domain (I) and unseen-domain (U) attributes. </td> |
+<table align="center">
+  <tr align="center">
+      <th align="left">Metric</th>
+      <th>Smiling (IN)</th>
+      <th>Sad (IN)</th>
+      <th>Tanned (IN)</th>
+      <th>Pixar (UN)</th>
+      <th>Neanderthal (UN)</th>
+  </tr>
+  <tr align="center">
+    <td align="left">Original $S_{dir}$</td>
+    <td>0.921</td>
+    <td>0.964</td>
+    <td>0.991</td>
+    <td>0.956</td>
+    <td>0.805</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Reproduced $S_{dir}$</td>
+    <td>0.989</td>
+    <td>1.003</td>
+    <td>1.003</td>
+    <td>0.987</td>
+    <td>0.977</td>
+  </tr>
+  <tr align="center">
+    <td align="left">Alt. metric</td>
+    <td>0.966</td>
+    <td>0.966</td>
+    <td>0.962</td>
+    <td>0.958</td>
+    <td>0.953</td>
+  </tr>
+  <tr align="center">
+    <td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score for in-domain (I) and unseen-domain (U) attributes.</td>
+  </tr>
+</table>
 
-| | | Smiling (IN) | Sad (IN) | Tanned (IN) | Pixar (UN) | Neanderthal (UN) | |
-|:-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| | $FID(\mathbf{x}_{orig}, \mathbf{x}_{recon})$ | 96.11 | 96.11 | 96.11 | 96.11 | 96.11 | |
-| | $FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$ | 80.42 | 82.66 | 92.17 | 111.70 | 93.84 | |
-| | $FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$ | 56.02 | 50.42 | 66.21 | 80.61 | 85.41 | |
-| <td colspan=6> <b>Table 3.</b> Asyrp's FID for in-domain (IN) and unseen-domain (UN) attributes. </td> |
+<table align="center">
+    <tr align="center">
+      <th align="left">Metric</th>
+      <th>Smiling (IN)</th>
+      <th>Sad (IN)</th>
+      <th>Tanned (IN)</th>
+      <th>Pixar (UN)</th>
+      <th>Neanderthal (UN)</th>
+  </tr>
+  <tr align="center"><td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{recon})$</td>
+      <td>96.11</td>
+      <td>96.11</td>
+      <td>96.11</td>
+      <td>96.11</td>
+      <td>96.11</td>
+  </tr>
+  <tr align="center">
+    <td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
+    <td>80.42</td>
+    <td>82.66</td>
+    <td>92.17</td>
+    <td>111.70</td>
+    <td>93.84</td>
+  </tr>
+  <tr align="center">
+    <td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
+    <td>56.02</td>
+    <td>50.42</td>
+    <td>66.21</td>
+    <td>80.61</td>
+    <td>85.41</td>
+  </tr>
+  <tr align="center">
+    <td colspan=6><b>Table 3.</b> Asyrp's $FID$ score for in-domain (I) and unseen-domain (U) attributes.</td>
+  </tr>
+</table>
 
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
 
