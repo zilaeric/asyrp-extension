@@ -298,6 +298,7 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 <table align="center">
 	<tr align="center">
 		<th align="left">Metric</th>
+		<th></th>
 		<th>Smiling (IN)</th>
 		<th>Sad (IN)</th>
 		<th>Tanned (IN)</th>
@@ -305,7 +306,8 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<th>Neanderthal (UN)</th>
 	</tr>
 	<tr align="center">
-		<td align="left">Original</td>
+		<td align="left">Original $S_{dir}$</td>
+		<td>$\Delta h_t$</td>
 		<td>0.921</td>
 		<td>0.964</td>
 		<td>0.991</td>
@@ -313,7 +315,8 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>0.805</td>
 	</tr>
 	<tr align="center">
-		<td align="left">Reproduced $\Delta h_t$</td>
+		<td align="left">Reproduced $S_{dir}$</td>
+		<td>$\Delta h_t$</td>
 		<td>0.955<br>(0.048)</td>
 		<td>0.993<br>(0.037)</td>
 		<td>0.933<br>(0.040)</td>
@@ -321,7 +324,8 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>0.913<br>(0.035)</td>
 	</tr>
 	<tr align="center">
-		<td align="left">Reproduced $0.5 \Delta h_t$</td>
+		<td align="left">Reproduced $S_{dir}$</td>
+		<td>$0.5 \Delta h_t$</td>
 		<td>0.969<br>(0.047)</td>
 		<td>0.999<br>(0.035)</td>
 		<td>0.973<br>(0.036)</td>
@@ -329,45 +333,57 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>0.952<br>(0.035)</td>
 	</tr>
 	<tr align="left">
-		<td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes.<br>Standard deviations are reported in parentheses.</td>
+		<td colspan=7><b>Table 2.</b> Asyrp's directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes. Standard<br>deviations are reported in parentheses.</td>
 	</tr>
 </table>
 
 <table align="center">
-    <tr align="center">
-      <th align="left">Metric</th>
-      <th>Smiling (IN)</th>
-      <th>Sad (IN)</th>
-      <th>Tanned (IN)</th>
-      <th>Pixar (UN)</th>
-      <th>Neanderthal (UN)</th>
-  </tr>
-  <tr align="center"><td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{recon})$</td>
-      <td>96.11</td>
-      <td>96.11</td>
-      <td>96.11</td>
-      <td>96.11</td>
-      <td>96.11</td>
-  </tr>
-  <tr align="center">
-    <td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
-    <td>80.42</td>
-    <td>82.66</td>
-    <td>92.17</td>
-    <td>111.70</td>
-    <td>93.84</td>
-  </tr>
-  <tr align="center">
-    <td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
-    <td>56.02</td>
-    <td>50.42</td>
-    <td>66.21</td>
-    <td>80.61</td>
-    <td>85.41</td>
-  </tr>
-  <tr align="center">
-    <td colspan=6><b>Table 3.</b> Asyrp's $FID$ score for in-domain (I) and unseen-domain (U) attributes.</td>
-  </tr>
+	<tr align="center">
+		<th align="left">Metric</th>
+		<th></th>
+		<th>Smiling (IN)</th>
+		<th>Sad (IN)</th>
+		<th>Tanned (IN)</th>
+		<th>Pixar (UN)</th>
+		<th>Neanderthal (UN)</th>
+	</tr>
+	<tr align="center">
+		<td align="left" rowspan=2>$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
+		<td>$\Delta h_t$</td>
+		<td>89.2</td>
+		<td>92.9</td>
+		<td>100.5</td>
+		<td>125.8</td>
+		<td>125.8</td>
+	</tr>
+	<tr align="center">
+		<td>$0.5 \Delta h_t$</td>
+		<td>73.7</td>
+		<td>70.6</td>
+		<td>73.7</td>
+		<td>89.3</td>
+		<td>74.8</td>
+	</tr>
+	<tr align="center">
+		<td align="left" rowspan=2>$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
+		<td>$\Delta h_t$</td>
+		<td>68.8</td>
+		<td>60.5</td>
+		<td>81.7</td>
+		<td>96.9</td>
+		<td>137.3</td>
+	</tr>
+	<tr align="center">
+		<td>$0.5 \Delta h_t$</td>
+		<td>44.4</td>
+		<td>43.7</td>
+		<td>49.7</td>
+		<td>61.0</td>
+		<td>71.7</td>
+	</tr>
+	<tr align="left">
+		<td colspan=7><b>Table 3.</b> Asyrp's Frechet Inception Distance ($FID$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
+	</tr>
 </table>
 
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
