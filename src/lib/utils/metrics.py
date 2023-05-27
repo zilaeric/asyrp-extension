@@ -16,7 +16,6 @@ import numpy as np
 sys.path.append("../lib/asyrp/")
 
 from utils.text_dic import SRC_TRG_TXT_DIC
-from IPython.utils import io
 
 from transformers import (
     CLIPTokenizer,
@@ -48,7 +47,14 @@ def calculate_fid(image_folder_path_src, image_folder_path_target):
     images_target_path = glob(image_folder_path_target + "/*.png")
 
     images_src_tensors = []
-    for image_path in tqdm(images_src_path, total=len(images_src_path), desc="parsing src images for fid"):
+    for i in tqdm(range(len(images_src_path)), total=len(images_src_path), desc="parsing src images for fid"):
+        if "original" in image_folder_path_src:
+            image_path = image_folder_path_src + f"test_{i}_0_ngen40_original.png"
+        elif "reconstructed" in image_folder_path_src:
+            image_path = image_folder_path_src + f"test_{i}_0_ngen40_reconstructed.png"
+        elif "edited" in image_folder_path_src:
+            image_path = image_folder_path_src + f"test_{i}_0_ngen40_edited.png"
+            
         src_img = Image.open(image_path)
 
         src_img_tensor = transform(src_img).to(torch.uint8)
@@ -58,7 +64,14 @@ def calculate_fid(image_folder_path_src, image_folder_path_target):
     fid.update(all_src_tensor, real=True)
 
     images_target_tensors = []
-    for image_path in tqdm(images_target_path, total=len(images_target_path), desc="parsing target images for fid"):
+    for i in tqdm(range(len(images_src_path)), total=len(images_target_path), desc="parsing target images for fid"):
+        if "original" in image_folder_path_target:
+            image_path = image_folder_path_target + f"test_{i}_0_ngen40_original.png"
+        elif "reconstructed" in image_folder_path_target:
+            image_path = image_folder_path_target + f"test_{i}_0_ngen40_reconstructed.png"
+        elif "edited" in image_folder_path_target:
+            image_path = image_folder_path_target + f"test_{i}_0_ngen40_edited.png"
+
         target_img = Image.open(image_path)
 
         target_img_tensor = transform(target_img).to(torch.uint8)
@@ -110,7 +123,7 @@ def reproduction_fid(dt_lambda=0.5):
     results_json = json.dumps(results, indent=4)
 
     # Writing to sample.json
-    with open(f"{RUNSPATH}/reproduction_sdir.json", "w") as f:
+    with open(f"{RUNSPATH}/reproduction_fid_{dt_lambda}_correctorder_norm.json", "w") as f:
         f.write(results_json)
 
 
@@ -183,26 +196,51 @@ def reproduction_sdir(dt_lambda=1.0):
     results = {}
     for attr in attrs:
         path_original = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/original/"
+        path_reconstructed = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/reconstructed/"
         path_edited = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/"
         src_texts, target_texts = SRC_TRG_TXT_DIC[attr]
 
-        list_src_path = glob(path_original + "/*.png")
-        list_target_path = glob(path_edited + "/*.png")
+        list_original_path = glob(path_original + "/*.png")
 
-        scores = []
+        scores_or = []
+        scores_oe = []
+        scores_re = []
 
-        for src_path, target_path in zip(list_src_path, list_target_path):
-            original_image = Image.open(src_path)
-            edited_image = Image.open(target_path)
+        for i in range(len(list_original_path)):
+            original_path = path_original + f"test_{i}_0_ngen40_original.png"
+            reconstructed_path = path_reconstructed + f"test_{i}_0_ngen40_reconstructed.png"
+            edited_path = path_edited + f"test_{i}_0_ngen40_edited.png"
+            
+            original_image = Image.open(original_path)
+            reconstructed_image = Image.open(reconstructed_path)
+            edited_image = Image.open(edited_path)
 
-            similarity_score = dir_similarity(original_image, edited_image, src_texts, target_texts)
-            scores.append(float(similarity_score.detach().cpu()))
+            similarity_score_or = dir_similarity(original_image, reconstructed_image, src_texts, src_texts)
+            similarity_score_oe = dir_similarity(original_image, edited_image, src_texts, target_texts)
+            similarity_score_re = dir_similarity(reconstructed_image, edited_image, src_texts, target_texts)
 
-        s_dir = np.mean(scores)
-        print(f"Attribute {attr} gives CLIP directional similarity: {s_dir}")
+            scores_or.append(float(similarity_score_or.detach().cpu()))
+            scores_oe.append(float(similarity_score_oe.detach().cpu()))
+            scores_re.append(float(similarity_score_re.detach().cpu()))
+
+        sdir_or = np.mean(scores_or)
+        sdir_or_var = np.std(scores_or)
+        sdir_oe = np.mean(scores_oe)
+        sdir_oe_var = np.std(scores_oe)
+        sdir_re = np.mean(scores_re)
+        sdir_re_var = np.std(scores_re)
+
+        print(f"Attribute {attr} gives original-reconstructed CLIP directional similarity: {sdir_or}")
+        print(f"Attribute {attr} gives original-edited CLIP directional similarity: {sdir_oe}")
+        print(f"Attribute {attr} gives reconstructed-edited CLIP directional similarity: {sdir_re}")
 
         results[attr] = {
-            "S_dir": s_dir
+            "sdir_or": float(sdir_or),
+            "sdir_or_var": float(sdir_or_var),
+            "sdir_oe": float(sdir_oe),
+            "sdir_oe_var": float(sdir_oe_var),
+            "sdir_re": float(sdir_re),
+            "sdir_re_var": float(sdir_re_var)
         }
 
     results_json = json.dumps(results, indent=4)
