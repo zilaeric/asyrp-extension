@@ -6,7 +6,7 @@ sys.path.append("../lib/asyrp/")
 from glob import glob
 
 import numpy as np
-
+from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -59,13 +59,16 @@ def calculate_fid(source_path: str, target_path: str) -> float:
     images_src_tensors = []
     for i in tqdm(range(len(images_src_path)), total=len(images_src_path), desc="parsing src images for fid"):
         if "original" in source_path:
-            image_path = source_path + f"test_{i}_0_ngen40_original.png"
+            image_path = source_path + f"test_{i}_19_ngen40_original.png"
         elif "reconstructed" in source_path:
-            image_path = source_path + f"test_{i}_0_ngen40_reconstructed.png"
+            image_path = source_path + f"test_{i}_19_ngen40_reconstructed.png"
         elif "edited" in source_path:
-            image_path = source_path + f"test_{i}_0_ngen40_edited.png"
+            image_path = source_path + f"test_{i}_19_ngen40_edited.png"
             
-        src_img = Image.open(image_path)
+        try:
+            src_img = Image.open(image_path)
+        except:
+            src_img = Image.open(image_path.replace("19_ngen", "0_ngen"))
 
         src_img_tensor = transform(src_img).to(torch.uint8)
         images_src_tensors.append(src_img_tensor)
@@ -76,11 +79,16 @@ def calculate_fid(source_path: str, target_path: str) -> float:
     images_target_tensors = []
     for i in tqdm(range(len(images_src_path)), total=len(images_target_path), desc="parsing target images for fid"):
         if "original" in target_path:
-            image_path = target_path + f"test_{i}_0_ngen40_original.png"
+            image_path = target_path + f"test_{i}_19_ngen40_original.png"
         elif "reconstructed" in target_path:
-            image_path = target_path + f"test_{i}_0_ngen40_reconstructed.png"
+            image_path = target_path + f"test_{i}_19_ngen40_reconstructed.png"
         elif "edited" in target_path:
-            image_path = target_path + f"test_{i}_0_ngen40_edited.png"
+            image_path = target_path + f"test_{i}_19_ngen40_edited.png"
+
+        try:
+            src_img = Image.open(image_path)
+        except:
+            src_img = Image.open(image_path.replace("19_ngen", "0_ngen"))
 
         target_img = Image.open(image_path)
 
@@ -95,7 +103,7 @@ def calculate_fid(source_path: str, target_path: str) -> float:
     return fid_s.item()
 
 
-def reproduction_fid(dt_lambda=0.5):
+def reproduction_fid(dt_lambda=0.5, run_path=RUNSPATH):
     attrs = [
         "smiling",
         "sad",
@@ -106,9 +114,10 @@ def reproduction_fid(dt_lambda=0.5):
 
     results = {}
     for attr in attrs:
-        path_original = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/original/"
-        path_recon = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/reconstructed/"
-        path_edited = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/"
+        run_path = Path(run_path)
+        path_original = run_path / f"{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/original/"
+        path_recon = run_path / f"{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/reconstructed/"
+        path_edited = run_path / f"{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/"
 
         # fid scores
         score_er = calculate_fid(path_edited, path_recon)
@@ -133,7 +142,7 @@ def reproduction_fid(dt_lambda=0.5):
     results_json = json.dumps(results, indent=4)
 
     # Writing to sample.json
-    with open(f"{RUNSPATH}/reproduction_fid_{dt_lambda}_correctorder_norm.json", "w") as f:
+    with open(str(run_path / f"reproduction_fid_{dt_lambda}_correctorder_norm.json"), "w") as f:
         f.write(results_json)
 
 
@@ -186,7 +195,7 @@ class DirectionalSimilarity(nn.Module):
         return directional_similarity
 
 
-def reproduction_sdir(dt_lambda=1.0):
+def reproduction_sdir(dt_lambda=1.0, run_paths=RUNSPATH):
     attrs = [
         "smiling",
         "sad",
@@ -205,9 +214,10 @@ def reproduction_sdir(dt_lambda=1.0):
 
     results = {}
     for attr in attrs:
-        path_original = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/original/"
-        path_reconstructed = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/reconstructed/"
-        path_edited = f"{RUNSPATH}/{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/"
+        run_path = Path(run_path)
+        path_original = run_path / f"{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/original/"
+        path_reconstructed = run_path / f"{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/reconstructed/"
+        path_edited = run_path / f"{attr}_{dt_lambda}_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/"
         src_texts, target_texts = SRC_TRG_TXT_DIC[attr]
 
         list_original_path = glob(path_original + "/*.png")
@@ -256,5 +266,5 @@ def reproduction_sdir(dt_lambda=1.0):
     results_json = json.dumps(results, indent=4)
 
     # Writing to sample.json
-    with open(f"{RUNSPATH}/reproduction_sdir.json", "w") as f:
+    with open(str(run_path / "reproduction_sdir.json"), "w") as f:
         f.write(results_json)
