@@ -104,6 +104,14 @@ Figure 2 visualizes the generative process of Asyrp intuitively. As shown by the
 
 Practically, $f_t$ is implemented as shown in Figure 3. However, the authors note that they haven't explored with other network architectures. That let us to experiment further, which eventually led the network architecture in Figure 4. **TO-DO**
 
+#### pre- and postprocessing modules
+The input and output of the module is an embedding of size w x h x c, in the celebAHQ dataset these take on the values 8 x 8 x 512. Any architecture we might want to use to processing this embedding must thus take in and return an output of that shape.
+In the original architecture 1x1 convolutions are used to exchange information between channels of the embedding. We propose to use a transformer based architecture instead to exchange information between the elements of the embedding more effectively. To use a transformer we need to interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
+
+We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). As both of these modules return an output of the same size as the input, we can also combine these two interpretations and apply them in serial.
+
+We use a single transformer layer with a linear layer of dimension 2048 and use it to replace the convolutional layers in the pre- and postprocessing modules. We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
+
 | ![Asyrp architecture](figures/architecture_asyrp.png) | 
 |:-:| 
 | **Figure 3.** Architecture of $f_t$ in the Asyrp paper \[8\]. |
@@ -370,45 +378,37 @@ We also conducted reproducibility experiments on the linearity and consistency a
 | **Figure 9.** **TO-DO:** Linear combination of attributes. |
 
 ## Ablation study
-While the reproduction results show that the general method works well, we set out to investigate further improvements by running an abaltion study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
+While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
-### Hyperparameter dependency
+### Model architecture
+As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: an input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
 
-
-
-### Ablations of the architecture
-The original training performs well as we can see from the previous section, but is not further explored. Adjustments to this architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability.
-The original model as seen in figure 4 can be broken down in multiple submodules. A input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
-
-#### pre- and postprocessing modules
-The input and output of the module is an embedding of size w x h x c, in the celebAHQ dataset these take on the values 8 x 8 x 512. Any architecture we might want to use to processing this embedding must thus take in and return an output of that shape.
-In the original architecture 1x1 convolutions are used to exchange information between channels of the embedding. We propose to use a transformer based architecture instead to exchange information between the elements of the embedding more effectively. To use a transformer we need to interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
-
-We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). As both of these modules return an output of the same size as the input, we can also combine these two interpretations and apply them in serial.
-
-We use a single transformer layer with a linear layer of dimension 2048 and use it to replace the convolutional layers in the pre- and postprocessing modules. We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs and calculate clip loss and FID. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
+#### General architecture
+As discussed in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that pixel-channel performs best. Next in Table **TODO** we investigate the optimal number of heads of the transformer modules. Finally, we explore the performance after varying numbers of epochs in Table **TODO**. Figure **TODO** visually shows the trade-off between number of epochs and number of heads for the "pixar" attribute. While more heads and more epochs improve the results slightly, we stick to 1 head and 5 epoch for the remainder of the ablations due to increased compuational cost. 
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
 
-#### activation function
-A swish activation function is applied to the embedding before it's passed through the final output layer. We examine this layers this activation function by swapping it out for a GLU and simple ReLU 
+#### Activation function
+A swish activation function is applied to the embedding before it's passed through the final output layer. We examine this layers this activation function by swapping it out for a GLU and simple ReLU --> what did we come up with
+
+### Hyperparameter dependency
+As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
+
+This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure **TODO** shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+
+### Bias in editing directions
+The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **TODO**.
 
 
 ### Transfer-Learning between attributes
 During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
 We therefore hypothesize that using pretrained weights from a different attribute than the target attribute should speed up training. We perform transfer learning from the 
 
-### Ablation of Training Hyperparameter Setup
-The original paper uses stochastic gradient descent and a very high learning rate to train the asyrp module. This setup however is not suited for training more complex architectures like transformer modules. We instead make use of the Adam optimizer to train the ablation architectures. 
-Additionally, we noticed during training that not all hyperparameter configurations result in the asyrp model successfully learning the desired editing direction. Instead some setups result in the module only learning to reconstruct the original image. To investigate wether the setup used in the original paper is necessary to find good editing directions we train the original model and the pixel-channel transformer variant with both the original setup and with adam. For the resuls see table....TODO 
 
-### results
 
-## Bias in editing directions
-The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions below.
 
-### Transferability
+
 
 ## Further Research: Latent Diffusion Models:
 Lastly in this blog post we set out to investigate whether Asyrp can also be applied on top of a latent diffusion model. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to find out if modifications in the h-space lead to meaningful attribute edits in the original images. Conveniently DDIM, the algorithm on which Asyrp was build, is also the algorithm behind LDMs. However, the diffusion process runs in the latent space instead of the pixel space. A sperate VQ-VAE  is trained \[19\], where the encoder $\mathcal{E}$ is used to compress the image $x_0$ to a smaller latent vector $z_0$ and the decoder $\mathcal{D}$ is used to reconstruct the image $\hat{x}_0$ from the computed latent vector $\hat{z}_0$. All the remaining steps are as described in the [second](#recap) and [third](#discover) section, but replacing $x$ by $z$. This leads to training a neural network $\epsilon\_\theta \left( z_t, t \right)$ and optimizing it with the loss in Equation 15. Furthermore, steps in the reverse process can be sampled with Equation 16.
