@@ -389,16 +389,20 @@ We use a single transformer layer with a linear layer of dimension 2048 and use 
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
 
 #### activation function
-A nonlinearity is applied after the group norm just before the output module
+A swish activation function is applied to the embedding before it's passed through the final output layer. We examine this layers this activation function by swapping it out for a GLU and simple ReLU 
 
 
 ### Transfer-Learning between attributes
 During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
 We therefore hypothesize that using pretrained weights from a different attribute than the target attribute should speed up training. We perform transfer learning from the 
 
+### Ablation of Training Hyperparameter Setup
+The original paper uses stochastic gradient descent and a very high learning rate to train the asyrp module. This setup however is not suited for training more complex architectures like transformer modules. We instead make use of the Adam optimizer to train the ablation architectures. 
+Additionally, we noticed during training that not all hyperparameter configurations result in the asyrp model successfully learning the desired editing direction. Instead some setups result in the module only learning to reconstruct the original image. To investigate wether the setup used in the original paper is necessary to find good editing directions we train the original model and the pixel-channel transformer variant with both the original setup and with adam. For the resuls see table....TODO 
+
 ### results
 
-### Bias in editing directions
+## Bias in editing directions
 The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions below.
 
 ### Transferability
