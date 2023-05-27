@@ -1,21 +1,21 @@
-import json
-import os
-import sys
-from glob import glob
-from pathlib import Path
-
-import torch
-import torchvision.transforms as transforms
-from PIL import Image
-from tqdm import tqdm
-import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
-
 # make imports work from the asyrp repository
+import sys
 sys.path.append("../lib/asyrp/")
 
-from utils.text_dic import SRC_TRG_TXT_DIC
+# to count the number of files in a folder
+from glob import glob
+
+import numpy as np
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+from torchmetrics.image.fid import FrechetInceptionDistance
+
+from PIL import Image
+from tqdm import tqdm
+import json
 
 from transformers import (
     CLIPTokenizer,
@@ -24,10 +24,11 @@ from transformers import (
     CLIPImageProcessor,
 )
 
-from torchmetrics.image.fid import FrechetInceptionDistance
+# dictionary of source and target texts for all attributes
+from utils.text_dic import SRC_TRG_TXT_DIC
 
-device = "cuda:0"
-
+# constants
+DEVICE = "cuda:0"
 RUNSPATH = "../runs/"
 
 
@@ -35,7 +36,16 @@ RUNSPATH = "../runs/"
 # REPRODUCTION #
 ################
 
-def calculate_fid(image_folder_path_src, image_folder_path_target):
+def calculate_fid(source_path: str, target_path: str) -> float:
+    """Calculate Frechet Inception Distance (FID) over two sets of images.
+
+    Args:
+        source_path (str): Path to folder containing the first set of images.
+        target_path (str): Path to folder containing the second set of images.
+
+    Returns:
+        float: FID metric over the given sets of images.
+    """
 
     transform = transforms.Compose([
         transforms.PILToTensor()
@@ -43,17 +53,17 @@ def calculate_fid(image_folder_path_src, image_folder_path_target):
 
     fid = FrechetInceptionDistance(feature=2048, normalize=True)
 
-    images_src_path = glob(image_folder_path_src + "/*.png")
-    images_target_path = glob(image_folder_path_target + "/*.png")
+    images_src_path = glob(source_path + "/*.png")
+    images_target_path = glob(target_path + "/*.png")
 
     images_src_tensors = []
     for i in tqdm(range(len(images_src_path)), total=len(images_src_path), desc="parsing src images for fid"):
-        if "original" in image_folder_path_src:
-            image_path = image_folder_path_src + f"test_{i}_0_ngen40_original.png"
-        elif "reconstructed" in image_folder_path_src:
-            image_path = image_folder_path_src + f"test_{i}_0_ngen40_reconstructed.png"
-        elif "edited" in image_folder_path_src:
-            image_path = image_folder_path_src + f"test_{i}_0_ngen40_edited.png"
+        if "original" in source_path:
+            image_path = source_path + f"test_{i}_0_ngen40_original.png"
+        elif "reconstructed" in source_path:
+            image_path = source_path + f"test_{i}_0_ngen40_reconstructed.png"
+        elif "edited" in source_path:
+            image_path = source_path + f"test_{i}_0_ngen40_edited.png"
             
         src_img = Image.open(image_path)
 
@@ -65,12 +75,12 @@ def calculate_fid(image_folder_path_src, image_folder_path_target):
 
     images_target_tensors = []
     for i in tqdm(range(len(images_src_path)), total=len(images_target_path), desc="parsing target images for fid"):
-        if "original" in image_folder_path_target:
-            image_path = image_folder_path_target + f"test_{i}_0_ngen40_original.png"
-        elif "reconstructed" in image_folder_path_target:
-            image_path = image_folder_path_target + f"test_{i}_0_ngen40_reconstructed.png"
-        elif "edited" in image_folder_path_target:
-            image_path = image_folder_path_target + f"test_{i}_0_ngen40_edited.png"
+        if "original" in target_path:
+            image_path = target_path + f"test_{i}_0_ngen40_original.png"
+        elif "reconstructed" in target_path:
+            image_path = target_path + f"test_{i}_0_ngen40_reconstructed.png"
+        elif "edited" in target_path:
+            image_path = target_path + f"test_{i}_0_ngen40_edited.png"
 
         target_img = Image.open(image_path)
 
@@ -137,7 +147,7 @@ class DirectionalSimilarity(nn.Module):
 
     def preprocess_image(self, image):
         image = self.image_processor(image, return_tensors="pt")["pixel_values"]
-        return {"pixel_values": image.to(device)}
+        return {"pixel_values": image.to(DEVICE)}
 
     def tokenize_text(self, text):
         inputs = self.tokenizer(
@@ -147,7 +157,7 @@ class DirectionalSimilarity(nn.Module):
             truncation=True,
             return_tensors="pt",
         )
-        return {"input_ids": inputs.input_ids.to(device)}
+        return {"input_ids": inputs.input_ids.to(DEVICE)}
 
     def encode_image(self, image):
         preprocessed_image = self.preprocess_image(image)
@@ -187,9 +197,9 @@ def reproduction_sdir(dt_lambda=1.0):
 
     clip_id = "openai/clip-vit-large-patch14"
     tokenizer = CLIPTokenizer.from_pretrained(clip_id)
-    text_encoder = CLIPTextModelWithProjection.from_pretrained(clip_id).to(device)
+    text_encoder = CLIPTextModelWithProjection.from_pretrained(clip_id).to(DEVICE)
     image_processor = CLIPImageProcessor.from_pretrained(clip_id)
-    image_encoder = CLIPVisionModelWithProjection.from_pretrained(clip_id).to(device)
+    image_encoder = CLIPVisionModelWithProjection.from_pretrained(clip_id).to(DEVICE)
 
     dir_similarity = DirectionalSimilarity(tokenizer, text_encoder, image_processor, image_encoder)
 
