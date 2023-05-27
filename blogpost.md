@@ -404,9 +404,9 @@ This is convenient as the transformer modules are trained with an Adam optimizer
 During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure **201**.
 
 | <p float="left">
-  <img src="/img1.png" width="100" />
-  <img src="/img2.png" width="100" /> 
-  <img src="/img3.png" width="100" />
+  <img src="figures/ablation/dstrength_vs_heads_img0.png" width="100" />
+  <img src="figures/ablation/dstrength_vs_heads_img3.png" width="100" /> 
+  <img src="figures/ablation/dstrength_vs_heads_img4.png" width="100" />
 </p>
  | 
 |:-:| 
