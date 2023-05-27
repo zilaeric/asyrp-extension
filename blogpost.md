@@ -412,7 +412,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
   </tr>
 </table>
 
-| ![Linear combinations](figures/combination.png) | 
+| ![loss](figures/ablation/loss_curve_models.png) | 
 |:-:| 
 | **Figure 123.** The directional CLIP loss for different transformer architectures. Here pc is pixel-channel, cp is channel-pixel, p is pixel, c is channel, and conv is convolutional block. |
 
