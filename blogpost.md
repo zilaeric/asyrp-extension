@@ -296,41 +296,57 @@ Figures 7 and 8 depict the results of our reproducibility experiment focused on 
 To quantitatively appreciate the performance of the Asyrp model, we reproduce the evaluation they conducted and compute the Directional CLIP score for the same three in-domain attributes (smiling, sad, tanned) and two unseen-domain attributes (Pixar, Neanderthal) on a set of 100 images per attribute from the CelebA-HQ dataset. The available repository does not provide code for implementing neither of the evaluation metrics, which leads to also not knowing which 100 images from the dataset were considered when computing the scores. We took the first 100 images and the comparative results can be seen in Table 1. We did not implement the segmentation consistency score, as we showed in the Evaluation Diffusion Models section that it has shortcomings, but we computed the FID score that is more meaningful in the case of image editing.
 
 <table align="center">
-  <tr align="center">
-      <th align="left">Metric</th>
-      <th>Smiling (IN)</th>
-      <th>Sad (IN)</th>
-      <th>Tanned (IN)</th>
-      <th>Pixar (UN)</th>
-      <th>Neanderthal (UN)</th>
-  </tr>
-  <tr align="center">
-    <td align="left">Original $S_{dir}$</td>
-    <td>0.921</td>
-    <td>0.964</td>
-    <td>0.991</td>
-    <td>0.956</td>
-    <td>0.805</td>
-  </tr>
-  <tr align="center">
-    <td align="left">Reproduced $S_{dir}$</td>
-    <td>0.989</td>
-    <td>1.003</td>
-    <td>1.003</td>
-    <td>0.987</td>
-    <td>0.977</td>
-  </tr>
-  <tr align="center">
-    <td align="left">Alt. metric</td>
-    <td>0.966</td>
-    <td>0.966</td>
-    <td>0.962</td>
-    <td>0.958</td>
-    <td>0.953</td>
-  </tr>
-  <tr align="center">
-    <td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score for in-domain (I) and unseen-domain (U) attributes.</td>
-  </tr>
+	<tr align="center">
+		<th align="left">Metric</th>
+		<th>Smiling (IN)</th>
+		<th>Sad (IN)</th>
+		<th>Tanned (IN)</th>
+		<th>Pixar (UN)</th>
+		<th>Neanderthal (UN)</th>
+	</tr>
+	<tr>
+		<td align="left">Original</td>
+		<td>0.921</td>
+		<td>0.964</td>
+		<td>0.991</td>
+		<td>0.956</td>
+		<td>0.805</td>
+	</tr>
+	<tr>
+		<td align="left">Reproduced $\Delta h_t$</td>
+		<td>0.955</td>
+		<td>0.993</td>
+		<td>0.933</td>
+		<td>0.931</td>
+		<td>0.913</td>
+	</tr>
+	<tr>
+		<td align="left"></td>
+		<td>(0.048)</td>
+		<td>(0.037)</td>
+		<td>(0.040)</td>
+		<td>(0.032)</td>
+		<td>(0.035)</td>
+	</tr>
+	<tr>
+		<td align="left">Reproduced $0.5 \Delta h_t$</td>
+		<td>0.969</td>
+		<td>0.999</td>
+		<td>0.973</td>
+		<td>0.942</td>
+		<td>0.952</td>
+	</tr>
+	<tr>
+		<td align="left"></td>
+		<td>(0.047)</td>
+		<td>(0.035)</td>
+		<td>(0.036)</td>
+		<td>(0.031)</td>
+		<td>(0.035)</td>
+	</tr>
+	<tr align="center">
+		<td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
+	</tr>
 </table>
 
 <table align="center">
