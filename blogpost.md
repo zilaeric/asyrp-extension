@@ -100,25 +100,30 @@ Figure 2 visualizes the generative process of Asyrp intuitively. As shown by the
 | **Figure 2.** Asymmetric reverse process. |
 
 ## <a name="architecture">Model Architecture</a>
-**Section Ana & Jonathan with figures and short description why for all the tried archtectures, adding, multiplying, Ada something etc**
+The original architecture of the neural network, $f_t$, is implemented as shown in Figure 3. It consists of two $1 \times 1$ convolution layers, the aggregation of the positional encodings, a group normalization layer and a SiLU activation function. However, the authors note that they haven't explored much with the network architecture, which let us further experiment with it, leading to the network architecture in Figure 4. We use a Transformer based architecture instead of the convolutions and then experiment by doing changes at each block level: Encoder, Aggregation, Normalization and Activation.
 
-Practically, $f_t$ is implemented as shown in Figure 3. However, the authors note that they haven't explored with other network architectures. That let us to experiment further, which eventually led the network architecture in Figure 4. **TO-DO**
+#### Encoder architecture
+The input and output of the module is an embedding of size $w \times h \times c$, which in the case of the CelebA-HQ dataset corresponds to $8 \times 8 \times 512$. We propose to use a transformer based architecture to exchange information between the elements of the embedding more effectively. In order to do so, we interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
 
-#### pre- and postprocessing modules
-The input and output of the module is an embedding of size w x h x c, in the celebAHQ dataset these take on the values 8 x 8 x 512. Any architecture we might want to use to processing this embedding must thus take in and return an output of that shape.
-In the original architecture 1x1 convolutions are used to exchange information between channels of the embedding. We propose to use a transformer based architecture instead to exchange information between the elements of the embedding more effectively. To use a transformer we need to interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
+We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). For these we use a simple Transformer architecture from the PyTorch framework, with a single transformer layer with a linear layer of dimension 2048. As both of these modules return an output of the same size as the input, we can combine these two interpretations and apply them in serial, leading to pixel-channel and channel-pixel attention. For these we used the Dual Transformer which consists of two simple Transformers, one for the pixel attention and the other for the channel.
 
-We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). As both of these modules return an output of the same size as the input, we can also combine these two interpretations and apply them in serial.
+<!-- We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads. -->
 
-We use a single transformer layer with a linear layer of dimension 2048 and use it to replace the convolutional layers in the pre- and postprocessing modules. We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
+#### Temporal embedding module
+The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
+
+#### Normalization and Activation function
+We experiment with 2 ways of normalizing the aggregated output of the encoder: group norm, where the mean and standard deviation are computed at group level (32 groups) and instance norm, where they are computed for each sample individually.
+A SiLU activation function is applied to this embedding before it's passed through the final output layer. We examine this activation function by swapping it out for a GeLU and simple ReLU.
+
 
 | ![Asyrp architecture](figures/asyrp_theirs.png) | 
 |:-:| 
-| **Figure 3.** Architecture of $f_t$ in the Asyrp paper \[8\]. |
+| **Figure 3.** Original architecture of the neural network $f_t$ as in the Asyrp paper \[8\]. |
 
 | ![Asyrp proposed architecture](figures/asyrp_ours.png) | 
 |:-:| 
-| **Figure 4.** **TO-DO:** Architecture of our $f_t$. |
+| **Figure 4.** Our Transformer based architecture for $f_t$ and all its variants for the ablation study. |
 
 ## Evaluating Diffusion Models
 
