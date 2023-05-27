@@ -441,6 +441,33 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 |:-:| 
 | **Figure 123.** The directional CLIP loss curve for different transformer input sequences. |
 
+<table align="center">
+	<tr align="center">
+		<th align="left">Metric</th>
+		<th>Epoch 1</th>
+		<th>Epoch 2</th>
+		<th>Epoch 3</th>
+		<th>Epoch 4</th>
+	</tr>
+	<tr align="center">
+		<td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
+		<td>113.2</td>
+		<td>94.2</td>
+		<td>104.9</td>
+		<td>100.8</td>
+	</tr>
+	<tr align="center">
+		<td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
+		<td>105.5</td>
+		<td>93.2</td>
+		<td>101.4</td>
+		<td>98.3</td>
+	</tr>
+	<tr align="left">
+		<td colspan=5><b>Table 4.</b> Asyrp's Frechet Inception Distance ($FID$) with pixel-channel<br>architecture for attribute "pixar" across epochs.</td>
+	</tr>
+</table>
+
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
 
