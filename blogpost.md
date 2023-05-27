@@ -102,6 +102,10 @@ Figure 2 visualizes the generative process of Asyrp intuitively. As shown by the
 ## <a name="architecture">Model Architecture</a>
 The original architecture of the neural network, $f_t$, is implemented as shown in Figure 3. It consists of two $1 \times 1$ convolution layers, the aggregation of the positional encodings, a group normalization layer and a SiLU activation function. However, the authors note that they haven't explored much with the network architecture, which let us further experiment with it, leading to the network architecture in Figure 4. We use a Transformer based architecture instead of the convolutions and then experiment by doing changes at each block level: Encoder, Aggregation, Normalization and Activation.
 
+| ![Asyrp architecture](figures/asyrp_theirs.png) | 
+|:-:| 
+| **Figure 3.** Original architecture of the neural network $f_t$ as in the Asyrp paper \[8\]. |
+
 #### Encoder architecture
 The input and output of the module is an embedding of size $w \times h \times c$, which in the case of the CelebA-HQ dataset corresponds to $8 \times 8 \times 512$. We propose to use a transformer based architecture to exchange information between the elements of the embedding more effectively. In order to do so, we interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
 
@@ -117,9 +121,7 @@ We experiment with 2 ways of normalizing the aggregated output of the encoder: g
 A SiLU activation function is applied to this embedding before it's passed through the final output layer. We examine this activation function by swapping it out for a GeLU and simple ReLU.
 
 
-| ![Asyrp architecture](figures/asyrp_theirs.png) | 
-|:-:| 
-| **Figure 3.** Original architecture of the neural network $f_t$ as in the Asyrp paper \[8\]. |
+
 
 | ![Asyrp proposed architecture](figures/asyrp_ours.png) | 
 |:-:| 
