@@ -399,7 +399,7 @@ Next an important architectural decision for the transformer blocks was the numb
   </tr>
 </table>
 
-Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that a pixel-channel dual transformer block performs best. Visually some examples are shown in Figure **182**.
+Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure **182** we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure **123**.
 
 <table align="center">
   <tr align="center">
@@ -411,6 +411,10 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
     <td colspan=3><b>Figure 182.</b> Effect of the input sequence type for the "neanderthal" attribute on CelebA-HQ. Here pc is pixel-channel, cp is channel-pixel, p is pixel, c is channel, and conv is convolutional block.</td>
   </tr>
 </table>
+
+| ![Linear combinations](figures/combination.png) | 
+|:-:| 
+| **Figure 123.** The directional CLIP loss for different transformer architectures. Here pc is pixel-channel, cp is channel-pixel, p is pixel, c is channel, and conv is convolutional block. |
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
