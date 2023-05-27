@@ -1166,12 +1166,12 @@ class DeltaBlock(nn.Module):
             )
 
             self.temb_proj = torch.nn.Linear(temb_channels, out_channels)
-            self.norm2 = Normalize(out_channels)
+            self.norm_type = norm_type
+            self.norm2 = Normalize(out_channels, self.norm_type)
             self.out_layer = get_dh_layer(
                 layer_type, nheads, num_layers, dim_feedforward, dropout
             )
             self.nonlinearity_function = nonlinearity_function
-            self.norm_type = norm_type
             if emb_type == "adagn":
                 # num groups is kept the same as in Normalize
                 self.adagn = AdaGroupNorm(embedding_dim=512, out_dim=512, num_groups=32)
@@ -1187,12 +1187,12 @@ class DeltaBlock(nn.Module):
             if temb is not None:
                 if self.emb_type == "add":
                     h = h + self.temb_proj(nonlinearity(temb))[:, :, None, None]
-                    h = self.norm2(h, self.norm_type)
+                    h = self.norm2(h)
                     h = nonlinearity(h, self.nonlinearity_function)
 
                 elif self.emb_type == "mult":
                     h = h * self.temb_proj(nonlinearity(temb))[:, :, None, None]
-                    h = self.norm2(h, self.norm_type)
+                    h = self.norm2(h)
                     h = nonlinearity(h, self.nonlinearity_function)
 
                 elif self.emb_type == "adagn":
