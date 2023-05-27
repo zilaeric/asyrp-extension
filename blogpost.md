@@ -112,11 +112,11 @@ We propose two ways of reinterpreting the data to get these sequences. We either
 
 We use a single transformer layer with a linear layer of dimension 2048 and use it to replace the convolutional layers in the pre- and postprocessing modules. We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
 
-| ![Asyrp architecture](figures/architecture_asyrp.png) | 
+| ![Asyrp architecture](figures/asyrp_theirs.png) | 
 |:-:| 
 | **Figure 3.** Architecture of $f_t$ in the Asyrp paper \[8\]. |
 
-| ![Asyrp proposed architecture](figures/architecture_asyrp.png) | 
+| ![Asyrp proposed architecture](figures/asyrp_ours.png) | 
 |:-:| 
 | **Figure 4.** **TO-DO:** Architecture of our $f_t$. |
 
@@ -381,10 +381,14 @@ We also conducted reproducibility experiments on the linearity and consistency a
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
-As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: an input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
+As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: the two encoder modules, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
 
-#### General architecture
-As discussed in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that pixel-channel performs best. Next in Table **TODO** we investigate the optimal number of heads of the transformer modules. Finally, we explore the performance after varying numbers of epochs in Table **TODO**. Figure **TODO** visually shows the trade-off between number of epochs and number of heads for the "pixar" attribute. While more heads and more epochs improve the results slightly, we stick to 1 head and 5 epoch for the remainder of the ablations due to increased compuational cost. 
+#### Encoder architecture
+As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We saw that for most of our further abalations the results converged after 4 epochs. Therefor all futures tables we will report values after 4 epochs.
+
+Next an important architectural decision for the transformer blocks was the number of heads to use. In Table **TODO** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations. Figure **TODO** visually shows the results for different number of heads for the "pixar" attribute.
+
+Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that a pixel-channel dual transformer block performs best. Visually some examples are shown in Figure **TODO**.
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
