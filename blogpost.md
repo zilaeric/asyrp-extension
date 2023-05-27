@@ -100,25 +100,30 @@ Figure 2 visualizes the generative process of Asyrp intuitively. As shown by the
 | **Figure 2.** Asymmetric reverse process. |
 
 ## <a name="architecture">Model Architecture</a>
-**Section Ana & Jonathan with figures and short description why for all the tried archtectures, adding, multiplying, Ada something etc**
+The original architecture of the neural network, $f_t$, is implemented as shown in Figure 3. It consists of two $1 \times 1$ convolution layers, the aggregation of the positional encodings, a group normalization layer and a SiLU activation function. However, the authors note that they haven't explored much with the network architecture, which let us further experiment with it, leading to the network architecture in Figure 4. We use a Transformer based architecture instead of the convolutions and then experiment by doing changes at each block level: Encoder, Aggregation, Normalization and Activation.
 
-Practically, $f_t$ is implemented as shown in Figure 3. However, the authors note that they haven't explored with other network architectures. That let us to experiment further, which eventually led the network architecture in Figure 4. **TO-DO**
+#### Encoder architecture
+The input and output of the module is an embedding of size $w \times h \times c$, which in the case of the CelebA-HQ dataset corresponds to $8 \times 8 \times 512$. We propose to use a transformer based architecture to exchange information between the elements of the embedding more effectively. In order to do so, we interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
 
-#### pre- and postprocessing modules
-The input and output of the module is an embedding of size w x h x c, in the celebAHQ dataset these take on the values 8 x 8 x 512. Any architecture we might want to use to processing this embedding must thus take in and return an output of that shape.
-In the original architecture 1x1 convolutions are used to exchange information between channels of the embedding. We propose to use a transformer based architecture instead to exchange information between the elements of the embedding more effectively. To use a transformer we need to interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
+We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). For these we use a simple Transformer architecture from the PyTorch framework, with a single transformer layer with a linear layer of dimension 2048. As both of these modules return an output of the same size as the input, we can combine these two interpretations and apply them in serial, leading to pixel-channel and channel-pixel attention. For these we used the Dual Transformer which consists of two simple Transformers, one for the pixel attention and the other for the channel.
 
-We propose two ways of reinterpreting the data to get these sequences. We either interpret the channel dimensions of the image as the token dimension, resulting in a sequence length of $n=64$ with tokens of dimensions $d=512$ (pixel), or we swap these and get a sequence length $n=512$ with tokens of dimensions $d=64$ (channel). As both of these modules return an output of the same size as the input, we can also combine these two interpretations and apply them in serial.
+<!-- We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads. -->
 
-We use a single transformer layer with a linear layer of dimension 2048 and use it to replace the convolutional layers in the pre- and postprocessing modules. We apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
+#### Temporal embedding module
+The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
+
+#### Normalization and Activation function
+We experiment with 2 ways of normalizing the aggregated output of the encoder: group norm, where the mean and standard deviation are computed at group level (32 groups) and instance norm, where they are computed for each sample individually.
+A SiLU activation function is applied to this embedding before it's passed through the final output layer. We examine this activation function by swapping it out for a GeLU and simple ReLU.
+
 
 | ![Asyrp architecture](figures/asyrp_theirs.png) | 
 |:-:| 
-| **Figure 3.** Architecture of $f_t$ in the Asyrp paper \[8\]. |
+| **Figure 3.** Original architecture of the neural network $f_t$ as in the Asyrp paper \[8\]. |
 
 | ![Asyrp proposed architecture](figures/asyrp_ours.png) | 
 |:-:| 
-| **Figure 4.** **TO-DO:** Architecture of our $f_t$. |
+| **Figure 4.** Our Transformer based architecture for $f_t$ and all its variants for the ablation study. |
 
 ## Evaluating Diffusion Models
 
@@ -381,12 +386,16 @@ We also conducted reproducibility experiments on the linearity and consistency a
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
-As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
+As described in the [model architecture](#architecture) section and shown in Figure 4 the Asyrp method can be broken down into multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation. The best modules are picked based on the lowest CLIP directional loss, which is inversely related to the Directional CLIP Similarity. 
 
 #### Encoder architecture
-As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We saw that for most of our further abalations the results converged after 4 epochs. Therefor all futures tables we will report values after 4 epochs.
+As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We present all our results for one to four epochs since this hyperparameter holds significant importance in our study.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. In Table **TODO** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations. Figure **166** visually shows the results for different number of heads for the "pixar" attribute. 
+Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure **222** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure **166** visually shows the results for different number of heads for the "pixar" attribute. 
+
+| ![loss](figures/ablation/loss_curve_models.png) | 
+|:-:| 
+| **Figure 222.** The directional CLIP loss curve for different number of heads. |
 
 <table align="center">
   <tr align="center">
@@ -398,6 +407,8 @@ Next an important architectural decision for the transformer blocks was the numb
     <td colspan=3><b>Figure 166.</b> Effect of the number of heads for the "pixar" attribute on CelebA-HQ.</td>
   </tr>
 </table>
+
+
 
 Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure **182** we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure **123**.
 
@@ -412,9 +423,9 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
   </tr>
 </table>
 
-| ![Linear combinations](figures/combination.png) | 
+| ![loss](figures/ablation/loss_curve_models.png) | 
 |:-:| 
-| **Figure 123.** The directional CLIP loss for different transformer architectures. Here pc is pixel-channel, cp is channel-pixel, p is pixel, c is channel, and conv is convolutional block. |
+| **Figure 123.** The directional CLIP loss curve for different transformer input sequences. |
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
@@ -425,7 +436,17 @@ A swish activation function is applied to the embedding before it's passed throu
 ### Hyperparameter dependency
 As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
 
-This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure **TODO** shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure **289** shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/goblin_convolution.png"></th>
+      <th><img src="figures/ablation/goblin_transformer.png"></th>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 201.</b> New attribute "goblin" with none-tuned parameters in training.</td>
+  </tr>
+</table>
 
 During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure **201**.
 
