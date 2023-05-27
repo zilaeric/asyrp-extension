@@ -399,7 +399,7 @@ Next an important architectural decision for the transformer blocks was the numb
   </tr>
 </table>
 
-Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **182** we compare the different variants and show that a pixel-channel dual transformer block performs best. Visually some examples are shown in Figure **TODO**.
+Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that a pixel-channel dual transformer block performs best. Visually some examples are shown in Figure **182**.
 
 <table align="center">
   <tr align="center">
@@ -408,7 +408,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <th><img src="figures/ablation/epochs_vs_layer_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 182.</b> Effect of the input sequence type for the "neanderthal" attribute on CelebA-HQ. Here pc-transformer is pixel-channel dual transformer, cp-transformer is channel-pixel dual transformer, p-transformer is pixel transformer, and c-transformer is channel transformer.</td>
+    <td colspan=3><b>Figure 182.</b> Effect of the input sequence type for the "neanderthal" attribute on CelebA-HQ. Here pc is pixel-channel, cp is channel-pixel, p is pixel, c is channel, and conv is convolutional block.</td>
   </tr>
 </table>
 
