@@ -393,7 +393,7 @@ As discussed in the architecture section the 1x1 convolutional layers can be rep
 
 Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure **222** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure **166** visually shows the results for different number of heads for the "pixar" attribute. 
 
-| ![loss](figures/ablation/loss_curve_models.png) | 
+| ![loss](figures/ablation/loss_curve_heads.png) | 
 |:-:| 
 | **Figure 222.** The directional CLIP loss curve for different number of heads. |
 
@@ -462,7 +462,11 @@ During inference an interesting hyperparameter is the editing strength and its r
 </table>
 
 ### Bias in editing directions
-The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **TODO**.
+The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **707**.
+
+| ![loss](figures/ablation/bias/bias.png) | 
+|:-:| 
+| **Figure 707.** Bias in the CLIP editing directions. |
 
 
 ### Transfer-Learning between attributes
