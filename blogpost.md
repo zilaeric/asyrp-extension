@@ -372,10 +372,6 @@ We also conducted reproducibility experiments on the linearity and consistency a
 ## Ablation study
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an abaltion study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
-### Hyperparameter dependency
-
-
-
 ### Ablations of the architecture
 The original training performs well as we can see from the previous section, but is not further explored. Adjustments to this architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability.
 The original model as seen in figure 4 can be broken down in multiple submodules. A input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
@@ -394,14 +390,18 @@ The temporal information about the denoising step is integrated into the origina
 #### activation function
 A swish activation function is applied to the embedding before it's passed through the final output layer. We examine this layers this activation function by swapping it out for a GLU and simple ReLU 
 
+### Hyperparameter dependency
+As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
+
+This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure **TODO** shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+
 
 ### Transfer-Learning between attributes
 During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
 We therefore hypothesize that using pretrained weights from a different attribute than the target attribute should speed up training. We perform transfer learning from the 
 
-### Ablation of Training Hyperparameter Setup
-The original paper uses stochastic gradient descent and a very high learning rate to train the asyrp module. This setup however is not suited for training more complex architectures like transformer modules. We instead make use of the Adam optimizer to train the ablation architectures. 
-Additionally, we noticed during training that not all hyperparameter configurations result in the asyrp model successfully learning the desired editing direction. Instead some setups result in the module only learning to reconstruct the original image. To investigate wether the setup used in the original paper is necessary to find good editing directions we train the original model and the pixel-channel transformer variant with both the original setup and with adam. For the resuls see table....TODO 
+
+ 
 
 ### results
 
