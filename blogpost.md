@@ -378,17 +378,13 @@ We also conducted reproducibility experiments on the linearity and consistency a
 | **Figure 9.** **TO-DO:** Linear combination of attributes. |
 
 ## Ablation study
-While the reproduction results show that the general method works well, we set out to investigate further improvements by running an abaltion study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
+While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
-
-The original training performs well as we can see from the previous section, but is not further explored. Adjustments to this architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability.
-The original model as seen in figure 4 can be broken down in multiple submodules. A input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
+As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: an input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
 
 #### General architecture
-As discussed in the architecture section there are four ways to interpret the bottleneck feature map to get the transformer modules input sequences. In Table **TODO** we compare the different variants and show that pixel-channel performs best. Next in Table **TODO** we investigate the optimal number of heads of the transformer modules. Figure **TODO** also visually shows the results for the "pixar" attribute. Finally, we explore the performance after varying numbers of epochs in Table **TODO** and Figure **TODO**. While more heads and more epochs improve the results slightly, we stick to 1 head and 5 epoch for the remainder of the ablations due to increased compuational cost.
-
-
+As discussed in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that pixel-channel performs best. Next in Table **TODO** we investigate the optimal number of heads of the transformer modules. Finally, we explore the performance after varying numbers of epochs in Table **TODO**. Figure **TODO** visually shows the trade-off between number of epochs and number of heads for the "pixar" attribute. While more heads and more epochs improve the results slightly, we stick to 1 head and 5 epoch for the remainder of the ablations due to increased compuational cost. 
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
