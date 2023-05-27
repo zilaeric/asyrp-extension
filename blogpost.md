@@ -381,14 +381,36 @@ We also conducted reproducibility experiments on the linearity and consistency a
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
-As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: the two encoder modules, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
+As described in the [model architecture](#architecture) section the Asyrp method can be broken down in multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
 
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We saw that for most of our further abalations the results converged after 4 epochs. Therefor all futures tables we will report values after 4 epochs.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. In Table **TODO** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations. Figure **TODO** visually shows the results for different number of heads for the "pixar" attribute. 
+Next an important architectural decision for the transformer blocks was the number of heads to use. In Table **TODO** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations. Figure **166** visually shows the results for different number of heads for the "pixar" attribute. 
+
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/epoch_vs_heads_img0.png"></th>
+      <th><img src="figures/ablation/epoch_vs_heads_img3.png"></th>
+      <th><img src="figures/ablation/epoch_vs_heads_img4.png"></th>
+  </tr>
+  <tr align="left">
+    <td colspan=3><b>Figure 201.</b> Effect of the number of heads for the "pixar" attribute on CelebA-HQ.</td>
+  </tr>
+</table>
 
 Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that a pixel-channel dual transformer block performs best. Visually some examples are shown in Figure **TODO**.
+
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/epoch_vs_layer_img0.png"></th>
+      <th><img src="figures/ablation/epoch_vs_layer_img3.png"></th>
+      <th><img src="figures/ablation/depoch_vs_layer_img4.png"></th>
+  </tr>
+  <tr align="left">
+    <td colspan=3><b>Figure 201.</b> Effect of the input sequence type for the "neanderthal" attribute on CelebA-HQ. Here pc-transformer is pixel-channel dual transformer, cp-transformer is channel-pixel dual transformer, p-transformer is pixel transformer, and c-transformer is channel transformer.</td>
+  </tr>
+</table>
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
@@ -410,7 +432,7 @@ During inference an interesting hyperparameter is the editing strength and its r
       <th><img src="figures/ablation/dstrength_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 201.</b> Stuff is happening here.</td>
+    <td colspan=3><b>Figure 201.</b> Effect of the editing strength for the "pixar" attribute on CelebA-HQ.</td>
   </tr>
 </table>
 
