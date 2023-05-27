@@ -386,7 +386,7 @@ As described in the [model architecture](#architecture) section the Asyrp method
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We saw that for most of our further abalations the results converged after 4 epochs. Therefor all futures tables we will report values after 4 epochs.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. In Table **TODO** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations. Figure **TODO** visually shows the results for different number of heads for the "pixar" attribute.
+Next an important architectural decision for the transformer blocks was the number of heads to use. In Table **TODO** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations. Figure **TODO** visually shows the results for different number of heads for the "pixar" attribute. 
 
 Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Table **TODO** we compare the different variants and show that a pixel-channel dual transformer block performs best. Visually some examples are shown in Figure **TODO**.
 
@@ -400,6 +400,18 @@ A swish activation function is applied to the embedding before it's passed throu
 As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
 
 This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure **TODO** shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+
+During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure **201**.
+
+| <p float="left">
+  <img src="/img1.png" width="100" />
+  <img src="/img2.png" width="100" /> 
+  <img src="/img3.png" width="100" />
+</p>
+ | 
+|:-:| 
+| **Figure 201.**  |
+
 
 ### Bias in editing directions
 The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **TODO**.
