@@ -125,7 +125,7 @@ We experiment with 2 ways of normalizing the aggregated output of the encoder: g
 A SiLU activation function is applied to this embedding before it's passed through the final output layer. We examine this activation function by swapping it out for a GeLU and simple ReLU.
 
 
-## Evaluating Diffusion Models
+## <a name="architecture">Evaluating Diffusion Models</a>
 
 In order to evaluate the performance of diffusion models when it comes to image editing, besides qualitative results and conducting user studies \[8, 7\], the following metrics are generally used: Directional CLIP similarity ($S_{dir}$), segmentation-consistency (SC), Fr\'echet Inception Distance (FID), and face identity similarity (ID). The Asyrp paper uses $S_{dir}$ and SC to compare its performance to DiffusionCLIP, which in turn shows that it outperforms both StyleCLIP \[13\] and StyleGAN-NADA \[4\] in $S_{dir}$ and SC.
 
@@ -384,7 +384,7 @@ We also conducted reproducibility experiments on the linearity and consistency a
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
-As described in the [model architecture](#architecture) section and shown in Figure 4 the Asyrp method can be broken down into multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation. The best modules are picked based on the lowest CLIP directional loss, which is inversely related to the Directional CLIP Similarity. 
+As described in the [model architecture](#architecture) section and shown in Figure 4 the Asyrp method can be broken down into multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation. The best modules are picked based on the lowest CLIP directional loss, which is inversely related to the Directional CLIP Similarity as explained in the [evaluation](#evalution) section. 
 
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We present all our results for one to four epochs since this hyperparameter holds significant importance in our study.
@@ -464,7 +464,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
 
 | ![loss](figures/ablation/bias/bias.png) | 
 |:-:| 
-| **Figure 707.** Bias in the CLIP editing directions. |
+| **Figure 707.** Bias in the CLIP editing directions (with 8 heads transformer / best model). |
 
 
 ### Transfer-Learning between attributes
