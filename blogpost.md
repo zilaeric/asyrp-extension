@@ -304,7 +304,7 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<th>Pixar (UN)</th>
 		<th>Neanderthal (UN)</th>
 	</tr>
-	<tr>
+	<tr align="center">
 		<td align="left">Original</td>
 		<td>0.921</td>
 		<td>0.964</td>
@@ -312,40 +312,24 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>0.956</td>
 		<td>0.805</td>
 	</tr>
-	<tr>
+	<tr align="center">
 		<td align="left">Reproduced $\Delta h_t$</td>
-		<td>0.955</td>
-		<td>0.993</td>
-		<td>0.933</td>
-		<td>0.931</td>
-		<td>0.913</td>
-	</tr>
-	<tr>
-		<td align="left"></td>
-		<td>(0.048)</td>
-		<td>(0.037)</td>
-		<td>(0.040)</td>
-		<td>(0.032)</td>
-		<td>(0.035)</td>
-	</tr>
-	<tr>
-		<td align="left">Reproduced $0.5 \Delta h_t$</td>
-		<td>0.969</td>
-		<td>0.999</td>
-		<td>0.973</td>
-		<td>0.942</td>
-		<td>0.952</td>
-	</tr>
-	<tr>
-		<td align="left"></td>
-		<td>(0.047)</td>
-		<td>(0.035)</td>
-		<td>(0.036)</td>
-		<td>(0.031)</td>
-		<td>(0.035)</td>
+		<td>0.955<br>(0.048)</td>
+		<td>0.993<br>(0.037)</td>
+		<td>0.933<br>(0.040)</td>
+		<td>0.931<br>(0.032)</td>
+		<td>0.913<br>(0.035)</td>
 	</tr>
 	<tr align="center">
-		<td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
+		<td align="left">Reproduced $0.5 \Delta h_t$</td>
+		<td>0.969<br>(0.047)</td>
+		<td>0.999<br>(0.035)</td>
+		<td>0.973<br>(0.036)</td>
+		<td>0.942<br>(0.031)</td>
+		<td>0.952<br>(0.035)</td>
+	</tr>
+	<tr align="left">
+		<td colspan=6><b>Table 2.</b> Asyrp's directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes.<br>Standard deviations are reported in parentheses.</td>
 	</tr>
 </table>
 
@@ -388,13 +372,13 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
 
-| ![Linearity](figures/linearity.png) | 
+| ![Linearity](figures/reproduction/linearity.png) | 
 |:-:| 
-| **Figure 8.** **TO-DO:** Linearity of h-space. |
+| **Figure 9.** Linearity of h-space. |
 
-| ![Linear combinations](figures/combination.png) | 
+| ![Linear combinations](figures/reproduction/details.png) | 
 |:-:| 
-| **Figure 9.** **TO-DO:** Linear combination of attributes. |
+| **Figure 10.** Linear combination of attributes. |
 
 ## Ablation study
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
