@@ -385,8 +385,10 @@ While the reproduction results show that the general method works well, we set o
 The original training performs well as we can see from the previous section, but is not further explored. Adjustments to this architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability.
 The original model as seen in figure 4 can be broken down in multiple submodules. A input processing module, a temporal embedding module and an output processing module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation.
 
-#### Input sequences
-As discussed in the architecture section there are four ways to apply four variants, pixel, channel, pixel-channel & channel-pixel and train them for four epochs. We report the results in table 4. We then pick the architecture with the lowest clip_loss, pixel-channel, and train it with 1,2,4 & heads.
+#### General architecture
+As discussed in the architecture section there are four ways to interpret the bottleneck feature map to get the transformer modules input sequences. In Table **TODO** we compare the different variants and show that pixel-channel performs best. Next in Table **TODO** we investigate the optimal number of heads of the transformer modules. Figure **TODO** also visually shows the results for the "pixar" attribute. Finally, we explore the performance after varying numbers of epochs in Table **TODO** and Figure **TODO**. While more heads and more epochs improve the results slightly, we stick to 1 head and 5 epoch for the remainder of the ablations due to increased compuational cost.
+
+
 
 #### Temporal embedding module
 The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
