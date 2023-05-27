@@ -403,15 +403,16 @@ This is convenient as the transformer modules are trained with an Adam optimizer
 
 During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure **201**.
 
-| <p float="left">
-  <img src="figures/ablation/dstrength_vs_heads_img0.png" width="100" />
-  <img src="figures/ablation/dstrength_vs_heads_img3.png" width="100" /> 
-  <img src="figures/ablation/dstrength_vs_heads_img4.png" width="100" />
-</p>
- | 
-|:-:| 
-| **Figure 201.**  |
-
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/dstrength_vs_heads_img0.png"></th>
+      <th><img src="figures/ablation/dstrength_vs_heads_img3.png"></th>
+      <th><img src="figures/ablation/dstrength_vs_heads_img4.png"></th>
+  </tr>
+  <tr align="left">
+    <td colspan=3><b>Figure 201.</b> Stuff is happening here.</td>
+  </tr>
+</table>
 
 ### Bias in editing directions
 The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **TODO**.
