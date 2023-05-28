@@ -506,16 +506,8 @@ As described in the [model architecture](#architecture) section and shown in Fig
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We present all our results for one to four epochs since this hyperparameter holds significant importance in our study.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure 12 we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure 13 visually shows the results for different number of heads for the "pixar" attribute.
+Next an important architectural decision for the transformer blocks was the number of heads to use. However, we quickly found out that our main constraint here is the  computational cost. We found that more heads leads to better performance, but also has to be trained for more epochs. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure 12 visually shows the results for different number of heads for the "pixar" attribute.
 
-<table align="center">
-  <tr align="center">
-      <td><img src="figures/ablation/loss_curve_heads.png" width=800></td>
-  </tr>
-  <tr align="left">
-    <td colspan=2><b>Figure 12.</b> The effect of the number of transformer heads on the directional CLIP loss curve during training.</td>
-  </tr>
-</table>
 
 <table align="center">
   <tr align="center">
@@ -524,13 +516,13 @@ Next an important architectural decision for the transformer blocks was the numb
       <th><img src="figures/ablation/epochs_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 13.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
+    <td colspan=3><b>Figure 12.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
   </tr>
 </table>
 
 
 
-Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure 14 we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure 15.
+Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure 13 we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure 14.
 
 <table align="center">
   <tr align="center">
@@ -539,7 +531,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <th><img src="figures/ablation/epochs_vs_layer_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 14.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
+    <td colspan=3><b>Figure 13.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
   </tr>
 </table>
 
@@ -548,14 +540,14 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <td><img src="figures/ablation/loss_curve_models.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 15.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
+    <td colspan=2><b>Figure 14.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
 
 
 #### Temporal embedding module, normalization, and Activation function
-Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedding modules. Both the normalization and the activation function have no effect on the directional CLIP loss, thus we decided to keep them the same as the original paper for the remainder of the ablations (SiLU and GroupNorm). 
+Figure 15 shows that AdaGroupNorm slightly outperforms the other temporal embedding modules. Both the normalization and the activation function have no effect on the directional CLIP loss, thus we decided to keep them the same as the original paper for the remainder of the ablations (SiLU and GroupNorm). 
 
 <table align="center">
   <tr align="center">
@@ -564,7 +556,7 @@ Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedd
 	<th><img src="figures/ablation/loss_curve_act_fn.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 16.</b> The effect of the temporal embedding module (left), normalization module (middle), and activation function module (right) on the directional CLIP loss curve during training.</td>
+    <td colspan=3><b>Figure 15.</b> The effect of the temporal embedding module (left), normalization module (middle), and activation function module (right) on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
@@ -595,7 +587,7 @@ This lead us to the following best model architecture which is trained for 4 epo
 ### Hyperparameter dependency
 As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
 
-This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure **289** shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure 16 shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
 
 <table align="center">
   <tr align="center">
@@ -603,11 +595,11 @@ This is convenient as the transformer modules are trained with an Adam optimizer
       <th><img src="figures/ablation/goblin_transformer.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 201.</b> Comparison of convolution-based and transformer-based architecture output <br> for a new "goblin" attribute without hyperparameter tuning.</td>
+    <td colspan=2><b>Figure 16.</b> Comparison of convolution-based and transformer-based architecture output <br> for a new "goblin" attribute without hyperparameter tuning.</td>
   </tr>
 </table>
 
-During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure **201**.
+During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure 17.
 
 <table align="center">
   <tr align="center">
@@ -616,7 +608,7 @@ During inference an interesting hyperparameter is the editing strength and its r
       <th><img src="figures/ablation/dstrength_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 201.</b> The effect of the editing strength when using pixel-channel transformer with various numbers of heads on the "pixar" attribute.</td>
+    <td colspan=3><b>Figure 17.</b> The effect of the editing strength when using pixel-channel transformer with various numbers of heads on the "pixar" attribute.</td>
   </tr>
 </table>
 
@@ -651,9 +643,9 @@ We explored the limitations of the orginal model and discovered two main problem
 We further investigated the capabilities of Asyrp by changing its architecture from convolutional layers to a transformer encoder, as it was presented in the [Model Architecture](#architecture) section. We then conducted an ablation study on this new architecture and shown the impact of distinct ways of attending to the bottleneck feature map, different ways of aggregating the temporal encodings, various normalization methods and activation functions. We concluded that our best model
 outperforms the original Asyrp by evaluating both qualitatively and quantitatively, as it was shown in the [Ablation study](#ablation) section. We got a better FID score than the orignal model and also, by looking at the figures we clearly observed that our model captures and edits more fine grained features, thus having a stronger impact on the quality of the edited image.
 
-LDM conclusion as in next research direction. 
-
 ## Authors' Contributions
+
+Luc: did DM vs LDM research, wrote header, Recap on Diffusion Models and the Discovering Semantic Latent Space, Image Editing Using Diffusion Models (partly), Bias in Editing Directions (partly), Ablation Study, and Further Research: Latent Diffusion Models. 
 
 ## Bibliography
 
