@@ -594,7 +594,7 @@ This is convenient as the transformer modules are trained with an Adam optimizer
       <th><img src="figures/ablation/goblin_comparison.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 16.</b> Comparison of convolution-based and transformer-based architecture output <br> for a new "goblin" attribute without hyperparameter tuning.</td>
+    <td colspan=2><b>Figure 16.</b> Comparison of convolution-based and transformer-based architecture output for a new "goblin" attribute without hyperparameter tuning.</td>
   </tr>
 </table>
 
