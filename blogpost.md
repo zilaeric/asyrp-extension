@@ -412,6 +412,55 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 	</tr>
 </table>
 
+<table align="center">
+	<tr align="center">
+		<th align="left">Metric</th>
+		<th>Race</th>
+		<th>Smiling (IN)</th>
+		<th>Sad (IN)</th>
+		<th>Tanned (IN)</th>
+		<th>Pixar (UN)</th>
+		<th>Neanderthal (UN)</th>
+	</tr>
+	<tr align="center">
+		<td align="left" rowspan=2>$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
+		<td>Caucasian</td>
+		<td>81.3</td>
+		<td>76.2</td>
+		<td>75.9</td>
+		<td>103.5</td>
+		<td>94.1</td>
+	</tr>
+	<tr align="center">
+		<td>Non-caucasian</td>
+		<td>138.4</td>
+		<td>123.3</td>
+		<td>157.3</td>
+		<td>185.2</td>
+		<td>177.6</td>
+	</tr>
+	<tr align="center">
+		<td align="left" rowspan=2>$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
+		<td>Caucasian</td>
+		<td>54.3</td>
+		<td>55.1</td>
+		<td>66.4</td>
+		<td>76.6</td>
+		<td>111.0</td>
+	</tr>
+	<tr align="center">
+		<td>Non-caucasian</td>
+		<td>88.3</td>
+		<td>84.1</td>
+		<td>121.1</td>
+		<td>142.0</td>
+		<td>186.8</td>
+	</tr>
+	<tr align="left">
+		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
+	</tr>
+</table>
+
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
 
 <table align="center">
@@ -510,7 +559,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 		<td>98.3</td>
 	</tr>
 	<tr align="left">
-		<td colspan=5><b>Table 4.</b> Frechet Inception Distance ($FID$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
+		<td colspan=5><b>Table 5.</b> Frechet Inception Distance ($FID$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
 	</tr>
 </table>
 
