@@ -288,7 +288,7 @@ We begin by reproducing the qualitative and quantitative results of the original
   </tr>
 </table>
 
-Figure 6 shows that the results obtained in the original paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in visually convincing image generation for in-domain attributes, i.e., attributes that can be directly observed in the training data of the frozen diffusion model. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular edits may also result in other unintended changes. To give an example, edits for the "curly hair" attribute result in severe facial transformations and appear to overlap with the "smiling" attribute (see the second and the third row of Figure 6).
+Figure 6 shows that the results obtained in the original paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in visually convincing image generation for in-domain attributes (i.e., attributes that can be directly observed in the training data of the frozen diffusion model). Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular edits may also result in other unintended changes. To give an example, edits for the "curly hair" attribute result in severe facial transformations and appear to overlap with the "smiling" attribute (see the second and the third row of Figure 6).
 
 <table align="center">
   <tr align="center">
@@ -299,7 +299,7 @@ Figure 6 shows that the results obtained in the original paper and presented in 
   </tr>
 </table>
 
-Figures 7 and 8 depict the results of our reproducibility experiment focused on unseen-domain attributes (i.e., attributes that have not been observed in the training data) originally presented in \[8, Figure 5\]. In Figure 7, we use the full $\Delta h_t$ as done by the authors. In Figure 8, we reduce the editing strength by taking $0.5 \Delta h_t$. We observe that for unseen-domain attributes, reduction of the editing strength can nicely reduce invasiveness of the method and produce more sound results.
+Figures 7 and 8 depict the results of our reproducibility experiments focused on unseen-domain attributes (i.e., attributes that cannot be observed in the training data) originally presented in \[8, Figure 5\]. In Figure 7, we use the full $\Delta h_t$ as done by the authors. In Figure 8, we reduce the editing strength by half. We observe that for unseen-domain attributes, reduction of the editing strength can significantly reduce invasiveness of the method.
 
 <table align="center">
   <tr align="center">
@@ -319,7 +319,7 @@ Figures 7 and 8 depict the results of our reproducibility experiment focused on 
   </tr>
 </table>
 
-To quantitatively appreciate the performance of the Asyrp model, we reproduce the evaluation they conducted and compute the Directional CLIP score for the same three in-domain attributes (smiling, sad, tanned) and two unseen-domain attributes (Pixar, Neanderthal) on a set of 100 images per attribute from the CelebA-HQ dataset. The available repository does not provide code for implementing neither of the evaluation metrics, which leads to also not knowing which 100 images from the dataset were considered when computing the scores. We took the first 100 images and the comparative results can be seen in Table 1. We did not implement the segmentation consistency score, as we showed in the Evaluation Diffusion Models section that it has shortcomings, but we computed the FID score that is more meaningful in the case of image editing.
+To appreciate the performance of Asyrp quantitatively, we reproduce evaluation results originally presented in \[8, Table 4\] and compute the directional CLIP score for the same three in-domain attributes ("smiling", "sad", "tanned") and two unseen-domain attributes ("pixar", "neanderthal") on a set of 100 images from the test set. The original code does not implement either of the evaluation metrics or experiments, meaning we do not know which images were used for the calculations. We choose to take the first 100 images in terms of image IDs. The results are reported in Table 2. Contrary to the original authors, we supply standard deviations showing that the results are quite unstable. More importantly, there are clear differences in the achieved results that we cannot easily explain. Nevertheless, we observe a stable trend of higher scores when lowering the editing strength to half as expected because of the decreased impact on $\Delta I$.
 
 <table align="center">
 	<tr align="center">
@@ -359,9 +359,11 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>0.952<br>(0.035)</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 2.</b> Directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes. Standard<br>deviations are reported in parentheses.</td>
+		<td colspan=7><b>Table 2.</b> Directional CLIP score ($S_{dir} \ \uparrow$) for in-domain (IN) and unseen-domain (UN) attributes. Standard<br>deviations are reported in parentheses.</td>
 	</tr>
 </table>
+
+We do not implement the segmentation consistency score due to its shortcomings described in the previous section and also the absence of information on choices made by the original authors with respect to its calculation. To make up for it, we compute FID scores which should represent a more meaningful choice in the context of image editing. From the FID scores presented in Table 3, one can observe worsening performance when Asyrp performs editing in directions requiring more substantial changes of the original image. As expected, lowering the editing strength also significantly and consistently reduces the impact in terms of FID. Naturally, the distance between the reconstructed and the edited images is consistently lower than the distance between original and edited images.
 
 <table align="center">
 	<tr align="center">
@@ -408,11 +410,11 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>71.7</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 3.</b> Frechet Inception Distance ($FID$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
+		<td colspan=7><b>Table 3.</b> Frechet Inception Distance ($FID \ \downarrow$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
 	</tr>
 </table>
 
-We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
+In Figure 9, we present our reproduction of \[8, Figure 7\] visualizing the linearity of the learned editing directions. For the "smiling" attribute, it is clearly viable to go in the opposite direction of $\Delta h_t$ and still produce semantically meaningful results. Moreover, the editing effect is shown to be continuous in editing strength.
 
 <table align="center">
   <tr align="center">
@@ -422,6 +424,8 @@ We also conducted reproducibility experiments on the linearity and consistency a
     <td colspan=2><b>Figure 9.</b> Image edits for the "smiling" attribute with editing strength in the range from -1 to 1.</td>
   </tr>
 </table>
+
+Figure 10 reproduces the results originally presented in \[8, Figure 17\]. When reconstructing images using a diffusion model with a relatively small number of time steps used for generation, we observe a severe loss in texture resulting in smoothed-out faces with limited details. For training, we used 40 time steps during generation. At inference time, we tried to increase this number to 1,000 and found that it is possible to generate additional texture improving the results at the cost of computation time.
 
 <table align="center">
   <tr align="center">
