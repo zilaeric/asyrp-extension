@@ -16,7 +16,7 @@ Diffusion models achieve outstanding generative performance in various domains. 
 
 This repository is a reproduction & extension effort of the of [Diffusion Models already have a Semantic Latent Space](https://arxiv.org/abs/2210.10960). 
 
-This is a landing page for the project with installation & training instructions. For the full report, including our results, additional ablations & analysis and contributions please checkout our [blogpost](blogpost.md)
+This is a landing page for the project with installation & training instructions. For the full report, including our results, additional ablations & analysis and contributions please checkout our [blogpost](blogpost.md) !
 
 ## Requirements
 
