@@ -559,10 +559,12 @@ Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedd
 
 <table align="center">
   <tr align="center">
-      <th><img src="figures/ablation/temporal_embedding_losses.png"></th>
+ 	<th><img src="figures/ablation/temporal_embedding_losses.png"></th>
+	<th><img src="figures/ablation/loss_curve_norm.png"></th>
+	<th><img src="figures/ablation/loss_curve_act_fn.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 16.</b> The effect of the temporal embedding module on the directional CLIP loss curve during training.</td>
+    <td colspan=3><b>Figure 16.</b> The effect of the temporal embedding module (left), normalization module (middle), and activation function module (right) on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
