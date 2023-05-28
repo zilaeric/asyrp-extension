@@ -36,6 +36,9 @@ mkdir src/lib/asyrp/pretrained/
 python src/lib/utils/download_weights.py
 ```
 
+## Demos
+We have included demonstration notebooks for the reproduction of our results in the [demos](demos) folder. Please have a look, for further use of the codebase follow the instructions below.
+
 ## Training
 
 To train the models, refer to the ablation scripts in `src/lib/asyrp/ablations`.
