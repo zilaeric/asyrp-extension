@@ -646,6 +646,7 @@ outperforms the original Asyrp by evaluating both qualitatively and quantitative
 ## Authors' Contributions
 
 Luc: did DM vs LDM research, wrote header, Recap on Diffusion Models and the Discovering Semantic Latent Space, Image Editing Using Diffusion Models (partly), Bias in Editing Directions (partly), Ablation Study, and Further Research: Latent Diffusion Models. 
+Ana: did ablation study for activation functions and normalization, bias research, model architecture diagram, wrote Image Editing with Diffusion Models (partly), Discovering Semantic Latent Space (training loss part), Model Architecture, Evaluating Diffusion Models and Concluding Remarks. 
 
 ## Bibliography
 
