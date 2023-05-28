@@ -647,8 +647,8 @@ However, to calculate the directional CLIP loss both the reference and the gener
 <table align="center">
   <tr align="center">
 	<td><img src="figures/ablation/ldm_decoded_latent_3.gif"></td>
-	<td><img src="figures/ablation/ldm_decoded_latent_3.gif"></td>
-	<td><img src="figures/ablation/ldm_decoded_latent_3.gif"></td>
+	<td><img src="figures/ablation/ldm_decoded_latent_14.gif"></td>
+	<td><img src="figures/ablation/ldm_decoded_latent_24.gif"></td>
   </tr>
   <tr align="left">
     <td colspan=3><b>GIF 1.</b> Running the VQ-VAE decoder on the latent at every time step.</td>
