@@ -436,7 +436,7 @@ Figure 10 reproduces the results originally presented in \[8, Figure 17\]. When 
   </tr>
 </table>
 
-## <a name="bias">Bias of the Asyrp model</a>
+## <a name="bias">Bias of the Asyrp Method</a>
 The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure 11.
 
 <table align="center">
@@ -497,7 +497,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
   </tr>
 </table>
 
-## <a name="ablation">Ablation study</a>
+## <a name="ablation">Ablation Study</a>
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
@@ -552,6 +552,33 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
   </tr>
 </table>
 
+
+
+#### Temporal embedding module and activation function
+Figure 16 shows that both the temporal embedding as well as the activation fucntion module do not matter all that much. That being said the best performing temporal embedding module is AdaGroupNorm and the best performing activation function module is SiLU. 
+
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/temporal_embedding_losses.png"></th>
+      <th><img src="figures/ablation/activation_function_losses.png"></th>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 16.</b> The effect of the temporal embedding module (left) and activation function module (right) on the directional CLIP loss curve during training.</td>
+  </tr>
+</table>
+
+#### Best Model
+This lead us to the following best model architecture as can be seen in Figure 17. Further the model outperforms the original model as can be seen in Table 5.
+
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/asyrp_ours_final.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 3.</b> Our best performing architecture.</td>
+  </tr>
+</table>
+
 <table align="center">
 	<tr align="center">
 		<th align="left">Metric</th>
@@ -577,19 +604,6 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 	<tr align="left">
 		<td colspan=5><b>Table 5.</b> Frechet Inception Distance ($FID \ \downarrow$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
 	</tr>
-</table>
-
-#### Temporal embedding module and activation function
-Figure 16 shows that both the temporal embedding as well as the activation fucntion module do not matter all that much. That being said the best performing temporal embedding module is AdaGroupNorm and the best performing activation function module is SiLU. 
-
-<table align="center">
-  <tr align="center">
-      <th><img src="figures/ablation/temporal_embedding_losses.png"></th>
-      <th><img src="figures/ablation/activation_function_losses.png"></th>
-  </tr>
-  <tr align="left">
-    <td colspan=2><b>Figure 16.</b> The effect of the temporal embedding module (left) and activation function module (right) on the directional CLIP loss curve during training.</td>
-  </tr>
 </table>
 
 ### Hyperparameter dependency
@@ -619,11 +633,6 @@ During inference an interesting hyperparameter is the editing strength and its r
     <td colspan=3><b>Figure 201.</b> The effect of the editing strength when using pixel-channel transformer with various numbers of heads on the "pixar" attribute.</td>
   </tr>
 </table>
-
-### Transfer-Learning between attributes
-During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
-We therefore hypothesize that using pretrained weights from a different attribute than the target attribute should speed up training. We perform transfer learning from the 
-
 
 
 ## Further Research: Latent Diffusion Models
