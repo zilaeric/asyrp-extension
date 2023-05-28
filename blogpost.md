@@ -484,7 +484,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
 		<td>186.8</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
+		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID \ \downarrow$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
 	</tr>
 </table>
 
@@ -575,7 +575,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 		<td>98.3</td>
 	</tr>
 	<tr align="left">
-		<td colspan=5><b>Table 5.</b> Frechet Inception Distance ($FID$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
+		<td colspan=5><b>Table 5.</b> Frechet Inception Distance ($FID \ \downarrow$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
 	</tr>
 </table>
 
