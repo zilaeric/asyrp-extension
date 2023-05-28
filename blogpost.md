@@ -288,7 +288,7 @@ We begin by reproducing the qualitative and quantitative results of the original
   </tr>
 </table>
 
-Figure 6 shows that the results obtained in the original Asyrp paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in high performance image generation for in-domain attributes. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular shifts may also result in other unintended shifts. To give an example, edits in the "woman" and "young" directions appear heavily entangled for the first image in Figure 6.
+Figure 6 shows that the results obtained in the original paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in visually convincing image generation for in-domain attributes, i.e., attributes that can be directly observed in the training data of the frozen diffusion model. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular edits may also result in other unintended changes. To give an example, edits for the "curly hair" attribute result in severe facial transformations and appear to overlap with the "smiling" attribute (see the second and the third row of Figure 6).
 
 <table align="center">
   <tr align="center">
@@ -486,10 +486,10 @@ The editing directions found through the asyrp algorithm depend on the knowledge
 
 <table align="center">
   <tr align="center">
-      <td><img src="figures/ablation/bias/bias.png" width=400></td>
+      <td><img src="figures/reproduction/bias.png" width=400></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 707.</b> Bias in the CLIP editing directions for the "pixar" attribute for pixel-channel transformer with 8 heads (best model).</td>
+    <td colspan=2><b>Figure 707.</b> Bias in the CLIP editing directions for the "pixar" attribute.</td>
   </tr>
 </table>
 
