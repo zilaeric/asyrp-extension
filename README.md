@@ -49,5 +49,3 @@ To evaluate the models, use the same scripts as mentioned before but set the `do
 
 You can use the reproduction scripts in `src/lib/asyrp/reproductions`, such as [src/lib/asyrp/scripts/reproduction/script_inference_frida.sh](src/lib/asyrp/scripts/reproduction/script_inference_frida.sh)
 Finally, to evaluate the additional metrics, FID and Directional CLip Loss refer to the evaluation notebook [demos/ablations/ablation_metrics.ipynb](demos/ablations/ablation_metrics.ipynb)
-
-Authors
