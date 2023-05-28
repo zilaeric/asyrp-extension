@@ -620,7 +620,7 @@ The significant cost of training a new model for each editing direction makes th
 
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 18.</b> Retraining from a different trains faster than training from scratch.</td>
+    <td colspan=3><b>Figure 18.</b> Retraining from a different attribute trains faster than training from scratch.</td>
   </tr>
 </table>
 
