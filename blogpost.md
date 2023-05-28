@@ -579,11 +579,8 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 	</tr>
 </table>
 
-#### Temporal embedding module
-The temporal information about the denoising step is integrated into the original model by first linearly projecting the timestep embedding and then adding it to the embedding that was processed by the input module. In this section we investigate the integration of the temporal embedding by changing this addition to a multiplication, additionally we also test integrating the temporal embedding using an adjusted adaptive group norm.
-
-#### Activation function
-A swish activation function is applied to the embedding before it's passed through the final output layer. We examine this layers this activation function by swapping it out for a GLU and simple ReLU --> what did we come up with
+#### Temporal embedding module and activation function
+Figure 16 shows that both the temporal embedding as well as the activation fucntion module do not matter all that much. That being said the best performing temporal embedding module is AdaGroupNorm and the best 
 
 ### Hyperparameter dependency
 As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
