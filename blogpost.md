@@ -611,6 +611,18 @@ During inference an interesting hyperparameter is the editing strength and its r
   </tr>
 </table>
 
+### Tranfer learning performance
+The significant cost of training a new model for each editing direction makes the application of this model in many practical tasks prohibitively expensive in terms of compute power and ease of use. While it would not eliminate this problem entirely, good transfer performance would alleviate these problems somewhat. We show that transfer learning is possible for our pixel-channel architecture by retraining it on a different editing direction and that this is signficantly faster than training a new direction from scratch. Figure 18 shows the result of retraining a model trained on the "pixar" attribute on the "modigliani" attribute. In it we can see after after a signficant number of steps, the model previously trained on a different attribute still has a lower loss than a model that is trained from scratch. 
+
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/transfer_learning_loss.png"></th>
+
+  </tr>
+  <tr align="left">
+    <td colspan=3><b>Figure 18.</b> Retraining from a different trains faster than training from scratch.</td>
+  </tr>
+</table>
 
 ## Further Research: Latent Diffusion Models
 Lastly in this blog post we set out to investigate whether Asyrp can also be applied on top of a latent diffusion model. Since LDMs currently represent the state-of-the-art in image generation \[16\], it is reasonable to find out if modifications in the h-space lead to meaningful attribute edits in the original images. Conveniently DDIM, the algorithm on which Asyrp was build, is also the algorithm behind LDMs. However, the diffusion process runs in the latent space instead of the pixel space. A sperate VQ-VAE  is trained \[19\], where the encoder $\mathcal{E}$ is used to compress the image $x_0$ to a smaller latent vector $z_0$ and the decoder $\mathcal{D}$ is used to reconstruct the image $\hat{x}_0$ from the computed latent vector $\hat{z}_0$. All the remaining steps are as described in the [second](#recap) and [third](#discover) section, but replacing $x$ by $z$. This leads to training a neural network $\epsilon\_\theta \left( z_t, t \right)$ and optimizing it with the loss in Equation 15. Furthermore, steps in the reverse process can be sampled with Equation 16.
