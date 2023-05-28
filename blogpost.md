@@ -438,8 +438,7 @@ This is convenient as the transformer modules are trained with an Adam optimizer
 
 <table align="center">
   <tr align="center">
-      <th><img src="figures/ablation/goblin_convolution.png"></th>
-      <th><img src="figures/ablation/goblin_transformer.png"></th>
+      <th><img src="figures/ablation/goblin_comparison.png"></th>
   </tr>
   <tr align="left">
     <td colspan=2><b>Figure 201.</b> New attribute "goblin" with none-tuned parameters in training.</td>
