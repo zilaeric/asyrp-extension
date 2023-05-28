@@ -594,7 +594,7 @@ This is convenient as the transformer modules are trained with an Adam optimizer
       <th><img src="figures/ablation/goblin_comparison.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 16.</b> Comparison of convolution-based and transformer-based architecture output <br> for a new "goblin" attribute without hyperparameter tuning.</td>
+    <td colspan=2><b>Figure 16.</b> Comparison of convolution-based and transformer-based architecture output for a new "goblin" attribute without hyperparameter tuning.</td>
   </tr>
 </table>
 
@@ -656,7 +656,7 @@ outperforms the original Asyrp by evaluating both qualitatively and quantitative
 
 ## Authors' Contributions
 
-Luc: did DM vs LDM research, wrote header, Recap on Diffusion Models and the Discovering Semantic Latent Space, Image Editing Using Diffusion Models (partly), Bias in Editing Directions (partly), Ablation Study, and Further Research: Latent Diffusion Models. 
+Luc: did DM vs LDM research and notebook; wrote header, Image Editing Using Diffusion Models (partly), Recap on Diffusion Models, the Discovering Semantic Latent Space, Bias in Editing Directions (partly), Ablation Study, and Further Research: Latent Diffusion Models. 
 
 Ana: did ablation study for activation functions and normalization, bias research, model architecture diagram, wrote Image Editing with Diffusion Models (partly), Discovering Semantic Latent Space (training loss part), Model Architecture, Evaluating Diffusion Models and Concluding Remarks. 
 
