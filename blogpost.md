@@ -580,7 +580,17 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 </table>
 
 #### Temporal embedding module and activation function
-Figure 16 shows that both the temporal embedding as well as the activation fucntion module do not matter all that much. That being said the best performing temporal embedding module is AdaGroupNorm and the best 
+Figure 16 shows that both the temporal embedding as well as the activation fucntion module do not matter all that much. That being said the best performing temporal embedding module is AdaGroupNorm and the best performing activation function module is SiLU. 
+
+<table align="center">
+  <tr align="center">
+      <th><img src="figures/ablation/temporal_embedding_losses.png"></th>
+      <th><img src="figures/ablation/activation_function_losses.png"></th>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 16.</b> The effect of the temporal embedding module (left) and activation function module (right) on the directional CLIP loss curve during training.</td>
+  </tr>
+</table>
 
 ### Hyperparameter dependency
 As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
