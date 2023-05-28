@@ -561,7 +561,7 @@ Figure 15 shows that AdaGroupNorm slightly outperforms the other temporal embedd
 </table>
 
 #### Best Model
-This lead us to the following best model architecture which is trained for 4 epochs: 8-heads, pixel-channel DualTransformer blocks, AdaGroupNorm temporal embedding module, GroupNorm normalizationn, and SiLU activation function. The models performance compared to the original implementation is shown in Table 5 for the "pixar" attribute.
+This lead us to the following model architecture:pixel-channel DualTransformer blocks, AdaGroupNorm temporal embedding module, GroupNorm normalizationn, and SiLU activation function. The models performance compared to the original implementation is shown in Table 5 for the "pixar" attribute. Note that this is not strictly the best architecture as adding more heads and training for more epochs would improve the FID scores even more, but because the original model was trained for one epoch this is the fairest comparison.
 
 <table align="center">
 	<tr align="center">
@@ -571,12 +571,12 @@ This lead us to the following best model architecture which is trained for 4 epo
 	</tr>
 	<tr align="center">
 		<td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
-		<td>x</td>
+		<td>94.2</td>
 		<td>125.8</td>
 	</tr>
 	<tr align="center">
 		<td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
-		<td>x</td>
+		<td>93.2</td>
 		<td>96.9</td>
 	</tr>
 	<tr align="left">
