@@ -554,55 +554,39 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 
 
 
-#### Temporal embedding module and activation function
-Figure 16 shows that both the temporal embedding as well as the activation fucntion module do not matter all that much. That being said the best performing temporal embedding module is AdaGroupNorm and the best performing activation function module is SiLU. 
+#### Temporal embedding module, normalization, and Activation function
+Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedding modules. Both the normalization and the activation function have no effect on the directional CLIP loss, thus we decided to keep them the same as the original paper for the remainder of the ablations (SiLU and GroupNorm). 
 
 <table align="center">
   <tr align="center">
       <th><img src="figures/ablation/temporal_embedding_losses.png"></th>
-      <th><img src="figures/ablation/activation_function_losses.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 16.</b> The effect of the temporal embedding module (left) and activation function module (right) on the directional CLIP loss curve during training.</td>
+    <td colspan=2><b>Figure 16.</b> The effect of the temporal embedding module on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
 #### Best Model
-This lead us to the following best model architecture as can be seen in Figure 17. Further the model outperforms the original model as can be seen in Table 5.
-
-<table align="center">
-  <tr align="center">
-      <td><img src="figures/asyrp_ours_final.png" width=800></td>
-  </tr>
-  <tr align="left">
-    <td colspan=2><b>Figure 3.</b> Our best performing architecture.</td>
-  </tr>
-</table>
+This lead us to the following best model architecture which is trained for 4 epochs: 8-heads, pixel-channel DualTransformer blocks, AdaGroupNorm temporal embedding module, GroupNorm normalizationn, and SiLU activation function. The models performance compared to the original implementation is shown in Table 5 for the "pixar" attribute.
 
 <table align="center">
 	<tr align="center">
 		<th align="left">Metric</th>
-		<th>Epoch 1</th>
-		<th>Epoch 2</th>
-		<th>Epoch 3</th>
-		<th>Epoch 4</th>
+		<th>Ours</th>
+		<th>Original</th>
 	</tr>
 	<tr align="center">
 		<td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
-		<td>113.2</td>
-		<td>94.2</td>
-		<td>104.9</td>
-		<td>100.8</td>
+		<td>x</td>
+		<td>125.8</td>
 	</tr>
 	<tr align="center">
 		<td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
-		<td>105.5</td>
-		<td>93.2</td>
-		<td>101.4</td>
-		<td>98.3</td>
+		<td>x</td>
+		<td>96.9</td>
 	</tr>
 	<tr align="left">
-		<td colspan=5><b>Table 5.</b> Frechet Inception Distance ($FID \ \downarrow$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
+		<td colspan=3><b>Table 5.</b> Frechet Inception Distance ($FID \ \downarrow$) with our best architecture for the "pixar "attribute across epochs.</td>
 	</tr>
 </table>
 
