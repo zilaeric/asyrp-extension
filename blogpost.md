@@ -166,7 +166,7 @@ The FID metric compares the distribution of the edited images with the distribut
 
 $$FID = \Vert \mu - \mu\_{ref} \Vert_2^2 + tr \left( \Sigma + \Sigma\_{ref} - 2 { \left( \Sigma^\frac{1}{2} \Sigma\_{ref} \Sigma^\frac{1}{2} \right) }^\frac{1}{2} \right). \qquad \qquad \text{(Equation 14)}$$
 
-## Reproduction of the Experiments
+## <a name="reproduction">Reproduction of the Experiments</a>
 
 We begin by reproducing the qualitative and quantitative results of the original paper. To sustain the limits of our computational budget, we restrict our efforts to the CelebA-HQ \[6\] dataset. Our experiments are based on the [original implementation](https://github.com/kwonminki/Asyrp_official/tree/main/models), however, we found that some of the features required for successful reproduction, especially those relating to quantitative evaluation, are missing from the repository. Generally, we follow the computational set-up specified by the original authors in full. Specifically, we use hyperparameter values presented in Table 1, which were recovered from \[8, Table 2\] and \[8, Table 3\]. Across all experiments, we use $\lambda\_{\text{recon}} = 3 * \frac{\Delta T}{\Vert \Delta T \Vert}$, i.e., the cosine similarity of the source and target prompts, and $t_{\text{boost}} = 167$ as recommended by the original authors. Unless specified otherwise, we use 40 time steps during both the inversion and generation phase of training and inference. We train the models using 1000 training images over a single epoch.
 
@@ -412,6 +412,29 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 	</tr>
 </table>
 
+We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
+
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/linearity.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 9.</b> Image edits for the "smiling" attribute with editing strength in the range from -1 to 1.</td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/details.png" width=500></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 10.</b> Comparison of generated images for the "smiling" attribute with 40 and 1000 time steps during generation.</td>
+  </tr>
+</table>
+
+## Bias in editing directions
+The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **707**.
+
 <table align="center">
 	<tr align="center">
 		<th align="left">Metric</th>
@@ -461,23 +484,12 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 	</tr>
 </table>
 
-We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
-
 <table align="center">
   <tr align="center">
-      <td><img src="figures/reproduction/linearity.png" width=800></td>
+      <td><img src="figures/ablation/bias/bias.png" width=400></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 9.</b> Image edits for the "smiling" attribute with editing strength in the range from -1 to 1.</td>
-  </tr>
-</table>
-
-<table align="center">
-  <tr align="center">
-      <td><img src="figures/reproduction/details.png" width=500></td>
-  </tr>
-  <tr align="left">
-    <td colspan=2><b>Figure 10.</b> Comparison of generated images for the "smiling" attribute with 40 and 1000 time steps during generation.</td>
+    <td colspan=2><b>Figure 707.</b> Bias in the CLIP editing directions for the "pixar" attribute for pixel-channel transformer with 8 heads (best model).</td>
   </tr>
 </table>
 
@@ -597,24 +609,9 @@ During inference an interesting hyperparameter is the editing strength and its r
   </tr>
 </table>
 
-### Bias in editing directions
-The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **707**.
-
-<table align="center">
-  <tr align="center">
-      <td><img src="figures/ablation/bias/bias.png" width=400></td>
-  </tr>
-  <tr align="left">
-    <td colspan=2><b>Figure 707.</b> Bias in the CLIP editing directions for the "pixar" attribute for pixel-channel transformer with 8 heads (best model).</td>
-  </tr>
-</table>
-
 ### Transfer-Learning between attributes
 During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
 We therefore hypothesize that using pretrained weights from a different attribute than the target attribute should speed up training. We perform transfer learning from the 
-
-
-
 
 
 
@@ -639,7 +636,7 @@ However, to calculate the directional CLIP loss both the reference and the gener
 That being said this section is called future research for a reason. Sadly the original code-base was not very modular and this made applying Asyrp to another DM or LDM not feasible within the scope of this project. Asyrp was build directly into a random DM code-base and thus applying it to a LDM would mean starting from scratch in a LDM code-base. Furthermore running the decoder on the latent and accessing the bottleneck feature map at every step meant that we had to edit low level code of large code-bases. Therefor eventually we decided to keep this as future research.
 
 ## Conclusion 
-
+The Asyrp model presented in the original paper and thoroughly explained in the [Discovering Semantic Latent Space](#discover) and [Model Architecture](#architecture) sections, successfully discovers a semantic latent space in the bottleneck of frozen diffusion models which allows high quality image editing. This is supported by our reproduction study, which was conducted on the CelebA-HQ dataset, using the pretrained DDPM model. The figures in the [Reproduction of the Experiments](#reproduction) section highlight the editing abilities of the model for both in- (eg. smiling, sad, angry) and unseen-domain (eg. Pixar, Neanderthal, Frida) attributes. For the quantitative evaluation, we used the directional CLIP score, as this was reported in the original paper and the FID score. Both of the two metrics have shown better results for in-domain editing in the case of the reproduction study, and agree with the original findings that Neanderthal is the hardest editing direction. The best results are for "sad" and "smiling". The discovered semantic latent space has the properties of linearity and consistency across timesteps which are validated by our reproduction experiments.
 ## Bibliography
 
 [1] Jooyoung Choi, Sungwon Kim, Yonghyun Jeong, Youngjune Gwon, and Sungroh Yoon. [ILVR: Conditioning Method for Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2108.02938). In: CVF International Conference on Computer Vision (ICCV). 2021, pp. 14347–14356.
