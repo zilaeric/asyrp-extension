@@ -436,7 +436,7 @@ Figure 10 reproduces the results originally presented in \[8, Figure 17\]. When 
   </tr>
 </table>
 
-## Bias in editing directions
+## <a name="bias">Bias of the Asyrp model</a>
 The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **707**.
 
 <table align="center">
@@ -497,7 +497,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
   </tr>
 </table>
 
-## Ablation study
+## <a name="ablation">Ablation study</a>
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
@@ -641,6 +641,15 @@ That being said this section is called future research for a reason. Sadly the o
 
 ## Concluding Remarks
 The Asyrp model presented in the original paper and thoroughly explained in the [Discovering Semantic Latent Space](#discover) and [Model Architecture](#architecture) sections, successfully discovers a semantic latent space in the bottleneck of frozen diffusion models which allows high quality image editing. This is supported by our reproduction study, which was conducted on the CelebA-HQ dataset, using the pretrained DDPM model. The figures in the [Reproduction of the Experiments](#reproduction) section highlight the editing abilities of the model for both in- (eg. smiling, sad, angry) and unseen-domain (eg. Pixar, Neanderthal, Frida) attributes. For the quantitative evaluation, we used the directional CLIP score, as this was reported in the original paper and the FID score. Both of the two metrics have shown better results for in-domain editing in the case of the reproduction study, and agree with the original findings that Neanderthal is the hardest editing direction. The best results are for "sad" and "smiling". The discovered semantic latent space has the properties of linearity and consistency across timesteps which are validated by our reproduction experiments.
+
+We further explored the capabilities of Asyrp by changing its architecture from convolutional layers to a transformer encoder, as it was presented in the [Model Architecture](#architecture) section. We then conducted an ablation study on this new architecture and shown the impact of distinct ways of attending to the bottleneck feature map, different ways of aggregating the temporal encodings, various normalization methods and activation functions. We concluded that our best model
+outperforms the original Asyrp by evaluating both qualitatively and quantitatively, as it was shown in the [Ablation study](#ablation) section. We got a ... FID score for the attribute "Pixar", while with the original only ..... . Also, by looking at the figures we clearly observed that our model captures and edits more fine grained features, thus having a stronger impact on the quality of the edited image.
+
+We explored the limitations of the orginal model and discovered two main problems: first, that it is heavily biased and section [Bias of the Asyrp model](#bias) shows that the model performs much better on editing images of caucasian people than non-caucasian and also that individuals frequently change gender and eye color and second, that the model needs retraining and has a different hyperparamenter configuration for each attribute. 
+
+Does our model solve these problems? Hyperpraram tuning I guess yes but how about transfer learning: is there anything that makes sense?
+
+LDM conclusion as in next research direction. 
 ## Bibliography
 
 [1] Jooyoung Choi, Sungwon Kim, Yonghyun Jeong, Youngjune Gwon, and Sungroh Yoon. [ILVR: Conditioning Method for Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2108.02938). In: CVF International Conference on Computer Vision (ICCV). 2021, pp. 14347–14356.
