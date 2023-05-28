@@ -617,10 +617,11 @@ The significant cost of training a new model for each editing direction makes th
 <table align="center">
   <tr align="center">
       <th><img src="figures/ablation/transfer_learning_loss.png"></th>
+      <th><img src="figures/ablation/transfer_comparison.png"></th>
 
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 18.</b> Retraining from a different trains faster than training from scratch.</td>
+    <td colspan=3><b>Figure 18.</b> Retraining from a different trains faster than training from scratch. Left the loss curve, right the results after 2000 steps</td>
   </tr>
 </table>
 
