@@ -437,7 +437,7 @@ Figure 10 reproduces the results originally presented in \[8, Figure 17\]. When 
 </table>
 
 ## <a name="bias">Bias of the Asyrp model</a>
-The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **707**.
+The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure 11.
 
 <table align="center">
 	<tr align="center">
@@ -493,7 +493,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
       <td><img src="figures/reproduction/bias.png" width=400></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 707.</b> Bias in the CLIP editing directions for the "pixar" attribute.</td>
+    <td colspan=2><b>Figure 11.</b> Bias in the CLIP editing directions for the "pixar" attribute.</td>
   </tr>
 </table>
 
@@ -506,14 +506,14 @@ As described in the [model architecture](#architecture) section and shown in Fig
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We present all our results for one to four epochs since this hyperparameter holds significant importance in our study.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure **222** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure **166** visually shows the results for different number of heads for the "pixar" attribute.
+Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure 12 we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure 13 visually shows the results for different number of heads for the "pixar" attribute.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/ablation/loss_curve_heads.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 222.</b> The effect of the number of transformer heads on the directional CLIP loss curve during training.</td>
+    <td colspan=2><b>Figure 12.</b> The effect of the number of transformer heads on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
@@ -524,13 +524,13 @@ Next an important architectural decision for the transformer blocks was the numb
       <th><img src="figures/ablation/epochs_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 166.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
+    <td colspan=3><b>Figure 13.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
   </tr>
 </table>
 
 
 
-Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure **182** we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure **123**.
+Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure 14 we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure 15.
 
 <table align="center">
   <tr align="center">
@@ -539,7 +539,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <th><img src="figures/ablation/epochs_vs_layer_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 182.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
+    <td colspan=3><b>Figure 14.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
   </tr>
 </table>
 
@@ -548,7 +548,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <td><img src="figures/ablation/loss_curve_models.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 123.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
+    <td colspan=2><b>Figure 15.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
