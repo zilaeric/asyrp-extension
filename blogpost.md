@@ -38,9 +38,14 @@ To run the process in reverse starting from a sample $x_T \sim \mathcal{N}(0, \m
 
 $$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right) \qquad \qquad \text{(Equation 3)}$$
 
-| ![Denoising process](figures/aprox.png) | 
-|:-:| 
-| **Figure 1.** The Markov process of diffusing noise and denoising \[5\]. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/aprox.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 1.</b> The Markov process of diffusing noise and denoising [5].</td>
+  </tr>
+</table>
 
 In DDPM $\mu_\theta\left(x_t, t\right)$ is estimated using a neural network that predicts the added noise $\epsilon$ at step $t$ as shown in Equation 4 and $\Sigma_\theta\left(x_t, t\right)$ is kept fixed to $\beta_t \mathbf{I}$. Then an efficient way to sample from an arbitrary step can be formulated as in Equation 5, with $v_T \sim \mathcal{N}(0, \mathbf{I})$ and $\alpha_t = \Pi_{s=1}^t \left( 1 - \beta_s \right)$.
 
@@ -95,20 +100,35 @@ $$\mathcal{L}\_t = \lambda\_{\text{CLIP}} \mathcal{L}\_{direction} (\mathbf{P}^{
 
 Figure 2 visualizes the generative process of Asyrp intuitively. As shown by the green box on the left, the process only changes $\textbf{P}\_t$ while preserving $\textbf{D}\_t$. On the right side, the figure illustrates how Asyrp alters the reverse process to achieve the desired outcome by adjusting the attributes in the h-space. However, in practise they also make use of some practical tricks to make the theory work. Foremost, they only edit the h-space in an empirically found window which is for most examples around the first 30\% time-steps of the reverse process. Secondly, they scale $\Delta h_{t}$ using non-accelerated sampling. Lastly, they make use of a technique called quality boosting in roughly the last 30\% time-steps. All these techniques are explained more thoroughly in the paper, but not essential for the intends and purposes of this blog post.
 
-| ![Asyrp](figures/asyrp.png) | 
-|:-:| 
-| **Figure 2.** Asymmetric reverse process. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/asyrp.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 2.</b> Asymmetric reverse process (Asyrp) visualization [8].</td>
+  </tr>
+</table>
 
 ## <a name="architecture">Model Architecture</a>
 The original architecture of the neural network, $f_t$, is implemented as shown in Figure 3. It consists of two $1 \times 1$ convolution layers, the aggregation of the positional encodings, a group normalization layer and a SiLU activation function. However, the authors note that they haven't explored much with the network architecture, which let us further experiment with it, leading to the network architecture in Figure 4. We use a Transformer based architecture instead of the convolutions and then experiment by doing changes at each block level: Encoder, Aggregation, Normalization and Activation.
 
-| ![Asyrp architecture](figures/asyrp_theirs.png) | 
-|:-:| 
-| **Figure 3.** Original architecture of the neural network $f_t$ as in the Asyrp paper \[8\]. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/asyrp_theirs.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 3.</b> Original architecture of the neural network $f_t$ as in the Asyrp paper [8].</td>
+  </tr>
+</table>
 
-| ![Asyrp proposed architecture](figures/asyrp_ours.png) | 
-|:-:| 
-| **Figure 4.** Our Transformer based architecture for $f_t$ and all its variants for the ablation study. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/asyrp_ours.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 4.</b> Our transformer-based architecture of the neural network $f_t$ and all its variants for the ablation study.</td>
+  </tr>
+</table>
 
 #### Encoder architecture
 The input and output of the module is an embedding of size $w \times h \times c$, which in the case of the CelebA-HQ dataset corresponds to $8 \times 8 \times 512$. We propose to use a transformer based architecture to exchange information between the elements of the embedding more effectively. In order to do so, we interpret the embedding as a sequence of length $n$ of $d$-dimensional tokens. 
@@ -133,9 +153,14 @@ The directional CLIP similarity score measures how well the diffusion model pres
 
 Semantic consistency is a metric that has been introduced in order to evaluate the consistency of network predictions on video sequences. In the image editing setting, it compares the segmentation maps of the reference and the edited image by computing the mean intersection over the union of the two. Knowing this, we can reason that high SC scores do not necessarily mean good image content modification, as can be seen in Figure 5. This is an example that clearly shows how this metric fails on evaluating editing performance. The DiffusionCLIP model tries to preserve structure and shape in the image, while Asyrp allows more changes that lead to desired attribute alterations.
 
-| ![Segmentation consistency](figures/sc.png) | 
-|:-:| 
-| **Figure 5.** Segmentation masks of the Reference image, Asyrp and DiffustionCLIP generated images for computing SC for the attribute smiling \[8\]. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/sc.png" width=400></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 5.</b> Segmentation masks of the original, Asyrp-edited, and DiffustionCLIP-edited images used to compute segmentation consistency for the "smiling" attribute. \[8\].</td>
+  </tr>
+</table>
 
 The FID metric compares the distribution of the edited images with the distribution of the referential images in a feature space. Lower FID scores correspond to better image editing. In order to compute the image features, one commonly employs the Inception-v3 model \[18\]. In particular, the model's activations of the last layer prior to the output classification layer are calculated for a set of edited and source images. The mean and the covariance of the activations is computed, so they can be modelled as multivariate Gaussians: $\mathcal{N}(\mu, \Sigma)$ being the distribution of the edited images' features and $\mathcal{N}(\mu_{ref}, \Sigma_{ref})$ the distribution of the reference images' features. The FID is then calculated as follows:
 
@@ -279,19 +304,34 @@ We begin by reproducing the qualitative and quantitative results of the original
 
 Figure 6 shows that the results obtained in the original Asyrp paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in high performance image generation for in-domain attributes. Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular shifts may also result in other unintended shifts. To give an example, edits in the "woman" and "young" directions appear heavily entangled for the first image in Figure 6.
 
-| ![In-domain](figures/reproduction/in_1.0.png) | 
-|:-:| 
-| **Figure 6.** Editing results of Asyrp on CelebA-HQ for in-domain attributes. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/in_1.0.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 6.</b> Editing results for in-domain attributes.</td>
+  </tr>
+</table>
 
 Figures 7 and 8 depict the results of our reproducibility experiment focused on unseen-domain attributes (i.e., attributes that have not been observed in the training data) originally presented in \[8, Figure 5\]. In Figure 7, we use the full $\Delta h_t$ as done by the authors. In Figure 8, we reduce the editing strength by taking $0.5 \Delta h_t$. We observe that for unseen-domain attributes, reduction of the editing strength can nicely reduce invasiveness of the method and produce more sound results.
 
-| ![Unseen-domain](figures/reproduction/unseen_1.0.png) | 
-|:-:| 
-| **Figure 7.** Editing results of Asyrp on CelebA-HQ for unseen-domain attributes. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/unseen_1.0.png" width=500></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 7.</b> Editing results for unseen-domain attributes.</td>
+  </tr>
+</table>
 
-| ![Unseen-domain](figures/reproduction/unseen_0.5.png) | 
-|:-:| 
-| **Figure 8.** Editing results of Asyrp on CelebA-HQ for unseen-domain attributes with $0.5 \Delta h_t$. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/unseen_0.5.png" width=500></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 8.</b> Editing results for unseen-domain attributes with reduced editing strength ($0.5 \Delta h_t$).</td>
+  </tr>
+</table>
 
 To quantitatively appreciate the performance of the Asyrp model, we reproduce the evaluation they conducted and compute the Directional CLIP score for the same three in-domain attributes (smiling, sad, tanned) and two unseen-domain attributes (Pixar, Neanderthal) on a set of 100 images per attribute from the CelebA-HQ dataset. The available repository does not provide code for implementing neither of the evaluation metrics, which leads to also not knowing which 100 images from the dataset were considered when computing the scores. We took the first 100 images and the comparative results can be seen in Table 1. We did not implement the segmentation consistency score, as we showed in the Evaluation Diffusion Models section that it has shortcomings, but we computed the FID score that is more meaningful in the case of image editing.
 
@@ -333,7 +373,7 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>0.952<br>(0.035)</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 2.</b> Asyrp's directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes. Standard<br>deviations are reported in parentheses.</td>
+		<td colspan=7><b>Table 2.</b> Directional CLIP score ($S_{dir}$) for in-domain (IN) and unseen-domain (UN) attributes. Standard<br>deviations are reported in parentheses.</td>
 	</tr>
 </table>
 
@@ -382,19 +422,29 @@ To quantitatively appreciate the performance of the Asyrp model, we reproduce th
 		<td>71.7</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 3.</b> Asyrp's Frechet Inception Distance ($FID$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
+		<td colspan=7><b>Table 3.</b> Frechet Inception Distance ($FID$) for in-domain (IN) and unseen-domain (UN) attributes.</td>
 	</tr>
 </table>
 
 We also conducted reproducibility experiments on the linearity and consistency across timesteps of the model. The results can be seen in Figures 8 and 9.
 
-| ![Linearity](figures/reproduction/linearity.png) | 
-|:-:| 
-| **Figure 9.** Linearity of h-space. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/linearity.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 9.</b> Image edits for the "smiling" attribute with editing strength in the range from -1 to 1.</td>
+  </tr>
+</table>
 
-| ![Linear combinations](figures/reproduction/details.png) | 
-|:-:| 
-| **Figure 10.** Linear combination of attributes. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/reproduction/details.png" width=500></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 10.</b> Comparison of generated images for the "smiling" attribute with 40 and 1000 time steps during generation.</td>
+  </tr>
+</table>
 
 ## Ablation study
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
@@ -405,11 +455,16 @@ As described in the [model architecture](#architecture) section and shown in Fig
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We present all our results for one to four epochs since this hyperparameter holds significant importance in our study.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure **222** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure **166** visually shows the results for different number of heads for the "pixar" attribute. 
+Next an important architectural decision for the transformer blocks was the number of heads to use. In Figure **222** we investigate the optimal number of heads. As can be seen more heads leads to better performance, however it comes at an computational cost. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure **166** visually shows the results for different number of heads for the "pixar" attribute.
 
-| ![loss](figures/ablation/loss_curve_heads.png) | 
-|:-:| 
-| **Figure 222.** The directional CLIP loss curve for different number of heads. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/ablation/loss_curve_heads.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 222.</b> The effect of the number of transformer heads on the directional CLIP loss curve during training.</td>
+  </tr>
+</table>
 
 <table align="center">
   <tr align="center">
@@ -418,7 +473,7 @@ Next an important architectural decision for the transformer blocks was the numb
       <th><img src="figures/ablation/epochs_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 166.</b> Effect of the number of heads for the "pixar" attribute on CelebA-HQ.</td>
+    <td colspan=3><b>Figure 166.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
   </tr>
 </table>
 
@@ -433,13 +488,18 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <th><img src="figures/ablation/epochs_vs_layer_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 182.</b> Effect of the input sequence type for the "neanderthal" attribute on CelebA-HQ. Here pc is pixel-channel, cp is channel-pixel, p is pixel, c is channel, and conv is convolutional block.</td>
+    <td colspan=3><b>Figure 182.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
   </tr>
 </table>
 
-| ![loss](figures/ablation/loss_curve_models.png) | 
-|:-:| 
-| **Figure 123.** The directional CLIP loss curve for different transformer input sequences. |
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/ablation/loss_curve_models.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 123.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
+  </tr>
+</table>
 
 <table align="center">
 	<tr align="center">
@@ -464,7 +524,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
 		<td>98.3</td>
 	</tr>
 	<tr align="left">
-		<td colspan=5><b>Table 4.</b> Asyrp's Frechet Inception Distance ($FID$) with pixel-channel<br>architecture for attribute "pixar" across epochs.</td>
+		<td colspan=5><b>Table 4.</b> Frechet Inception Distance ($FID$) with pixel-channel <br> architecture for the "pixar "attribute across epochs.</td>
 	</tr>
 </table>
 
@@ -485,7 +545,7 @@ This is convenient as the transformer modules are trained with an Adam optimizer
       <th><img src="figures/ablation/goblin_transformer.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 201.</b> New attribute "goblin" with none-tuned parameters in training.</td>
+    <td colspan=2><b>Figure 201.</b> Comparison of convolution-based and transformer-based architecture output <br> for a new "goblin" attribute without hyperparameter tuning.</td>
   </tr>
 </table>
 
@@ -498,17 +558,21 @@ During inference an interesting hyperparameter is the editing strength and its r
       <th><img src="figures/ablation/dstrength_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 201.</b> Effect of the editing strength for the "pixar" attribute on CelebA-HQ.</td>
+    <td colspan=3><b>Figure 201.</b> The effect of the editing strength when using pixel-channel transformer with various numbers of heads on the "pixar" attribute.</td>
   </tr>
 </table>
 
 ### Bias in editing directions
 The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure **707**.
 
-| ![loss](figures/ablation/bias/bias.png) | 
-|:-:| 
-| **Figure 707.** Bias in the CLIP editing directions (with 8 heads transformer / best model). |
-
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/ablation/bias/bias.png" width=400></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 707.</b> Bias in the CLIP editing directions for the "pixar" attribute for pixel-channel transformer with 8 heads (best model).</td>
+  </tr>
+</table>
 
 ### Transfer-Learning between attributes
 During training we often observed that the model first has to learn how to reconstruct the original image, effectively ignoring the added asyrp architecture, before it learns to edit the image through the clip directional loss. 
@@ -526,11 +590,16 @@ $$L_{L D M} := \mathbb{E}\_{ \mathcal{E}(x), \epsilon \sim \mathcal{N}(0, 1), t 
 
 $$z_{t-1} = \sqrt{\alpha\_{t-1}} \mathbf{P}\_t \left( \epsilon\_\theta \left( z_t, t \mid \Delta h_t \right) \right) + \mathbf{D}\_t \left( \epsilon\_\theta \left( z_t, t \right) \right) + \sigma_t v_t \qquad \qquad \text{(Equation 16)}$$
 
-However, to calculate the directional CLIP loss both the reference and the generated image are needed, but the whole point of LDMs is that you do not calculate those every step. One aproach to still use the Asyrp algorithm could be to retrain CLIP for LDM latents instead of images, but this is beyond our scope. Therefor we investigated another aproach in which the images are computed from the latents by running the decoder $\mathcal{D}$ on $z_t$ at every time-step. Initially we questioned whether this approach would be fruitful as the VQ-VAE is only trained to reconstruct real images and not images perturbed by different levels of noise. In GIF 1 the results can be seen of running $\mathcal{D}$ on $z_t$ of a LDM at every time step. While this is no conclusive result, it does seem to hint that this approach would be feasible. 
+However, to calculate the directional CLIP loss both the reference and the generated image are needed, but the whole point of LDMs is that you do not calculate those every step. One aproach to still use the Asyrp algorithm could be to retrain CLIP for LDM latents instead of images, but this is beyond our scope. Therefor we investigated another aproach in which the images are computed from the latents by running the decoder $\mathcal{D}$ on $z_t$ at every time-step. Initially we questioned whether this approach would be fruitful as the VQ-VAE is only trained to reconstruct real images and not images perturbed by different levels of noise. In Figure 872 the results can be seen of running $\mathcal{D}$ on $z_t$ of a LDM at every time step. While this is no conclusive result, it does seem to hint that this approach would be feasible. 
 
-| ![Linear combinations](src/lib/latent-diffusion/clip_loss_test/figures/output.gif) | 
-|:-:| 
-| **GIF 1.** Running the VQ-VAE decoder on the latent at every time step  |
+<table align="center">
+  <tr align="center">
+      <td><img src="src/lib/latent-diffusion/clip_loss_test/figures/output.gif"></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 872.</b> Running the VQ-VAE decoder on the latent at every time step.</td>
+  </tr>
+</table>
 
 That being said this section is called future research for a reason. Sadly the original code-base was not very modular and this made applying Asyrp to another DM or LDM not feasible within the scope of this project. Asyrp was build directly into a random DM code-base and thus applying it to a LDM would mean starting from scratch in a LDM code-base. Furthermore running the decoder on the latent and accessing the bottleneck feature map at every step meant that we had to edit low level code of large code-bases. Therefor eventually we decided to keep this as future research.
 
