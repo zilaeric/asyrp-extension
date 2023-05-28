@@ -168,133 +168,119 @@ $$FID = \Vert \mu - \mu\_{ref} \Vert_2^2 + tr \left( \Sigma + \Sigma\_{ref} - 2 
 
 ## Reproduction of the Experiments
 
-We begin by reproducing the qualitative and quantitative results of the original paper. To sustain the limits of our computational budget, we restrict our reproduction efforts to the CelebA-HQ \[6\] dataset. Our experiments are based on the [original implementation](https://github.com/kwonminki/Asyrp_official/tree/main/models), however, we found that some of the features required for successful reproduction, especially those relating to quantitative evaluation, are missing from the repository. Generally, we follow the computational set-up specified by the original authors in full. Specifically, we use hyperparameter values as specified in Table 1, which were recovered from \[8, Table 2\] and \[8, Table 3\]. For most of our experiments, we use 40 time steps during both the inversion and generation phase of training and inference. We model checkpoints trained for a single iteration over all images in the training sample.
+We begin by reproducing the qualitative and quantitative results of the original paper. To sustain the limits of our computational budget, we restrict our efforts to the CelebA-HQ \[6\] dataset. Our experiments are based on the [original implementation](https://github.com/kwonminki/Asyrp_official/tree/main/models), however, we found that some of the features required for successful reproduction, especially those relating to quantitative evaluation, are missing from the repository. Generally, we follow the computational set-up specified by the original authors in full. Specifically, we use hyperparameter values presented in Table 1, which were recovered from \[8, Table 2\] and \[8, Table 3\]. Across all experiments, we use $\lambda\_{\text{recon}} = 3 * \frac{\Delta T}{\Vert \Delta T \Vert}$, i.e., the cosine similarity of the source and target prompts, and $t_{\text{boost}} = 167$ as recommended by the original authors. Unless specified otherwise, we use 40 time steps during both the inversion and generation phase of training and inference. We train the models using 1000 training images over a single epoch.
 
 <table align="center">
   <tr align="center">
+      <th align="left">Label</th>
       <th align="left">$y_{ref}$</th>
       <th align="left">$y_{target}$</th>
       <th>$\lambda_{\text{CLIP}}$</th>
-      <th>$\lambda_{\text{recon}}$</th>
       <th>$t_{\text{edit}}$</th>
-      <th>$t_{\text{boost}}$</th>
-      <th>domain</th>
+      <th>Domain</th>
   </tr>
   <tr align="center">
-    <td align="left">face</td>
-    <td align="left">smiling face</td>
+    <td align="left">smiling</td>
+    <td align="left">"face"</td>
+    <td align="left">"smiling face"</td>
     <td>0.8</td>
-    <td>3*0.899</td>
     <td>513</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">face</td>
-    <td align="left">sad face</td>
+    <td align="left">sad</td>
+    <td align="left">"face"</td>
+    <td align="left">"sad face"</td>
     <td>0.8</td>
-    <td>3*0.894</td>
     <td>513</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">face</td>
-    <td align="left">angry face</td>
+    <td align="left">angry</td>
+    <td align="left">"face"</td>
+    <td align="left">"angry face"</td>
     <td>0.8</td>
-    <td>3*0.892</td>
     <td>512</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">face</td>
-    <td align="left">tanned face</td>
+    <td align="left">tanned</td>
+    <td align="left">"face"</td>
+    <td align="left">"tanned face"</td>
     <td>0.8</td>
-    <td>3*0.886</td>
     <td>512</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">a person</td>
-    <td align="left">a man</td>
+    <td align="left">man</td>
+    <td align="left">"a person"</td>
+    <td align="left">"a man"</td>
     <td>0.8</td>
-    <td>3*0.910</td>
     <td>513</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">a person</td>
-    <td align="left">a woman</td>
+    <td align="left">woman</td>
+    <td align="left">"a person"</td>
+    <td align="left">"a woman"</td>
     <td>0.8</td>
-    <td>3*0.891</td>
     <td>513</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">person</td>
-    <td align="left">young person</td>
+    <td align="left">young</td>
+    <td align="left">"person"</td>
+    <td align="left">"young person"</td>
     <td>0.8</td>
-    <td>3*0.905</td>
     <td>515</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">person</td>
-    <td align="left">person with curly hair</td>
+    <td align="left">curly hair</td>
+    <td align="left">"person"</td>
+    <td align="left">"person with curly hair"</td>
     <td>0.8</td>
-    <td>3*0.835</td>
     <td>499</td>
-    <td>167</td>
     <td>IN</td>
   </tr>
   <tr align="center">
-    <td align="left">Person</td>
-    <td align="left">Nicolas Cage</td>
+    <td align="left">nicolas</td>
+    <td align="left">"Person"</td>
+    <td align="left">"Nicolas Cage"</td>
     <td>0.8</td>
-    <td>3*0.710</td>
     <td>461</td>
-    <td>167</td>
     <td>UN</td>
   </tr>
   <tr align="center">
-    <td align="left">Human</td>
-    <td align="left">3D render in the style of Pixar</td>
+    <td align="left">pixar</td>
+    <td align="left">"Human"</td>
+    <td align="left">"3D render in the style of Pixar"</td>
     <td>0.8</td>
-    <td>3*0.667</td>
     <td>446</td>
-    <td>167</td>
     <td>UN</td>
   </tr>
   <tr align="center">
-    <td align="left">Human</td>
-    <td align="left">Neanderthal</td>
+    <td align="left">neanderthal</td>
+    <td align="left">"Human"</td>
+    <td align="left">"Neanderthal"</td>
     <td>1.2</td>
-    <td>3*0.802</td>
     <td>490</td>
-    <td>167</td>
     <td>UN</td>
   </tr>
   <tr align="center">
-    <td align="left">photo</td>
-    <td align="left">Painting in Modigliani style</td>
+    <td align="left">modigliani</td>
+    <td align="left">"photo"</td>
+    <td align="left">"Painting in Modigliani style"</td>
     <td>0.8</td>
-    <td>3*0.565</td>
     <td>403</td>
-    <td>167</td>
     <td>UN</td>
   </tr>
   <tr align="center">
-    <td align="left">photo</td>
-    <td align="left">self-portrait by Frida Kahlo</td>
+    <td align="left">frida</td>
+    <td align="left">"photo"</td>
+    <td align="left">"self-portrait by Frida Kahlo"</td>
     <td>0.8</td>
-    <td>3*0.443</td>
     <td>321</td>
-    <td>167</td>
     <td>UN</td>
   </tr>
   <tr align="left">
