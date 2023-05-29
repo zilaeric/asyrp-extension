@@ -1,15 +1,17 @@
-# Advancing Our Understanding of Diffusion Models: <br/> A Deep Dive Into "Diffusion Models Already Have a Semantic Latent Space"
+# Advancing Our Understanding of Diffusion Models: <br> A Deep Dive Into "Diffusion Models Already Have a Semantic Latent Space"
 
 ### J. R. Gerbscheid, A. Ivășchescu, L. P. J. Sträter, E. Zila
 
 ---
 
-In this blog post, we will discuss, reproduce and extend on the findings of the ICLR2023 paper titled ["Diffusion Models Already Have a Semantic Latent Space"](https://arxiv.org/abs/2210.10960). The paper introduces an algorithm called asymmetric reverse process (Asyrp) to uncover a semantic latent space in the bottleneck of frozen diffusion models. The authors showcase the effectiveness of Asyrp in the domain of image editing.
+In this blog post, we discuss, reproduce, and extend on the findings of the ICLR2023 paper titled ["Diffusion Models Already Have a Semantic Latent Space"](https://arxiv.org/abs/2210.10960). The paper introduces an algorithm called asymmetric reverse process (Asyrp) to uncover a semantic latent space in frozen diffusion models. The authors showcase the effectiveness of Asyrp in the domain of image editing.
 
-**Goal of this blog post:** The purpose of this blog post is threefold: 
-1. Help other researchers understand the algorithm (Asyrp). 
+The purpose of this blog post is threefold: 
+1. Help other researchers understand Asyrp's algorithm. 
 2. Verify the authors' claims by reproducing the results. 
-3. Extend on the discussion points of the paper.
+3. Extend on discussion points of the paper.
+
+---
 
 ## Image Editing Using Diffusion Models
 
