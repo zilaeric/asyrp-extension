@@ -1,5 +1,5 @@
 
-# On the Reproduction and Extension of <br>"Diffusion Models already have a Semantic Latent Space"
+# A Deep Dive Into <br> "Diffusion Models Already Have a Semantic Latent Space""
 
 [![arXiv](https://img.shields.io/badge/arXiv-2110.02711-red)](https://arxiv.org/abs/2210.10960) [![project_page](https://img.shields.io/badge/project_page-orange)](https://kwonminki.github.io/Asyrp/)
 
