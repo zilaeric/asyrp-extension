@@ -23,7 +23,7 @@ Asyrp is trained to minimize a weighted loss function consisting of directional 
 
 In order to test the performance and generalizability of the proposed algorithm, we reproduce their main results, both qualitative and quantitative, on the 
 CelebA-HQ \[6\] dataset, introduce an additional quantitative metric, the FID score, and propose architectural changes to the neural network producing the semantic latent space used for editing. In particular, we suggest the use of a transformer-based network and perform an extensive ablation study on it.
-Also, since LDMs currently represent the state-of-the-art in image generation \[16\], we consider vital to investigate 
+Also, since LDMs currently represent the state-of-the-art in image generation \[16\], we consider it vital to investigate 
 whether the method could be applied to them in order to obtain meaningful attribute edits of the original images.
 
 ## <a name="recap">Recap on Diffusion Models</a>
@@ -87,7 +87,16 @@ In practise, all SOTA diffusion models use the U-net architecture to approximate
 
 $$x_{t-1} = \sqrt{\alpha\_{t-1}} \mathbf{P}\_t \left( \epsilon\_\theta \left( x_t, t \mid \Delta h_t \right) \right) + \mathbf{D}\_t \left( \epsilon\_\theta \left( x_t, t \right) \right) + \sigma_t v_t \qquad \qquad \text{(Equation 11)}$$
 
-The neural network, $f_t$, used for predicting $\Delta h_{t}$ is trained to edit $h_t$ in such a way that the semantics of $x_{t-1}$ change according to the users prompt. In the Asyrp paper, a pretrained CLIP model is used for the text-driven image editing. 
+The neural network, $f_t$, used for predicting $\Delta h_{t}$ is trained to edit $h_t$ in such a way that the semantics of $x_{t-1}$ change according to the users prompt. In the Asyrp paper, a pretrained CLIP model is used for the text-driven image editing, as it can be seen in Figure 2.
+
+<table align="center">
+  <tr align="center">
+      <td><img src="figures/asyrp_viz.png" width=800></td>
+  </tr>
+  <tr align="left">
+    <td colspan=2><b>Figure 2.</b> Asyrp training visualization.</td>
+  </tr>
+</table>
 
 CLIP (Contrastive Language-Image Pretraining) \[15\] is a multi-modal, zero-shot model that predicts the most relevant caption for an image. It consists of a text encoder and an image encoder (both relying on a transformer architecture) that encode the data into a multimodal embedding space. The encoders are jointly trained on a dataset of images and their true textual descriptions, using a contrastive loss function. This loss function aims to maximize the cosine similarity of images and their corresponding text and minimize the similarity between images and texts that do not occur together. 
 
@@ -99,26 +108,26 @@ This leads to the loss function that Asyrp is trained to minimize in Equation 13
 
 $$\mathcal{L}\_t = \lambda\_{\text{CLIP}} \mathcal{L}\_{direction} (\mathbf{P}^{\text{edit}}\_t, y^{target}; \mathbf{P}^{\text{ref}}\_t, y^{ref}) + \lambda\_{\text{recon}} | \mathbf{P}^{\text{edit}}\_t - \mathbf{P}^{\text{ref}}\_t | \qquad \qquad \text{(Equation 13)}$$
 
-Figure 2 visualizes the generative process of Asyrp intuitively. As shown by the green box on the left, the process only changes $\textbf{P}\_t$ while preserving $\textbf{D}\_t$. On the right side, the figure illustrates how Asyrp alters the reverse process to achieve the desired outcome by adjusting the attributes in the h-space. However, in practise they also make use of some practical tricks to make the theory work. Foremost, they only edit the h-space in an empirically found window which is for most examples around the first 30\% time-steps of the reverse process. Secondly, they scale $\Delta h_{t}$ using non-accelerated sampling. Lastly, they make use of a technique called quality boosting in roughly the last 30\% time-steps. All these techniques are explained more thoroughly in the paper, but not essential for the intends and purposes of this blog post.
+Figure 3 visualizes the generative process of Asyrp intuitively. As shown by the green box on the left, the process only changes $\textbf{P}\_t$ while preserving $\textbf{D}\_t$. On the right side, the figure illustrates how Asyrp alters the reverse process to achieve the desired outcome by adjusting the attributes in the h-space. However, in practise they also make use of some practical tricks to make the theory work. Foremost, they only edit the h-space in an empirically found window which is for most examples around the first 30\% time-steps of the reverse process. Secondly, they scale $\Delta h_{t}$ using non-accelerated sampling. Lastly, they make use of a technique called quality boosting in roughly the last 30\% time-steps. All these techniques are explained more thoroughly in the paper, but not essential for the intends and purposes of this blog post.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/asyrp.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 2.</b> Asymmetric reverse process (Asyrp) visualization [8].</td>
+    <td colspan=2><b>Figure 3.</b> Asymmetric reverse process (Asyrp) visualization [8].</td>
   </tr>
 </table>
 
 ## <a name="architecture">Model Architecture</a>
-The original architecture of the neural network, $f_t$, is implemented as shown in Figure 3. It consists of two $1 \times 1$ convolution layers, the aggregation of the positional encodings, a group normalization layer and a SiLU activation function. However, the authors note that they haven't explored much with the network architecture, which let us further experiment with it, leading to the network architecture in Figure 4. We use a Transformer based architecture instead of the convolutions and then experiment by doing changes at each block level: Encoder, Aggregation, Normalization and Activation.
+The original architecture of the neural network, $f_t$, is implemented as shown in Figure 4. It consists of two $1 \times 1$ convolution layers, the aggregation of the positional encodings, a group normalization layer and a SiLU activation function. However, the authors note that they haven't explored much with the network architecture, which let us further experiment with it, leading to the network architecture in Figure 5. We use a Transformer based architecture instead of the convolutions and then experiment by doing changes at each block level: Encoder, Aggregation, Normalization and Activation.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/asyrp_theirs.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 3.</b> Original architecture of the neural network $f_t$ as in the Asyrp paper [8].</td>
+    <td colspan=2><b>Figure 4.</b> Original architecture of the neural network $f_t$ as in the Asyrp paper [8].</td>
   </tr>
 </table>
 
@@ -127,7 +136,7 @@ The original architecture of the neural network, $f_t$, is implemented as shown 
       <td><img src="figures/asyrp_ours.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 4.</b> Our transformer-based architecture of the neural network $f_t$ and all its variants for the ablation study.</td>
+    <td colspan=2><b>Figure 5.</b> Our transformer-based architecture of the neural network $f_t$ and all its variants for the ablation study.</td>
   </tr>
 </table>
 
@@ -148,18 +157,18 @@ A SiLU activation function is applied to this embedding before it's passed throu
 
 ## <a name="architecture">Evaluating Diffusion Models</a>
 
-In order to evaluate the performance of diffusion models when it comes to image editing, besides qualitative results and conducting user studies \[8, 7\], the following metrics are generally used: Directional CLIP similarity ($S_{dir}$), segmentation-consistency (SC), Fr\'echet Inception Distance (FID), and face identity similarity (ID). The Asyrp paper uses $S_{dir}$ and SC to compare its performance to DiffusionCLIP, which in turn shows that it outperforms both StyleCLIP \[13\] and StyleGAN-NADA \[4\] in $S_{dir}$ and SC.
+In order to evaluate the performance of diffusion models when it comes to image editing, besides qualitative results and conducting user studies \[8, 7\], the following metrics are generally used: Directional CLIP similarity ($S_{dir}$), segmentation-consistency (SC), Fréchet Inception Distance (FID). The Asyrp paper uses $S_{dir}$ and SC to compare its performance to DiffusionCLIP, which in turn shows that it outperforms both StyleCLIP \[13\] and StyleGAN-NADA \[4\] in $S_{dir}$ and SC.
 
 The directional CLIP similarity score measures how well the diffusion model preserves the direction of gradients in an image after editing. It is mathematically computed as $1 - \mathcal{L}\_{direction}$, where $\mathcal{L}\_{direction}$ is the directional CLIP loss from Equation 12. The higher the score, the better image editing performance of the model.
 
-Semantic consistency is a metric that has been introduced in order to evaluate the consistency of network predictions on video sequences. In the image editing setting, it compares the segmentation maps of the reference and the edited image by computing the mean intersection over the union of the two. Knowing this, we can reason that high SC scores do not necessarily mean good image content modification, as can be seen in Figure 5. This is an example that clearly shows how this metric fails on evaluating editing performance. The DiffusionCLIP model tries to preserve structure and shape in the image, while Asyrp allows more changes that lead to desired attribute alterations.
+Semantic consistency is a metric that has been introduced in order to evaluate the consistency of network predictions on video sequences. In the image editing setting, it compares the segmentation maps of the reference and the edited image by computing the mean intersection over the union of the two. Knowing this, we can reason that high SC scores do not necessarily mean good image content modification, as can be seen in Figure 6. This is an example that clearly shows how this metric fails on evaluating editing performance. The DiffusionCLIP model tries to preserve structure and shape in the image, while Asyrp allows more changes that lead to desired attribute alterations.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/sc.png" width=400></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 5.</b> Segmentation masks of the original, Asyrp-edited, and DiffustionCLIP-edited images used to compute segmentation consistency for the "smiling" attribute [8].</td>
+    <td colspan=2><b>Figure 6.</b> Segmentation masks of the original, Asyrp-edited, and DiffustionCLIP-edited images used to compute segmentation consistency for the "smiling" attribute [8].</td>
   </tr>
 </table>
 
@@ -289,25 +298,25 @@ We begin by reproducing the qualitative and quantitative results of the original
   </tr>
 </table>
 
-Figure 6 shows that the results obtained in the original paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in visually convincing image generation for in-domain attributes (i.e., attributes that can be directly observed in the training data of the frozen diffusion model). Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular edits may also result in other unintended changes. To give an example, edits for the "curly hair" attribute result in severe facial transformations and appear to overlap with the "smiling" attribute (see the second and the third row of Figure 6).
+Figure 7 shows that the results obtained in the original paper and presented in \[8, Figure 4\] can be successfully reproduced and that editing in the h-space results in visually convincing image generation for in-domain attributes (i.e., attributes that can be directly observed in the training data of the frozen diffusion model). Nevertheless, we must stress that the methodology does not necessarily isolate attribute changes and particular edits may also result in other unintended changes. To give an example, edits for the "curly hair" attribute result in severe facial transformations and appear to overlap with the "smiling" attribute (see the second and the third row of Figure 7).
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/reproduction/in_1.0.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 6.</b> Editing results for in-domain attributes.</td>
+    <td colspan=2><b>Figure 7.</b> Editing results for in-domain attributes.</td>
   </tr>
 </table>
 
-Figures 7 and 8 depict the results of our reproducibility experiments focused on unseen-domain attributes (i.e., attributes that cannot be observed in the training data) originally presented in \[8, Figure 5\]. In Figure 7, we use the full $\Delta h_t$ as done by the authors. In Figure 8, we reduce the editing strength by half. We observe that for unseen-domain attributes, reduction of the editing strength can significantly reduce invasiveness of the method.
+Figures 8 and 9 depict the results of our reproducibility experiments focused on unseen-domain attributes (i.e., attributes that cannot be observed in the training data) originally presented in \[8, Figure 5\]. In Figure 8, we use the full $\Delta h_t$ as done by the authors. In Figure 9, we reduce the editing strength by half. We observe that for unseen-domain attributes, reduction of the editing strength can significantly reduce invasiveness of the method.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/reproduction/unseen_1.0.png" width=500></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 7.</b> Editing results for unseen-domain attributes.</td>
+    <td colspan=2><b>Figure 8.</b> Editing results for unseen-domain attributes.</td>
   </tr>
 </table>
 
@@ -316,7 +325,7 @@ Figures 7 and 8 depict the results of our reproducibility experiments focused on
       <td><img src="figures/reproduction/unseen_0.5.png" width=500></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 8.</b> Editing results for unseen-domain attributes with reduced editing strength ($0.5 \Delta h_t$).</td>
+    <td colspan=2><b>Figure 9.</b> Editing results for unseen-domain attributes with reduced editing strength ($0.5 \Delta h_t$).</td>
   </tr>
 </table>
 
@@ -415,30 +424,30 @@ We do not implement the segmentation consistency score due to its shortcomings d
 	</tr>
 </table>
 
-In Figure 9, we present our reproduction of \[8, Figure 7\] visualizing the linearity of the learned editing directions. For the "smiling" attribute, it is clearly viable to go in the opposite direction of $\Delta h_t$ and still produce semantically meaningful results. Moreover, the editing effect is shown to be continuous in editing strength.
+In Figure 10, we present our reproduction of \[8, Figure 7\] visualizing the linearity of the learned editing directions. For the "smiling" attribute, it is clearly viable to go in the opposite direction of $\Delta h_t$ and still produce semantically meaningful results. Moreover, the editing effect is shown to be continuous in editing strength.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/reproduction/linearity.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 9.</b> Image edits for the "smiling" attribute with editing strength in the range from -1 to 1.</td>
+    <td colspan=2><b>Figure 10.</b> Image edits for the "smiling" attribute with editing strength in the range from -1 to 1.</td>
   </tr>
 </table>
 
-Figure 10 reproduces the results originally presented in \[8, Figure 17\]. When reconstructing images using a diffusion model with a relatively small number of time steps used for generation, we observe a severe loss in texture resulting in smoothed-out faces with limited details. For training, we used 40 time steps during generation. At inference time, we tried to increase this number to 1,000 and found that it is possible to generate additional texture improving the results at the cost of computation time.
+Figure 11 reproduces the results originally presented in \[8, Figure 17\]. When reconstructing images using a diffusion model with a relatively small number of time steps used for generation, we observe a severe loss in texture resulting in smoothed-out faces with limited details. For training, we used 40 time steps during generation. At inference time, we tried to increase this number to 1,000 and found that it is possible to generate additional texture improving the results at the cost of computation time.
 
 <table align="center">
   <tr align="center">
       <td><img src="figures/reproduction/details.png" width=500></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 10.</b> Comparison of generated images for the "smiling" attribute with 40 and 1000 time steps during generation.</td>
+    <td colspan=2><b>Figure 11.</b> Comparison of generated images for the "smiling" attribute with 40 and 1000 time steps during generation.</td>
   </tr>
 </table>
 
 ## <a name="bias">Bias of the Asyrp Method</a>
-The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure 11. Furthemore, in Table 4 we show that the performance of the editing directions is better for caucasian faces than non-caucasian faces.
+The editing directions found through the asyrp algorithm depend on the knowledge of attributes contained in CLIP. We observe in the output results that these editing directions are often highly biased. Individuals frequently change gender, skin color and eye color when edited with a direction that does not explicitely contain that change. For example, the Pixar editing direction changes the eyecolor of the source images to blue and often changes dark skin to white skin. This effect likely results from the model not being able to disentangle these concepts and has an impact on how useful these directions are in various image editing contexts. We have included some examples of these biased editing directions in Figure 12. Furthemore, in Table 4 we show that the performance of the editing directions is significantly better for caucasian faces than non-caucasian faces.
 
 <table align="center">
 	<tr align="center">
@@ -485,7 +494,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
 		<td>186.8</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID \ \downarrow$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
+		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID \downarrow$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
 	</tr>
 </table>
 
@@ -494,7 +503,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
       <td><img src="figures/reproduction/bias.png" width=400></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 11.</b> Bias in the CLIP editing directions for the "pixar" attribute.</td>
+    <td colspan=2><b>Figure 12.</b> Bias in the CLIP editing directions for the "pixar" attribute.</td>
   </tr>
 </table>
 
@@ -502,12 +511,12 @@ The editing directions found through the asyrp algorithm depend on the knowledge
 While the reproduction results show that the general method works well, we set out to investigate further improvements by running an ablation study. As previously mentioned in the [fourth](#architecture) section adjustments to the model architecture could provide further gains in performance in terms of the clip similairty, flexibility and transferability. In this section, we conduct several ablations in order to gain a deeper understanding of the asyrp method, aiming to identify its limitations and explore potential improvements.
 
 ### Model architecture
-As described in the [model architecture](#architecture) section and shown in Figure 4 the Asyrp method can be broken down into multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation. The best modules are picked based on the lowest CLIP directional loss, which is inversely related to the Directional CLIP Similarity as explained in the [evaluation](#evalution) section. 
+As described in the [model architecture](#architecture) section and shown in Figure 5 the Asyrp method can be broken down into multiple submodules: the two encoder modules, a temporal embedding module and an activation function module. In this section we will look more closely at these modules and propose several adjustments, which we compare to the original implementation. The best modules are picked based on the lowest CLIP directional loss, which is inversely related to the Directional CLIP Similarity as explained in the [evaluation](#evalution) section. 
 
 #### Encoder architecture
 As discussed in the architecture section the 1x1 convolutional layers can be replaced by transformer-based blocks. However, "transformer" is a broad term and here we show the ablations we did to get to the final architecture. Firstly, it is important to consider the numbers of epochs. The original architecture was only trained for one epoch, however this might not be suitable for transformer-based blocks as they typically take longer to train. We present all our results for one to four epochs since this hyperparameter holds significant importance in our study.
 
-Next an important architectural decision for the transformer blocks was the number of heads to use. However, we quickly found out that our main constraint here is the  computational cost. We found that more heads leads to better performance, but also has to be trained for more epochs. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure 12 visually shows the results for different number of heads for the "pixar" attribute.
+Next an important architectural decision for the transformer blocks was the number of heads to use. However, we quickly found out that our main constraint here is the  computational cost. We found that more heads leads to better performance, but also has to be trained for more epochs. Therefor we decided to stick to 1 head for the remainder of the ablations, unless said otherwise. Figure 13 visually shows the results for different number of heads for the "pixar" attribute.
 
 
 <table align="center">
@@ -517,13 +526,13 @@ Next an important architectural decision for the transformer blocks was the numb
       <th><img src="figures/ablation/epochs_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 12.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
+    <td colspan=3><b>Figure 13.</b> The effect of the number of transformer heads on the "pixar" attribute for the pixel-channel transformer architecture.</td>
   </tr>
 </table>
 
 
 
-Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure 13 we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure 14.
+Lastly, as mentioned in the architecture section there are four ways to interpret the bottleneck feature map to get the input sequences for the transformer blocks. In Figure 14 we compare the different variants for the "neanderthal" attribute. For the remainder of the ablations we picked the pixel-channel dual transformer block, because it achieves the lowest CLIP directional loss as shown Figure 15.
 
 <table align="center">
   <tr align="center">
@@ -532,7 +541,7 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <th><img src="figures/ablation/epochs_vs_layer_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 13.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
+    <td colspan=3><b>Figure 14.</b> The effect of the input sequence type for the "neanderthal" attribute across pixel-channel (pc), channel-pixel (cp), pixel (p), channel (c), and convolution-based (conv) architectures.</td>
   </tr>
 </table>
 
@@ -541,14 +550,14 @@ Lastly, as mentioned in the architecture section there are four ways to interpre
       <td><img src="figures/ablation/loss_curve_models.png" width=800></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 14.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
+    <td colspan=2><b>Figure 15.</b> The effect of input sequence type on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
 
 
 #### Temporal embedding module, normalization, and Activation function
-Figure 15 shows that AdaGroupNorm slightly outperforms the other temporal embedding modules. Both the normalization and the activation function have no effect on the directional CLIP loss, thus we decided to keep them the same as the original paper for the remainder of the ablations (SiLU and GroupNorm). 
+Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedding modules. Both the normalization and the activation function have no effect on the directional CLIP loss, thus we decided to keep them the same as the original paper for the remainder of the ablations (SiLU and GroupNorm). 
 
 <table align="center">
   <tr align="center">
@@ -557,49 +566,56 @@ Figure 15 shows that AdaGroupNorm slightly outperforms the other temporal embedd
 	<th><img src="figures/ablation/loss_curve_act_fn.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 15.</b> The effect of the temporal embedding module (left), normalization module (middle), and activation function module (right) on the directional CLIP loss curve during training.</td>
+    <td colspan=3><b>Figure 16.</b> The effect of the temporal embedding module (left), normalization module (middle), and activation function module (right) on the directional CLIP loss curve during training.</td>
   </tr>
 </table>
 
 #### Best Model
-This lead us to the following model architecture:pixel-channel DualTransformer blocks, AdaGroupNorm temporal embedding module, GroupNorm normalizationn, and SiLU activation function. The models performance compared to the original implementation is shown in Table 5 for the "pixar" attribute. Note that this is not strictly the best architecture as adding more heads and training for more epochs would improve the FID scores even more, but because the original model was trained for one epoch this is the fairest comparison.
+
+Based on the results of our ablation study, we conclude that an optimal architecture consists of (1) pixel-channel DualTransformer blocks, (2) AdaGroupNorm temporal embedding module, (3) GroupNorm normalization, and (4) SiLU activation function. In Table 5, we compare the performance of the model to the original implementation in terms of the $FID$ metric. From the results, one can clearly see that our transformer-based architecture performs significantly better than the original convolution-based architecture. We observe greatly improved performance for three out of the four compared attributes. The improvement is particularly strong for unseen-domain attributes. Our results indicate that the transformer-based architecture performs better in keeping the original structure of images during editing than the original one. Note that the evaluated model is not strictly the best as adding more heads and training for more epochs can be expected to improve the $FID$ scores even further. Since the original model was trained for a single epoch, however, this is the fairest comparison.
 
 <table align="center">
 	<tr align="center">
-		<th align="left">Metric</th>
-		<th>Ours</th>
-		<th>Original</th>
+		<th align="left">Model</th>
+		<th>Smiling (IN)</th>
+		<th>Tanned (IN)</th>
+		<th>Pixar (UN)</th>
+		<th>Neanderthal (UN)</th>
 	</tr>
 	<tr align="center">
-		<td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
-		<td>94.2</td>
+		<td align="left">Original</td>
+		<td>89.2</td>
+		<td>100.5</td>
+		<td>125.8</td>
 		<td>125.8</td>
 	</tr>
 	<tr align="center">
-		<td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
-		<td>93.2</td>
-		<td>96.9</td>
+		<td align="left">Ours</td>
+		<td><b>84.3</b></td>
+		<td><b>82.2</b></td>
+		<td><b>83.7</b></td>
+		<td><b>87.0</b></td>
 	</tr>
 	<tr align="left">
-		<td colspan=3><b>Table 5.</b> Frechet Inception Distance ($FID \ \downarrow$) with our best architecture for the "pixar "attribute across epochs.</td>
+		<td colspan=5><b>Table 5.</b> Comparison of Frechet Inception Distance ($FID \downarrow$) metric for in-domain (IN) <br> and unseen-domain (UN) attributes between the original model and our best model.</td>
 	</tr>
 </table>
 
 ### Hyperparameter dependency
 As detailed in the reproduction section, retraining for a single attribute already requires a significant amount of time even with the hyperparameters known. If the method was to be used in practise it is not realistic to hyperparameter tune from scratch for every new attribute. Therefor we looked into how the model performs while using a standard set of parameters instead. Note that the original paper uses stochastic gradient descent and a very high learning rate to train, which notoriously requires comparatively more tuning than an Adam optimizer. 
 
-This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure 16 shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
+This is convenient as the transformer modules are trained with an Adam optimizer anyway. While we tried to use Adam to optimize the original architecture, this resulted in very poor results. In order to demonstrate the significance of hyperparameters, we utilized both the original architecture optimized with SGD and the transformer-based architecture to train the method for a new attribute, employing non-tuned standard parameters. Figure 17 shows the results for the attribute "goblin", highlighting that the output non-tuned transformer-based approach gives a relatively better performance.
 
 <table align="center">
   <tr align="center">
       <th><img src="figures/ablation/goblin_comparison.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 16.</b> Comparison of convolution-based and transformer-based architecture output for a new "goblin" attribute without hyperparameter tuning.</td>
+    <td colspan=2><b>Figure 17.</b> Comparison of convolution-based and transformer-based architecture output for a new "goblin" attribute without hyperparameter tuning.</td>
   </tr>
 </table>
 
-During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure 17.
+During inference an interesting hyperparameter is the editing strength and its relation to the number of heads. It appears that as the number of heads increases, the magnitude of editing strength needed decreases. In other words, we can see a trend where better models can edit more subtly. While this might be computationally unfeasible to use this in practise right now, this does hint that there exist good editing directions in the bottleneck. The results for different editing strengths is shown in Figure 18.
 
 <table align="center">
   <tr align="center">
@@ -608,12 +624,12 @@ During inference an interesting hyperparameter is the editing strength and its r
       <th><img src="figures/ablation/dstrength_vs_heads_img4.png"></th>
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 17.</b> The effect of the editing strength when using pixel-channel transformer with various numbers of heads on the "pixar" attribute.</td>
+    <td colspan=3><b>Figure 18.</b> The effect of the editing strength when using pixel-channel transformer with various numbers of heads on the "pixar" attribute.</td>
   </tr>
 </table>
 
 ### Transfer learning performance
-The significant cost of training a new model for each editing direction makes the application of this model in many practical tasks prohibitively expensive in terms of compute power and ease of use. While it would not eliminate this problem entirely, good transfer performance would alleviate these problems somewhat. We show that transfer learning is possible for our pixel-channel architecture by retraining it on a different editing direction and that this is signficantly faster than training a new direction from scratch. Figure 18 shows the result of retraining a model trained on the "pixar" attribute on the "modigliani" attribute. We can see after a signficant number of steps, the model previously trained on a different attribute still has a lower loss than a model that is trained from scratch. 
+The significant cost of training a new model for each editing direction makes the application of this model in many practical tasks prohibitively expensive in terms of compute power and ease of use. While it would not eliminate this problem entirely, good transfer performance would alleviate these problems somewhat. We show that transfer learning is possible for our pixel-channel architecture by retraining it on a different editing direction and that this is signficantly faster than training a new direction from scratch. Figure 19 shows the result of retraining a model trained on the "pixar" attribute on the "modigliani" attribute. We can see after a signficant number of steps, the model previously trained on a different attribute still has a lower loss than a model that is trained from scratch. 
 
 <table align="center">
   <tr align="center">
@@ -622,7 +638,7 @@ The significant cost of training a new model for each editing direction makes th
 
   </tr>
   <tr align="left">
-    <td colspan=3><b>Figure 18.</b> Retraining from a different trains faster than training from scratch. Left the loss curve, right the results after 2000 steps</td>
+    <td colspan=3><b>Figure 19.</b> Retraining from a different trains faster than training from scratch. Left the loss curve, right the results after 2000 steps</td>
   </tr>
 </table>
 
