@@ -91,7 +91,7 @@ The neural network, $f_t$, used for predicting $\Delta h_{t}$ is trained to edit
 
 <table align="center">
   <tr align="center">
-      <td><img src="figures/asyrp.png" width=800></td>
+      <td><img src="figures/asyrp_viz.png" width=800></td>
   </tr>
   <tr align="left">
     <td colspan=2><b>Figure 2.</b> Asyrp training visualization.</td>
