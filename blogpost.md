@@ -159,7 +159,7 @@ Semantic consistency is a metric that has been introduced in order to evaluate t
       <td><img src="figures/sc.png" width=400></td>
   </tr>
   <tr align="left">
-    <td colspan=2><b>Figure 5.</b> Segmentation masks of the original, Asyrp-edited, and DiffustionCLIP-edited images used to compute segmentation consistency for the "smiling" attribute. \[8\].</td>
+    <td colspan=2><b>Figure 5.</b> Segmentation masks of the original, Asyrp-edited, and DiffustionCLIP-edited images used to compute segmentation consistency for the "smiling" attribute [8].</td>
   </tr>
 </table>
 
