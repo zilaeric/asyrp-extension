@@ -494,7 +494,7 @@ The editing directions found through the asyrp algorithm depend on the knowledge
 		<td>186.8</td>
 	</tr>
 	<tr align="left">
-		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID \ \downarrow$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
+		<td colspan=7><b>Table 4.</b> Frechet Inception Distance ($FID \downarrow$) for in-domain (IN) and unseen-domain (UN) attributes compared between <br> caucasian and non-caucasian individuals.</td>
 	</tr>
 </table>
 
@@ -571,26 +571,33 @@ Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedd
 </table>
 
 #### Best Model
-This lead us to the following model architecture:pixel-channel DualTransformer blocks, AdaGroupNorm temporal embedding module, GroupNorm normalizationn, and SiLU activation function. The models performance compared to the original implementation is shown in Table 5 for the "pixar" attribute. Note that this is not strictly the best architecture as adding more heads and training for more epochs would improve the FID scores even more, but because the original model was trained for one epoch this is the fairest comparison.
+
+Based on the results of our ablation study, we conclude that an optimal architecture consists of (1) pixel-channel DualTransformer blocks, (2) AdaGroupNorm temporal embedding module, (3) GroupNorm normalization, and (4) SiLU activation function. In Table 5, we compare the performance of the model to the original implementation in terms of the $FID$ metric. From the results, one can clearly see that our transformer-based architecture performs significantly better than the original convolution-based architecture. We observe greatly improved performance for three out of the four compared attributes. The improvement is particularly strong for unseen-domain attributes. Our results indicate that the transformer-based architecture performs better in keeping the original structure of images during editing than the original one. Note that the evaluated model is not strictly the best as adding more heads and training for more epochs can be expected to improve the $FID$ scores even further. Since the original model was trained for a single epoch, however, this is the fairest comparison.
 
 <table align="center">
 	<tr align="center">
-		<th align="left">Metric</th>
-		<th>Ours</th>
-		<th>Original</th>
+		<th align="left">Model</th>
+		<th>Smiling (IN)</th>
+		<th>Tanned (IN)</th>
+		<th>Pixar (UN)</th>
+		<th>Neanderthal (UN)</th>
 	</tr>
 	<tr align="center">
-		<td align="left">$FID(\mathbf{x}_{orig}, \mathbf{x}_{edit})$</td>
-		<td>94.2</td>
+		<td align="left">Original</td>
+		<td>89.2</td>
+		<td>100.5</td>
+		<td>125.8</td>
 		<td>125.8</td>
 	</tr>
 	<tr align="center">
-		<td align="left">$FID(\mathbf{x}_{recon}, \mathbf{x}_{edit})$</td>
-		<td>93.2</td>
-		<td>96.9</td>
+		<td align="left">Ours</td>
+		<td><b>84.3</b></td>
+		<td><b>82.2</b></td>
+		<td><b>83.7</b></td>
+		<td><b>87.0</b></td>
 	</tr>
 	<tr align="left">
-		<td colspan=3><b>Table 5.</b> Frechet Inception Distance ($FID \ \downarrow$) with our best architecture for the "pixar "attribute across epochs.</td>
+		<td colspan=5><b>Table 5.</b> Comparison of Frechet Inception Distance ($FID \downarrow$) metric for in-domain (IN) <br> and unseen-domain (UN) attributes between the original model and our best model.</td>
 	</tr>
 </table>
 
