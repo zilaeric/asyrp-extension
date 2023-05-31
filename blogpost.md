@@ -600,7 +600,7 @@ Based on the results of our ablation study, we conclude that an optimal architec
 		<td><b>87.0</b></td>
 	</tr>
 	<tr align="left">
-		<td colspan=6><b>Table 5.</b> Comparison of Frechet Inception Distance ($FID \downarrow$) metric for in-domain (IN) and unseen-domain (UN) attributes between the original model and our best model.</td>
+		<td colspan=6><b>Table 5.</b> Comparison of Frechet Inception Distance ($FID \downarrow$) metric for in-domain (IN) and <br> unseen-domain (UN) attributes between the original model and our best model.</td>
 	</tr>
 </table>
 
