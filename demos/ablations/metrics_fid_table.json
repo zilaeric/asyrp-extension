@@ -1,0 +1,58 @@
+{
+    "fid_table_pc_h8neanderthal_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag_s_pixar": {
+        "sdir_or": 0.0,
+        "sdir_or_var": 0.0,
+        "sdir_oe": -0.006723690680228173,
+        "sdir_oe_var": 0.026943985235729065,
+        "sdir_re": -0.05009729925077409,
+        "sdir_re_var": 0.027140462374699827,
+        "fid_edited_reconstructed": 94.06259155273438,
+        "fid_edited_original": 87.021240234375,
+        "fid_reconstructed_original": 80.81753540039062,
+        "epochs": "s",
+        "ablation_name": "fid_table_pc_h8neanderthal_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag",
+        "attr": "neanderthal"
+    },
+    "fid_table_pc_h8smiling_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag_s_pixar": {
+        "sdir_or": 0.0,
+        "sdir_or_var": 0.0,
+        "sdir_oe": 0.034821370430290696,
+        "sdir_oe_var": 0.03075673494920484,
+        "sdir_re": -0.015229654819704593,
+        "sdir_re_var": 0.03600106329471889,
+        "fid_edited_reconstructed": 65.12955474853516,
+        "fid_edited_original": 84.2884292602539,
+        "fid_reconstructed_original": 80.81753540039062,
+        "epochs": "s",
+        "ablation_name": "fid_table_pc_h8smiling_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag",
+        "attr": "smiling"
+    },
+    "fid_table_pc_h8tanned_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag_s_pixar": {
+        "sdir_or": 0.0,
+        "sdir_or_var": 0.0,
+        "sdir_oe": 0.020717727376613766,
+        "sdir_oe_var": 0.02930092728665627,
+        "sdir_re": -0.024774265408050267,
+        "sdir_re_var": 0.032030984115271784,
+        "fid_edited_reconstructed": 78.48063659667969,
+        "fid_edited_original": 82.24891662597656,
+        "fid_reconstructed_original": 80.81753540039062,
+        "epochs": "s",
+        "ablation_name": "fid_table_pc_h8tanned_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag",
+        "attr": "tanned"
+    },
+    "fid_table_pc_h8pixar_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag_s_pixar": {
+        "sdir_or": 0.0,
+        "sdir_or_var": 0.0,
+        "sdir_oe": 0.05505906412843615,
+        "sdir_oe_var": 0.026726118262803654,
+        "sdir_re": 0.011945040607824921,
+        "sdir_re_var": 0.03249368257128112,
+        "fid_edited_reconstructed": 65.37727355957031,
+        "fid_edited_original": 83.68385314941406,
+        "fid_reconstructed_original": 80.81753540039062,
+        "epochs": "s",
+        "ablation_name": "fid_table_pc_h8pixar_LC_CelebA_HQ_t999_ninv40_ngen40/test_imag",
+        "attr": "pixar"
+    }
+}
