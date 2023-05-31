@@ -6,7 +6,7 @@ from pathlib import Path
 
 # constants
 FIGURESPATH = "../../figures"
-RUNSPATH = "../runs"
+RUNSPATH = "../../src/runs"
 
 
 #########
@@ -243,6 +243,52 @@ def reproduction_details(img_ids):
 
     plt.imshow(img_grid)
     plt.savefig(f"{FIGURESPATH}/reproduction/details.png", bbox_inches='tight', pad_inches=0.1, dpi=300)
+    plt.show()
+
+def reproduction_bias(img_ids):
+    img_paths = [
+        f"{RUNSPATH}/pixar_0.5_LC_CelebA_HQ_t999_ninv40_ngen40/bias/epoch4_h8_pixar/test_1_19_ngen40.png",
+        f"{FIGURESPATH}/ablation/bias/epoch4_h8_pixar/test_21_19_ngen40.png"
+    ]
+
+    img_rows = []
+    for i, img_idx in enumerate(img_ids):
+        img_row = []
+        
+        original_path = f"{RUNSPATH}/pixar_0.5_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/original/test_{img_idx}_0_ngen40_original.png"
+        reconstructed_path = f"{RUNSPATH}/pixar_0.5_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/reconstructed/test_{img_idx}_0_ngen40_reconstructed.png"
+        edited_path = f"{RUNSPATH}/pixar_0.5_LC_CelebA_HQ_t999_ninv40_ngen40/test_images/40/edited/test_{img_idx}_0_ngen40_edited.png"
+
+        original_img = np.array(Image.open(original_path).convert('RGB'))
+        reconstructed_img = np.array(Image.open(reconstructed_path).convert('RGB'))
+        edited_img = np.array(Image.open(edited_path).convert('RGB'))
+
+        img_row.append(original_img)
+        img_row.append(reconstructed_img)
+        img_row.append(edited_img)
+
+        img_rows.append(np.concatenate(img_row, axis=1))
+
+    img_grid = np.concatenate(img_rows, axis=0)
+
+    plt.rcParams.update({'font.size': 6})
+    fig, ax = plt.subplots(1)
+
+    xticks = [i*256 + 128 for i in np.arange(3)]
+    
+    ax.set_xticks(xticks, ("Real image", "Recon.", "Pixar"))
+    ax.xaxis.tick_top()
+    ax.xaxis.set_ticks_position('none')
+
+    ax.set_yticks([])
+    
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+
+    plt.imshow(img_grid)
+    plt.savefig(f"{FIGURESPATH}/reproduction/bias.png", bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.show()
 
 
