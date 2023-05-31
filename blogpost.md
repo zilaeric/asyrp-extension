@@ -23,7 +23,7 @@ Asyrp is trained to minimize a weighted loss function consisting of directional 
 
 In order to test the performance and generalizability of the proposed algorithm, we reproduce their main results, both qualitative and quantitative, on the 
 CelebA-HQ \[6\] dataset, introduce an additional quantitative metric, the FID score, and propose architectural changes to the neural network producing the semantic latent space used for editing. In particular, we suggest the use of a transformer-based network and perform an extensive ablation study on it.
-Also, since LDMs currently represent the state-of-the-art in image generation \[16\], we consider vital to investigate 
+Also, since LDMs currently represent the state-of-the-art in image generation \[16\], we consider it vital to investigate 
 whether the method could be applied to them in order to obtain meaningful attribute edits of the original images.
 
 ## <a name="recap">Recap on Diffusion Models</a>
