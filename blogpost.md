@@ -572,12 +572,13 @@ Figure 16 shows that AdaGroupNorm slightly outperforms the other temporal embedd
 
 #### Best Model
 
-Based on the results of our ablation study, we conclude that an optimal architecture consists of (1) pixel-channel DualTransformer blocks, (2) AdaGroupNorm temporal embedding module, (3) GroupNorm normalization, and (4) SiLU activation function. In Table 5, we compare the performance of the model to the original implementation in terms of the $FID$ metric. From the results, one can clearly see that our transformer-based architecture performs significantly better than the original convolution-based architecture. We observe greatly improved performance for three out of the four compared attributes. The improvement is particularly strong for unseen-domain attributes. Our results indicate that the transformer-based architecture performs better in keeping the original structure of images during editing than the original one. Note that the evaluated model is not strictly the best as adding more heads and training for more epochs can be expected to improve the $FID$ scores even further. Since the original model was trained for a single epoch, however, this is the fairest comparison.
+Based on the results of our ablation study, we conclude that an optimal architecture consists of (1) pixel-channel DualTransformer blocks, (2) AdaGroupNorm temporal embedding module, (3) GroupNorm normalization, and (4) SiLU activation function. In Table 5, we compare the performance of the model to the original implementation in terms of $FID$. From the results, one can clearly see that our transformer-based architecture performs significantly better than the original convolution-based architecture. The improvement is particularly strong for unseen-domain attributes. Our results indicate that the transformer-based architecture performs better in keeping the original structure of images during editing than the original one. Note that the evaluated model is not strictly the best as adding more heads and training for more epochs can be expected to improve the $FID$ scores even further. Since the original model was trained for a single epoch, however, this is the fairest comparison.
 
 <table align="center">
 	<tr align="center">
 		<th align="left">Model</th>
 		<th>Smiling (IN)</th>
+		<th>Sad (IN)</th>
 		<th>Tanned (IN)</th>
 		<th>Pixar (UN)</th>
 		<th>Neanderthal (UN)</th>
@@ -585,6 +586,7 @@ Based on the results of our ablation study, we conclude that an optimal architec
 	<tr align="center">
 		<td align="left">Original</td>
 		<td>89.2</td>
+		<td>92.9</td>
 		<td>100.5</td>
 		<td>125.8</td>
 		<td>125.8</td>
@@ -592,12 +594,13 @@ Based on the results of our ablation study, we conclude that an optimal architec
 	<tr align="center">
 		<td align="left">Ours</td>
 		<td><b>84.3</b></td>
+		<td><b>88.8</b></td>
 		<td><b>82.2</b></td>
 		<td><b>83.7</b></td>
 		<td><b>87.0</b></td>
 	</tr>
 	<tr align="left">
-		<td colspan=5><b>Table 5.</b> Comparison of Frechet Inception Distance ($FID \downarrow$) metric for in-domain (IN) <br> and unseen-domain (UN) attributes between the original model and our best model.</td>
+		<td colspan=6><b>Table 5.</b> Comparison of Frechet Inception Distance ($FID \downarrow$) metric for in-domain (IN) and unseen-domain (UN) attributes between the original model and our best model.</td>
 	</tr>
 </table>
 
