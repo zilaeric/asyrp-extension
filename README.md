@@ -6,7 +6,7 @@
 
 This repository contains a reproduction and extension of ["Diffusion Models Already Have a Semantic Latent Space"](https://arxiv.org/abs/2210.10960) by Kwon et al. (2023). 
 
-To read the full report containing detailed information on our reproduction experiments and extension study, please, refer to our [blogpost](blohpost.md).
+To read the full report containing detailed information on our reproduction experiments and extension study, please, refer to our [blogpost](blogpost.md).
 
 ## Requirements
 
